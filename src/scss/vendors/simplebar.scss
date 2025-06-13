@@ -1,0 +1,10 @@
+.simplebar-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+@media (min-width: 1400px) {
+  .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
+      max-width: 1925px;
+  }
+}

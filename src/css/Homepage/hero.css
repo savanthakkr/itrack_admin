@@ -1,0 +1,202 @@
+/* ====================================== HERO ================================== */
+
+.hero {
+  height: 80vh;
+  padding-top: 4rem;
+  background-image: url(../../assets/hero_img.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #204e749f, #d2bdc16a);
+  }
+
+  button {
+    background-color: #11426b;
+    border: none;
+    font-weight: 600;
+  }
+}
+
+/* ====================================== SERVICES ================================== */
+
+.services {
+  color: black;
+  padding: 3rem 8rem;
+
+  h3 {
+    position: relative;
+    width: fit-content;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(to right, #11426b, #11436b00);
+      bottom: -10px;
+      left: 0%;
+    }
+  }
+}
+
+/* ====================================== QUOTES ================================== */
+
+.quotes {
+  padding: 6rem 0;
+  background-image: url(../../assets/quotes_img.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+  h1 {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 80%;
+      height: 6px;
+      background: linear-gradient(to right, #d5d5d500, #fff, #ffffff00);
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 100px;
+    }
+  }
+}
+
+/* ====================================== HOW DO ================================== */
+
+.how_do {
+  padding: 3rem 8rem;
+  h3 {
+    position: relative;
+    width: fit-content;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(to right, #11426b, #11436b00);
+      bottom: -20px;
+      left: 0%;
+    }
+  }
+}
+
+/* ====================================== PRIVILEGES ================================== */
+
+.privileges {
+  padding: 6rem 0;
+  background-image: url(../../assets/privileges_img.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow-x: hidden;
+
+  h1 {
+    position: relative;
+    width: fit-content;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 6px;
+      background: linear-gradient(to right, #d5d5d500, #fff, #ffffff00);
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 100px;
+    }
+  }
+}
+
+/* ====================================== FEEDBACK ================================== */
+
+.feedback {
+  padding: 3rem 8rem;
+  h3 {
+    position: relative;
+    width: fit-content;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 150%;
+      height: 6px;
+      background: linear-gradient(to right, #11436b00, #11426b, #11436b00);
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 100px;
+    }
+  }
+
+  .testimonial {
+    width: 70%;
+    position: relative;
+
+    .navigation {
+      position: absolute;
+      right: 5%;
+      bottom: -20px;
+      z-index: 999 !important;
+
+      .left,
+      .right {
+        background: white;
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+/* ====================================== FOOTER ================================== */
+
+.footer {
+  padding: 7rem 7rem 3rem 7rem;
+  background: #11426b;
+  margin-top: -5rem;
+
+  a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .line {
+    margin-top: 4rem;
+    height: 5px;
+    width: 100%;
+    background: linear-gradient(to right, #d5d5d500, #fff, #ffffff00);
+  }
+}
+
+@media (max-width: 768px) {
+  .services,
+  .how_do {
+    padding: 3rem 2rem;
+  }
+
+  .feedback{
+    padding: 3rem 2rem;
+    .testimonial{
+      width: 100%;
+    }
+  }
+
+  .footer {
+    padding: 3rem 2rem;
+  }
+}
