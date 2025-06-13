@@ -1,12 +1,13 @@
-import React, { useState, useRef } from 'react'
-import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap'
+import React, { useState, useRef, useEffect } from 'react'
+import { Button, Col, Container, Form, Row, Spinner, Modal } from 'react-bootstrap'
 import { CButton, CCard, CCardBody, CCol, CRow } from '@coreui/react'
 import makeAnimated from 'react-select/animated';
-import { post } from '../../lib/request.js'
-import sweetalert2 from 'sweetalert2'
+import { post, get } from '../../lib/request.js'
+import sweetAlert2 from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
 import { Tab, Tabs, Table } from 'react-bootstrap';
 import Select from 'react-select';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 
 function AddClients() {
   const navigate = useNavigate()
@@ -26,38 +27,84 @@ function AddClients() {
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState("addClient");
   const [selectedCodes, setSelectedCodes] = useState([]);
+  const [serviceCode, setServiceCode] = useState([])
 
-  const animatedComponents = makeAnimated();
+  const [editRate, setEditRate] = useState('');
+  const [editSelectedUnit, setEditSelectedUnit] = useState(null);
+  const [editDropDownData, setEditDropDownData] = useState({
+    serviceCode: {},
+  });
 
-  const options = [
-    { value: 'AAX', label: 'AAX' },
-    { value: 'AKE', label: 'AKE' },
-    { value: 'AKH', label: 'AKH' },
-    { value: 'PMC', label: 'PMC' },
-    { value: 'HH14', label: 'HH14' },
-    { value: 'HH22', label: 'HH22' },
-    { value: 'ALF', label: 'ALF' },
-    { value: 'INTBDL', label: 'INTBDL' },
-    { value: 'LOOSE', label: 'LOOSE' },
-    { value: 'METRO DELIVERY', label: 'METRO DELIVERY' },
-    { value: 'PLA', label: 'PLA' },
-    { value: 'PAG', label: 'PAG' },
-    { value: 'PGA', label: 'PGA' },
-    { value: 'ER', label: 'ER' },
-    { value: 'HH34', label: 'HH34' },
-    { value: 'INTSFL', label: 'INTSFL' },
-    { value: 'WHH14', label: 'WHH14' },
-    { value: 'WHH22', label: 'WHH22' },
-    { value: 'W-AKE', label: 'W-AKE' },
-    { value: 'W-PMC', label: 'W-PMC' }
+  const [showModal, setShowModal] = useState(false)
+  const [showModal2, setShowModal2] = useState(false)
+
+  const handleShowModal = () => setShowModal(true)
+
+  const handleCloseModal = () => setShowModal(false)
+  const handleCloseModal2 = () => setShowModal2(false)
+
+  const [selectedClientId, setSelectedClientId] = useState(null);
+  const [selectedUnit, setSelectedUnit] = useState(null);
+
+  const [rate, setRate] = useState('');
+  const [rates, setRates] = useState([
+    { _id: '1', code: 'PMC', rate: '$55.00', item: 'Per Unit' },
+    { _id: '2', code: 'AKE', rate: '$45.00', item: 'Per Unit' },
+    { _id: '3', code: 'HH14', rate: '$70.00', item: 'Per Hour' },
+    { _id: '4', code: 'HH22', rate: '$90.00', item: 'Per Hour' },
+  ]);
+
+  const unitOptions = [
+    { value: 'per_hour', label: 'Per Hour' },
+    { value: 'per_unit', label: 'Per Unit' }
   ];
 
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const handleShowModal2 = (item) => {
+    setSelectedClientId(item._id);
+    setEditRate(item.rate.replace(/[^0-9.]/g, ''));
 
-  const handleMultiSelectChange = (e) => {
-    const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
-    setSelectedCodes(selectedOptions);
+    const matchedService = serviceCodeOptions.find(opt => opt.label === item.code);
+    setEditDropDownData({
+      serviceCode: matchedService
+        ? { _id: matchedService.value, text: matchedService.label }
+        : { _id: item.code, text: item.code },
+    });
+
+    const matchedUnit = unitOptions.find(opt => opt.label === item.item);
+    setEditSelectedUnit(matchedUnit || { label: item.item, value: item.item });
+
+    setShowModal2(true);
   };
+
+  // Deleting the client rate
+  const handleDelete = (Id) => {
+    sweetAlert2
+      .fire({
+        title: 'Are you sure you want to delete this client rate?',
+        text: 'Once deleted you can’t revert this action',
+        imageUrl: 'src/assets/images/delete_modal_icon.png',
+        imageWidth: 60,
+        imageHeight: 60,
+        imageAlt: 'Delete Icon',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Delete it!',
+        cancelButtonText: 'No, Keep it',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteReq(`/admin/client/rates?ID=${id}`, "admin").then((data) => {
+            sweetAlert2.fire({ icon: 'success', title: 'Service Type Deleted Successfully!' })
+            setIsRefresh(!isReferesh)
+
+          }).catch((e) => {
+            console.log("Error while deleting:", e.message)
+          })
+        } else if (result.dismiss === sweetAlert2.DismissReason.cancel) {
+          sweetAlert2.fire('Cancelled', 'Your client rate is safe :)', 'error')
+        }
+      })
+
+  }
+
   const handleTabSelect = (key) => {
     setActiveTab(key);
   };
@@ -81,7 +128,6 @@ function AddClients() {
   }
 
   const handleSubmit = (event) => {
-    console.log(event);
     const form = event.currentTarget
     if (form.checkValidity() === false) {
       event.preventDefault()
@@ -94,7 +140,7 @@ function AddClients() {
           console.log("res", res)
           if (res.data.status) {
             setLoading(false)
-            sweetalert2.fire({
+            sweetAlert2.fire({
               icon: 'success',
               title: 'Client added successfully',
             }).then(() => {
@@ -102,13 +148,13 @@ function AddClients() {
             })
           } else if (res.status === 400) {
             setLoading(false)
-            sweetalert2.fire({
+            sweetAlert2.fire({
               icon: 'error',
               title: res.data.message,
             })
           } else {
             console.log(res)
-            sweetalert2.fire({
+            sweetAlert2.fire({
               icon: 'error',
               title: 'An error occured',
             })
@@ -134,36 +180,104 @@ function AddClients() {
     setClientData({ ...clientData, email: email })
   }
 
+  const [dropDownData, setDropDownData] = useState({
+    serviceCode: {
+      text: '',
+      _id: '',
+    },
+  })
+
+  useEffect(() => {
+    setLoading(true)
+
+    // get service code
+    get('/admin/service/code', 'admin')
+      .then((response) => {
+        setServiceCode(response.data.data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }, [])
+
+  const serviceCodeOptions = serviceCode
+    .sort((a, b) => a.text.localeCompare(b.text))
+    .map((code) => ({
+      value: code._id,
+      label: code.text,
+    }));
+
+  const handleServiceCodeChange = (selectedOption) => {
+    setDropDownData({
+      ...dropDownData,
+      serviceCode: {
+        text: selectedOption.label,
+        _id: selectedOption.value,
+      },
+    });
+  };
+
+
+  const handleAddClientRates = () => {
+    const newRate = {
+      _id: Date.now().toString(), // Temporary unique ID
+      code: dropDownData.serviceCode.text,
+      rate: `$${parseFloat(rate).toFixed(2)}`,
+      item: selectedUnit?.label,
+    };
+
+    setRates((prevRates) => [...prevRates, newRate]);
+
+    // Reset modal fields
+    setRate('');
+    setDropDownData({ serviceCode: {} });
+    setSelectedUnit(null);
+    setShowModal(false);
+  };
+  const handleEditServiceCodeChange = (selectedOption) => {
+    setEditDropDownData((prevData) => ({
+      ...prevData,
+      serviceCode: {
+        _id: selectedOption.value,
+        text: selectedOption.label,
+      },
+    }));
+  };
+  const handleUpdateClientRate = () => {
+    const updatedRates = rates.map((item) =>
+      item._id === selectedClientId
+        ? {
+          ...item,
+          rate: `$${editRate}`,
+          code: editDropDownData.serviceCode.text,
+          item: editSelectedUnit.label,
+        }
+        : item
+    );
+    setRates(updatedRates);
+    handleCloseModal2();
+
+    // Optional: Reset edit form state
+    setEditRate('');
+    setEditDropDownData({ serviceCode: {} });
+    setEditSelectedUnit(null);
+  };
+
   return (
     <>
       <Row className="align-items-center">
         <Col>
           <h4 className="mb-0">{activeTab === 'addClient' ? 'Add Client' : 'Client Rates'}</h4>
         </Col>
-        <Col className={activeTab === 'addClient' ? 'text-end' : ''}>
+        <Col className={activeTab === 'addClient' ? 'text-end' : 'text-end'}>
           {activeTab === 'addClient' ? (
             <CButton className="custom-btn" onClick={() => formRef.current?.requestSubmit()}>
               Add Client
             </CButton>
           ) : (
-            // <Form.Select className="w-75  d-inline-block custom-dropdown" multiple value={selectedCodes}
-            // onChange={handleMultiSelectChange}>
-            //   <option value="">Service Codes</option>
-            //   <option value="PMC">PMC</option>
-            //   <option value="AKE">AKE</option>
-            //   <option value="HH14">HH14</option>
-            //   <option value="HH22">HH22</option>
-            // </Form.Select>
-            <Select
-              className="w-75 ms-auto"
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={options}
-              value={selectedOptions}
-              onChange={setSelectedOptions}
-              placeholder="service codes"
-            />
+            <CButton className="custom-btn" onClick={handleShowModal}>
+              Add Client Rates
+            </CButton>
           )}
         </Col>
       </Row>
@@ -323,38 +437,60 @@ function AddClients() {
 
         {/* Client Rates Tab */}
         <Tab eventKey="clientRates" title="Client Rates" className="client-rates-table">
-          <Table bordered hover responsive>
+          <Table hover responsive className="custom-table">
             <thead className="table-light">
               <tr>
-                <th>Service Code</th>
-                <th>Rate</th>
-                <th>Item</th>
+                <th className="text-start">Service Code</th>
+                <th className="text-start">Rate</th>
+                <th className="text-start">Item</th>
+                <th style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>PMC</td>
-                <td>$55.00</td>
-                <td>Per Unit</td>
-              </tr>
-              <tr>
-                <td>AKE</td>
-                <td>$45.00</td>
-                <td>Per Unit</td>
-              </tr>
-              <tr>
-                <td>HH14</td>
-                <td>$70.00</td>
-                <td>Per Hour</td>
-              </tr>
-              <tr>
-                <td>HH22</td>
-                <td>$90.00</td>
-                <td>Per Hour</td>
-              </tr>
+              {rates.map((item) => (
+                <tr key={item._id}>
+                  <td className="text-start">{item.code}</td>
+                  <td className="text-start">{item.rate}</td>
+                  <td className="text-start">{item.item}</td>
+                  <td className="text-center action-dropdown-menu">
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-link p-0 border-0"
+                        type="button"
+                        id={`dropdownMenuButton-${item._id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <BsThreeDotsVertical size={18} />
+                      </button>
+                      <ul
+                        className="dropdown-menu dropdown-menu-end"
+                        aria-labelledby={`dropdownMenuButton-${item._id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleShowModal2(item)}
+                          >
+                            Edit Client Rates
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete Client Rate
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </Table>
-          <Table bordered hover responsive>
+          <Table hover responsive className="custom-table">
             <thead className="table-light">
               <tr>
                 <th>Client Fuel Levy</th>
@@ -382,6 +518,120 @@ function AddClients() {
           </Table>
         </Tab>
       </Tabs>
+      {/* Add Modal */}
+      <Modal show={showModal} onHide={handleCloseModal} style={{ marginTop: '10vh' }} className="custom-modal">
+        <Modal.Header closeButton><Modal.Title>Add Client Rates</Modal.Title></Modal.Header>
+        <Modal.Body className="pt-0">
+          <Form.Group>
+            <Form.Label>Rate</Form.Label>
+            <Form.Control
+              type="text"
+              className="custom-form-control"
+              placeholder="Enter rate here"
+              value={rate}
+              onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+            />
+          </Form.Group>
+          <Form.Group className="mt-3">
+            <Form.Label>Service Code</Form.Label>
+            <Select
+              className="w-100 custom-select"
+              classNamePrefix="custom-select"
+              options={serviceCodeOptions}
+              value={
+                dropDownData.serviceCode._id
+                  ? {
+                    value: dropDownData.serviceCode._id,
+                    label: dropDownData.serviceCode.text,
+                  }
+                  : null
+              }
+              onChange={handleServiceCodeChange}
+              placeholder="Enter service code"
+              isSearchable
+            />
+          </Form.Group>
+          <Form.Group className="mt-3">
+            <Form.Label>Item</Form.Label>
+            <Select
+              className="w-100 custom-select"
+              classNamePrefix="custom-select"
+              options={unitOptions}
+              value={selectedUnit}
+              onChange={(selectedOption) => setSelectedUnit(selectedOption)}
+              placeholder="Select from the list"
+              isSearchable
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="custom-btn" onClick={handleAddClientRates}>Submit</Button>
+          {/* <Button variant="secondary" onClick={handleCloseModal}>Close</Button> */}
+        </Modal.Footer>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        show={showModal2}
+        onHide={handleCloseModal2}
+        style={{ marginTop: '10vh' }}
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Client Rates</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="pt-0">
+          <Form.Group>
+            <Form.Label>Rate</Form.Label>
+            <Form.Control
+              type="text"
+              className="custom-form-control"
+              placeholder="Enter rate here"
+              value={editRate}
+              onChange={(e) =>
+                setEditRate(e.target.value.replace(/[^\d.]/g, ''))
+              }
+            />
+          </Form.Group>
+          <Form.Group className="mt-3">
+            <Form.Label>Service Code</Form.Label>
+            <Select
+              className="w-100 custom-select"
+              classNamePrefix="custom-select"
+              options={serviceCodeOptions}
+              value={
+                editDropDownData.serviceCode?._id
+                  ? {
+                    value: editDropDownData.serviceCode._id,
+                    label: editDropDownData.serviceCode.text,
+                  }
+                  : null
+              }
+              onChange={handleEditServiceCodeChange}
+              placeholder="Enter service code"
+              isSearchable
+            />
+          </Form.Group>
+          <Form.Group className="mt-3">
+            <Form.Label>Item</Form.Label>
+            <Select
+              className="w-100 custom-select"
+              classNamePrefix="custom-select"
+              options={unitOptions}
+              value={editSelectedUnit}
+              onChange={(selectedOption) => setEditSelectedUnit(selectedOption)}
+              placeholder="Select from the list"
+              isSearchable
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="custom-btn" onClick={handleUpdateClientRate}>
+            Confirm Change
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </>
   )
 }

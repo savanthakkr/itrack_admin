@@ -92,7 +92,7 @@ function AllServiceCode() {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`/admin/service/code?ID=${id}`, 'admin').then((data) => {
+          deleteReq(`/admin/service/code?ID=${Id}`, 'admin').then((data) => {
             sweetAlert.fire({ icon: 'success', title: 'Service Type Deleted Successfully!' })
             setIsRefresh(!isReferesh)
 
@@ -260,6 +260,7 @@ function AllServiceCode() {
                   placeholder="Enter service Code..."
                   onChange={(e) => setServiceCode(e.target.value)}
                   value={serviceCode}
+                  className="custom-form-control"
                 />
               </Form.Group>
             </Col>
@@ -288,6 +289,7 @@ function AllServiceCode() {
                   placeholder="Enter service Code..."
                   onChange={(e) => setServiceCode(e.target.value)}
                   value={serviceCode}
+                  className="custom-form-control"
                 />
               </Form.Group>
             </Col>

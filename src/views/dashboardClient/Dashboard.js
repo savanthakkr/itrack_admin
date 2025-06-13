@@ -182,7 +182,7 @@ const Dashboard = () => {
   return (
     <>
       <Row className="d-flex pb-3 align-items-center justify-content-between">
-        <Col md={2} className="m-0">
+        <Col lg={2} className="m-0">
           {/* <SearchBar
             onSearch={onSearch}
             role="client"
@@ -193,7 +193,7 @@ const Dashboard = () => {
           <h3>Dashboard</h3>
         </Col>
 
-        <Col md={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-md-0">
+        <Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-md-0">
           <Button
             variant="dark"
             className="input-group-text cursor-pointer custom-icon-btn"

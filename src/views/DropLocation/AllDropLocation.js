@@ -157,7 +157,7 @@ function AllDropLocation() {
                   <th className="text-start px-4" style={{ width: 'auto', minWidth: '70px' }}>Latitude</th>
                   <th className="text-start px-4" style={{ width: 'auto', minWidth: '70px' }}>Longitude</th>
                   <th className="text-start px-4">Date</th>
-                  <th className="text-start px-4" style={{ width: 'auto', minWidth: '150px' }}>Status</th>
+                  <th className="text-start px-4" style={{ width: 'auto', minWidth: 'auto' }}>Status</th>
                   <th className="text-start px-4" style={{ width: 'auto', minWidth: '70px' }}>
                     Action
                   </th>

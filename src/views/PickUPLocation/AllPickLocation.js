@@ -167,7 +167,7 @@ function AllPickupLocation() {
                   <th className="text-start px-4">Latitude</th>
                   <th className="text-start px-4">Longitude</th>
                   <th className="text-start px-4">Date</th>
-                  <th className="text-start px-4" style={{ width: 'auto', minWidth: '150px' }}>Status</th>
+                  <th className="text-start px-4" style={{ width: 'auto', minWidth: 'auto' }}>Status</th>
                   <th className="text-start px-4" style={{ width: 'auto', minWidth: '70px' }}>Action</th>
                 </tr>
               </thead>

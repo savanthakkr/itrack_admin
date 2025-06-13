@@ -248,7 +248,7 @@ function AllClients() {
               Add Client
               <FaArrowRight size={12} className="ms-2" />
             </CButton>
-          </Col>) : (<Col md={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-md-0">
+          </Col>) : (<Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-lg-0">
             <Button
               variant="dark"
               className="input-group-text cursor-pointer custom-icon-btn"

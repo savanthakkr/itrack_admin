@@ -64,7 +64,7 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
                 <Form.Group>
                     <Form.Label className='fw-bold' >Enter Custom Name</Form.Label>
                     <Form.Control Code="text" placeholder="Enter Name"
-                        onChange={(e) => setPickUpLocation(e.target.value)} value={pickUpLocation}
+                        onChange={(e) => setPickUpLocation(e.target.value)} value={pickUpLocation} className="custom-form-control"
                     />
                 </Form.Group>
 

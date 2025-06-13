@@ -21,6 +21,10 @@
   }
 }
 
+.simplebar-content{
+  min-height:auto;
+}
+
 .driver-note {
   white-space: normal;
   word-break: break-word;
