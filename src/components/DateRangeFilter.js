@@ -4,6 +4,7 @@ import { getSeachFilterResult } from '../services/getSearchFilterResult'
 import Select from 'react-select';
 import FilterOffCanvas from './Filter';
 import { BsCheck } from 'react-icons/bs';
+import { useDispatch } from 'react-redux';
 
 export default function DateRangeFilter({
 	setData,
@@ -25,6 +26,8 @@ export default function DateRangeFilter({
 	//     driverName: ""
 	// });
 
+	const dispatch = useDispatch()
+
 	const handleTimeChange = (e) => {
 		setSearchQuery({ ...searchQuery, [e.target.name]: e.target.value })
 	}
@@ -43,7 +46,7 @@ export default function DateRangeFilter({
 				Object.entries(searchQuery).map(([key, value]) => {
 					if (key === 'fromDate' || key === 'toDate') {
 						return [key, value];
-					} else if(value) {
+					} else if (value) {
 						return [key, value];
 					} else {
 						return [key, ""];
@@ -51,7 +54,11 @@ export default function DateRangeFilter({
 				})
 			);
 			getSeachFilterResult(filteredQuery, role).then((res) => {
-				setData(res)
+				// setData(res)
+				dispatch({
+					type: 'getJobData',
+					payload: res,
+				});
 			})
 		}
 	}, [searchQuery.fromDate, searchQuery.toDate])

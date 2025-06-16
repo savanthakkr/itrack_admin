@@ -32,7 +32,8 @@ const Dashboard = () => {
 	const searchQuery = useSelector((state) => state.searchQuery)
 	const [show, setShow] = useState(false)
 	const [showView, setShowView] = useState(false)
-	const [data, setData] = useState([])
+	// const [data, setData] = useState([]);
+	const data = useSelector((state) => state.data);
 	const [loading, setLoading] = useState(false)
 	const [page, setPage] = useState(1)
 	const [limit, setLimit] = useState(10)
@@ -227,7 +228,11 @@ const Dashboard = () => {
 		if (newData.length === 0) {
 			setMessage('No data found')
 		}
-		setData(newData)
+		// setData(newData)
+		dispatch({
+			type: 'getJobData',
+			payload: newData,
+		});
 	}
 
 	const handleTodayJobs = () => {
@@ -238,7 +243,11 @@ const Dashboard = () => {
 					if (response?.data?.data?.length === 0) {
 						setMessage('No data found')
 					}
-					setData(response?.data?.data)
+					// setData(response?.data?.data);
+					dispatch({
+						type: 'getJobData',
+						payload: response?.data?.data,
+					});
 					setLoading(false)
 				}
 			},
@@ -254,7 +263,11 @@ const Dashboard = () => {
 					if (response?.data?.data?.length === 0) {
 						setMessage('No data found')
 					}
-					setData(response?.data?.data)
+					// setData(response?.data?.data)
+					dispatch({
+						type: 'getJobData',
+						payload: response?.data?.data,
+					});
 					setLoading(false)
 				}
 			})
@@ -364,7 +377,11 @@ const Dashboard = () => {
 							if (response?.data?.data?.length === 0) {
 								setMessage('No data found')
 							}
-							setData(response?.data?.data)
+							// setData(response?.data?.data)
+							dispatch({
+								type: 'getJobData',
+								payload: response?.data?.data,
+							});
 							setLoading(false)
 						}
 					})
@@ -395,7 +412,11 @@ const Dashboard = () => {
 	// handle sort
 	const handleSort = (field) => {
 		const sortedData = sortData(data, field)
-		setData(sortedData)
+		// setData(sortedData)
+		dispatch({
+			type: 'getJobData',
+			payload: sortedData,
+		});
 	}
 
 
@@ -430,7 +451,6 @@ const Dashboard = () => {
 
 	// }, [isReferesh, page, limit])
 
-
 	return (
 		<>
 			<Row className="d-flex pb-3 align-items-center justify-content-between">
@@ -454,7 +474,7 @@ const Dashboard = () => {
 						<FaSyncAlt />
 					</Button>
 					<DateRangeFilter
-						setData={setData}
+						// setData={setData}
 						role="admin"
 						setMessage={setMessage}
 						searchQuery={searchQuery}

@@ -26,7 +26,8 @@ const initialState = {
     jobId: "",
     clientName: "",
     driverName: ""
-  }
+  },
+  data: []
 };
 
 // Reducer function
@@ -42,6 +43,8 @@ const changeState = (state = initialState, action) => {
       return { ...state, searchQuery: { ...state.searchQuery, ...payload } };
     case 'updateSearchQuery2':
       return { ...state, searchQuery2: { ...state.searchQuery2, ...payload } };
+    case 'getJobData':
+      return { ...state, data: payload };
     default:
       return state;
   }
