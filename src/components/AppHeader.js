@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
+import { get } from '../lib/request'
 import {
   CContainer,
   CDropdown,
@@ -35,11 +36,15 @@ import UpdateLogoModal from './Modals/UpdateLogo'
 
 const AppHeader = () => {
   const navigate = useNavigate()
+  let imgSrc = process.env.Image_Src
   const headerRef = useRef()
   const searchQuery = useSelector((state) => state.searchQuery)
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const [logoUrl, setLogoUrl] = useState(logo)
   const [showLogoModal, setShowLogoModal] = useState(false)
+  const [data, setData] = useState({})
+    const [loading, setLoading] = useState(false)
+    const [refresh, setRefresh] = useState(false)
 
   // Function to upload and update logo
   const handleLogoSave = (file) => {
@@ -48,6 +53,11 @@ const AppHeader = () => {
   };
   useEffect(() => {
     setColorMode('light')
+    const token = localStorage.getItem('jdAirTrans-client-token');
+    console.log(token);
+    console.log("sjaksjasjasjkajska");
+    
+    
   }, [])
 
   const dispatch = useDispatch()
@@ -69,6 +79,20 @@ const AppHeader = () => {
       navigate('/')
     }
   }
+
+  useEffect(() => {
+    setLoading(true)
+    if (localStorage.getItem('jdAirTrans-client-token') != null) {
+      get('/client/profile', 'client').then((data) => {
+      if (data.data.status) {
+        setData(data.data.data)
+        setLogoUrl(imgSrc + data.data.data.logoKey)
+        setLoading(false)
+      }
+    })
+    }
+    
+  }, [refresh])
 
   useEffect(() => {
     document.addEventListener('scroll', () => {

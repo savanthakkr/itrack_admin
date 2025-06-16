@@ -10,6 +10,10 @@ const UpdateLogoModal = ({ show, setShow, currentLogoUrl, onSave }) => {
   const maxSize = 5 * 1024 * 1024; // 5MB
   const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 
+  console.log(currentLogoUrl);
+  console.log("aksjasasasjjsj");
+  
+
   // Close modal
   const handleClose = () => {
     setSelectedFile(null);

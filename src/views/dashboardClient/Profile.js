@@ -48,6 +48,9 @@ export default function Profile() {
     get('/client/profile', 'client').then((data) => {
       if (data.data.status) {
         setData(data.data.data)
+        console.log(data.logoKey);
+        console.log("askasjkajskajskajska");
+        
         setFormData(data.data.data)
         setLoading(false)
       }
@@ -208,7 +211,7 @@ export default function Profile() {
           <UpdateLogoModal
             show={showView}
             setShow={setShowView}
-            currentLogoUrl={data.logoUrl}
+            currentLogoUrl={imgSrc + data.logoKey}
             onSave={(file) => {
               console.log('File selected:', file);
             }}

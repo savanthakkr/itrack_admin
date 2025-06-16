@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { get } from '../lib/request'
 
 import {
   CCloseButton,
@@ -25,6 +26,22 @@ const AppSidebarCLient = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const [data, setData] = useState({})
+  const [loading, setLoading] = useState(false)
+  const [refresh, setRefresh] = useState(false)
+
+
+  useEffect(() => {
+    setLoading(true)
+    get('/client/profile', 'client').then((data) => {
+      if (data.data.status) {
+        setData(data.data.data)
+        console.log(data.data.data);
+        
+        setLoading(false)
+      }
+    })
+  }, [refresh])
 
   return (
     <CSidebar
@@ -61,15 +78,15 @@ const AppSidebarCLient = () => {
       </div>
 
       <CSidebarFooter className="border-top d-flex flex-column mt-auto">
-          <div className="d-flex flex-row align-items-center">
-            <div className="profile-icon me-2">
-              <p className="mb-0">RR</p>
-            </div>
-            <div>
-              <h6 className="mb-0">Name</h6>
-              <p className="mb-0">email@gmail.com</p>
-            </div>
+        <div className="d-flex flex-row align-items-center">
+          <div className="profile-icon me-2">
+            <p className="mb-0">RR</p>
           </div>
+          <div>
+            <h6 className="mb-0">{data.firstname}  {data.lastname}</h6>
+            <p className="mb-0">{data.email}</p>
+          </div>
+        </div>
         <small className="text-secondary mt-3 d-block">Version 1.0.1</small>
         {/* <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
