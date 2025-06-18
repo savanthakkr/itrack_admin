@@ -1,4 +1,6 @@
 import React from 'react'
+import EditAdmin from './views/Admin/EditAdmin.js'
+import EditAccountant from './views/Accountant/EditAccountant.js'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -92,6 +94,8 @@ const routes = [
   { path: '/service/type', name: 'Service Type', element: AllServiceType },
   { path: '/service/code', name: 'Service Code', element: AllServiceCode },
   { path: '/driver/edit/:id', name: 'Edit Driver', element: EditDriver },
+  { path: '/admin/edit/:id', name: 'Edit Admin', element: EditAdmin },
+  { path: '/accountant/edit/:id', name: 'Edit Accountant', element: EditAccountant },
   { path: '/job/add', name: 'Add Booking', element: AddJobs },
   { path: '/location/:id', name: 'Location', element: LocationMap },
   { path: '/job/all', name: 'All Booking', element: AllJobs },

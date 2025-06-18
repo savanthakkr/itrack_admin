@@ -19,6 +19,7 @@ import { post } from '../../../lib/request.js'
 import { Spinner } from "react-bootstrap"
 import Navbar from '../../../components/landing/Navbar.js'
 import Footer from '../../../components/landing/Footer.js'
+import { useDispatch } from 'react-redux'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -26,6 +27,7 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const dispatch = useDispatch()
 
   const handleLogin = () => {
     setError('')
@@ -36,11 +38,31 @@ const Login = () => {
       return
     }
     post('/admin/login', { username, password }).then((res) => {
-      console.log("res", res)
       if (res.status === 200) {
         localStorage.setItem('admintoken', res.data.token)
-        localStorage.setItem('username', res.data.data.username)
-        navigate('/dashboard')
+        localStorage.setItem('email', res.data.data.email)
+        localStorage.setItem('role', res.data.data.role)
+        localStorage.setItem('firstname', res.data.data.firstname)
+        localStorage.setItem('lastname', res.data.data.lastname)
+        dispatch({
+          type: 'setRole',
+          payload: res.data.data.role,
+        });
+        dispatch({
+          type: 'setUserInfo',
+          payload: {
+            firstName: res.data.data.firstname,
+            lastName: res.data.data.lastname,
+            email: res.data.data.email,
+          },
+        });
+        if (res.data.data.role === 'Admin') {
+          navigate('/dashboard')
+        } else if (res.data.data.role === 'Super Admin') {
+          navigate('/dashboard');
+        } else if (res.data.data.role === 'Accountant') {
+          navigate('/job/all');
+        }
       } else if (res.status === 400) {
         setError('Invalid username or password')
       } else {

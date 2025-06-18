@@ -9,7 +9,7 @@ function AddAccountant() {
   const formRef = useRef(); 
   const navigate = useNavigate()
   const [validated, setValidated] = useState(false)
-  const [driverData, setDriverData] = useState({
+  const [accountantData, setAccountantData] = useState({
     firstname: '',
     lastname: '',
     email: '',
@@ -18,23 +18,23 @@ function AddAccountant() {
     password: '',
     logo: null,
   })
-  const [clients, setClients] = useState([])
+  // const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(false)
 
   // handle change
   const handleChange = (e) => {
     const { name, value } = e.target
-    setDriverData({ ...driverData, [name]: value })
+    setAccountantData({ ...accountantData, [name]: value })
   }
 
   // handle file change
   const handleFileChange = (e) => {
     const { name, files } = e.target
-    setDriverData({ ...driverData, [name]: files[0] })
+    setAccountantData({ ...accountantData, [name]: files[0] })
   }
 
   // handle Add Accountant
-  const handleAddDriver = async (event) => {
+  const handleAccountantAdd = async (event) => {
     const form = event.currentTarget
     if (form.checkValidity() === false) {
       event.preventDefault()
@@ -42,23 +42,23 @@ function AddAccountant() {
     } else {
       event.preventDefault()
       setLoading(true)
-      if (driverData.firstname === '' || driverData.lastname === '' || driverData.email === '' || driverData.phone === '') {
-        sweetAlert.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'All fields are required',
-        })
-        setLoading(false)
-        return
-      }
-      post('/admin/driver', driverData, "admin").then((res) => {
+      // if (accountantData.firstname === '' || accountantData.lastname === '' || accountantData.email === '' || accountantData.phone === '') {
+      //   sweetAlert.fire({
+      //     icon: 'error',
+      //     title: 'Oops...',
+      //     text: 'All fields are required',
+      //   })
+      //   setLoading(false)
+      //   return
+      // }
+      post('/super-admin/accountant', accountantData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)
           sweetAlert.fire({
             icon: 'success',
-            title: 'Driver Added Successfully!',
+            title: 'Accountant Added Successfully!',
           }).then(() => {
-            navigate("/driver/all")
+            navigate("/accountant/all")
           })
         } else if (res.status === 400) {
           sweetAlert.fire({
@@ -69,7 +69,7 @@ function AddAccountant() {
           setLoading(false)
         }
       }).catch((error) => {
-        console.error("Error adding driver:", error)
+        console.error("Error adding accountant:", error)
         setLoading(false)
         sweetAlert.fire({
           icon: 'error',
@@ -82,20 +82,20 @@ function AddAccountant() {
   }
 
   // get all clients
-  const getAllClients = () => {
-    get('/admin/info/allClients', "admin").then((res) => {
-      console.log("all clients", res)
-      setClients(res.data.data)
-    }).catch((error) => {
-      console.error("Error getting all clients:", error)
-      alert('Failed to get clients.')
-    })
-  }
+  // const getAllClients = () => {
+  //   get('/admin/info/allClients', "admin").then((res) => {
+  //     console.log("all clients", res)
+  //     setClients(res.data.data)
+  //   }).catch((error) => {
+  //     console.error("Error getting all clients:", error)
+  //     alert('Failed to get clients.')
+  //   })
+  // }
 
-  // use effect
-  useEffect(() => {
-    getAllClients()
-  }, [])
+  // // use effect
+  // useEffect(() => {
+  //   getAllClients()
+  // }, [])
 
   return (
     <>
@@ -110,7 +110,7 @@ function AddAccountant() {
           </Col>
         </Row>
         <div className="shadow bg-white px-3 py-3 mt-3 custom-form">
-          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAddDriver}>
+          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAccountantAdd}>
             <Row>
               <Col md={6}>
                 <Form.Group>
@@ -120,7 +120,7 @@ function AddAccountant() {
                     placeholder="Enter First Name"
                     name='firstname'
                     onChange={handleChange}
-                    value={driverData.firstname}
+                    value={accountantData.firstname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -136,7 +136,7 @@ function AddAccountant() {
                     placeholder="Enter Last Name"
                     name='lastname'
                     onChange={handleChange}
-                    value={driverData.lastname}
+                    value={accountantData.lastname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -154,7 +154,7 @@ function AddAccountant() {
                     placeholder="Enter Email Address"
                     name='email'
                     onChange={handleChange}
-                    value={driverData.email}
+                    value={accountantData.email}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -170,7 +170,7 @@ function AddAccountant() {
                     placeholder="Enter Phone"
                     name='phone'
                     onChange={handleChange}
-                    value={driverData.phone}
+                    value={accountantData.phone}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -188,7 +188,7 @@ function AddAccountant() {
                   placeholder="Enter username"
                   name='username' 
                   onChange={handleChange} 
-                  value={driverData.username}
+                  value={accountantData.username}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
@@ -206,7 +206,7 @@ function AddAccountant() {
                   placeholder="Enter Password"
                   name='password' 
                   onChange={handleChange} 
-                  value={driverData.password}
+                  value={accountantData.password}
                   required
                 />
                 <Form.Control.Feedback type="invalid">

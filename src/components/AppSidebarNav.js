@@ -12,19 +12,27 @@ export const AppSidebarNav = ({ items }) => {
   const navigate = useNavigate()
   const handleLogout = () => {
     let currentPathname = window.location.href
-    console.log('currentPathname', currentPathname)
     if (currentPathname.includes('/client/dashboard')) {
       localStorage.removeItem('jdAirTrans-client-token')
       localStorage.removeItem('clientDriverAssign')
       localStorage.removeItem('clientTrackPermission')
       sessionStorage.removeItem('selectedItem')
+      localStorage.removeItem('role')
+      localStorage.removeItem('email')
+      localStorage.removeItem('firstname')
+      localStorage.removeItem('lastname')
 
       navigate('/')
     } else {
       localStorage.removeItem('admintoken')
       sessionStorage.removeItem('selectedItem')
+      localStorage.removeItem('role')
+      localStorage.removeItem('email')
+      localStorage.removeItem('firstname')
+      localStorage.removeItem('lastname')
       navigate('/')
     }
+
   }
   const navLink = (name, icon, badge, indent = false) => {
 
@@ -51,41 +59,49 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index, indent = false) => {
-    const { component, name, badge, icon, to, ...rest } = item
-    const isLogout = name?.toLowerCase() === 'logout'
-    const Component = component
-    return (
-      <Component as="div" key={index}>
-        {isLogout ? (
-          <CNavLink role="button" onClick={handleLogout}>
-            {navLink(name, icon, badge, indent)}
-          </CNavLink>
-        ) : (
-          <CNavLink {...(to && { as: NavLink, to })} {...rest}>
-            {navLink(name, icon, badge, indent)}
-          </CNavLink>
-        )}
-        {/* {rest.to || rest.href ? (
+    if (item.display) {
+      const { component, name, badge, icon, to, ...rest } = item
+      const isLogout = name?.toLowerCase() === 'logout'
+      const Component = component
+      return (
+        <Component as="div" key={index}>
+          {isLogout ? (
+            <CNavLink role="button" onClick={handleLogout}>
+              {navLink(name, icon, badge, indent)}
+            </CNavLink>
+          ) : (
+            <CNavLink {...(to && { as: NavLink, to })} {...rest}>
+              {navLink(name, icon, badge, indent)}
+            </CNavLink>
+          )}
+          {/* {rest.to || rest.href ? (
           <CNavLink {...(rest.to && { as: NavLink })} {...rest}>
             {navLink(name, icon, badge, indent)}
           </CNavLink>
         ) : (
           navLink(name, icon, badge, indent)
         )} */}
-      </Component>
-    )
+        </Component>
+      )
+    } else {
+      return;
+    }
   }
 
   const navGroup = (item, index) => {
-    const { component, name, icon, items, to, ...rest } = item
-    const Component = component
-    return (
-      <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
-        {item.items?.map((item, index) =>
-          item.items ? navGroup(item, index) : navItem(item, index, true),
-        )}
-      </Component>
-    )
+    if (item.display) {
+      const { component, name, icon, items, to, ...rest } = item
+      const Component = component
+      return (
+        <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
+          {item.items?.map((item, index) =>
+            item.items ? navGroup(item, index) : navItem(item, index, true),
+          )}
+        </Component>
+      )
+    } else {
+      return;
+    }
   }
 
   return (

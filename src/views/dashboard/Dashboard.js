@@ -301,7 +301,8 @@ const Dashboard = () => {
 						type: 'getJobData',
 						payload: response?.data?.data,
 					});
-					setLoading(false)
+					setLoading(false);
+					setMessage('');
 				}
 			})
 			.catch((error) => {

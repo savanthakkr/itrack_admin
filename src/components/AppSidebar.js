@@ -18,7 +18,7 @@ import logo from '../assets/images/Logos/logo.png'
 // sidebar nav config
 // import navigation from '../_nav'
 // my own sidebar
-import {_new_nav, bottomNavItems} from '../_new_nav'
+import { bottomNavItems, getNavItems } from '../_new_nav'
 import UpdateLogoModal from './Modals/UpdateLogo'
 
 const AppSidebar = () => {
@@ -33,6 +33,10 @@ const AppSidebar = () => {
     const newUrl = URL.createObjectURL(file);
     setLogoUrl(newUrl);
   };
+
+  const role = useSelector(state => state.role);
+  const userInfo = useSelector(state => state.loggedInUser);
+  const navItems = getNavItems(role);
 
   return (
     <CSidebar
@@ -71,23 +75,23 @@ const AppSidebar = () => {
         currentLogoUrl={logoUrl}
         onSave={handleLogoSave}
       />
-      
+
       <div className="flex-grow-1 d-flex flex-column">
-        <AppSidebarNav items={_new_nav} />
+        <AppSidebarNav items={navItems} />
       </div>
       <div className="border-top">
         <AppSidebarNav items={bottomNavItems} />
       </div>
       <CSidebarFooter className="border-top d-flex flex-column mt-auto">
-          <div className="d-flex flex-row align-items-center">
-            <div className="profile-icon me-2">
-              <p className="mb-0">RR</p>
-            </div>
-            <div>
-              <h6 className="mb-0">{localStorage.getItem('username')}</h6>
-              {/* <p className="mb-0">email@gmail.com</p> */}
-            </div>
+        <div className="d-flex flex-row align-items-center">
+          <div className="profile-icon me-2">
+            <p className="mb-0">RR</p>
           </div>
+          <div>
+            <h6 className="mb-0">{userInfo?.firstName + " " + userInfo?.lastName}</h6>
+            <p className="mb-0">{userInfo?.email}</p>
+          </div>
+        </div>
         <small className="text-secondary mt-3 d-block">Version 1.0.1</small>
         {/* <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}

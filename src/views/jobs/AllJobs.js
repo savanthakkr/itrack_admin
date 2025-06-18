@@ -485,14 +485,14 @@ const AllJobs = () => {
                 </tr>
               </thead>
               <tbody style={{ fontSize: 13 }}>
-                {data.length === 0 ? (
+                {data?.length === 0 ? (
                   <tr>
                     <td colSpan={14} className="text-center text-danger">
                       No jobs found
                     </td>
                   </tr>
                 ) : (
-                  data.map((item, index) => {
+                  data?.map((item, index) => {
                     const isSelected = item._id === selectedJob?._id
                     const status = item?.isHold ? 'Hold' : item?.currentStatus
                     const styles = getStatusStyles(status)

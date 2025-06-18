@@ -71,7 +71,7 @@ const AppHeader = () => {
       localStorage.removeItem('clientDriverAssign')
       localStorage.removeItem('clientTrackPermission')
       sessionStorage.removeItem('selectedItem')
-
+      
       navigate('/')
     } else {
       localStorage.removeItem('admintoken')
@@ -128,8 +128,6 @@ const AppHeader = () => {
       serviceCode: ''
     })
   }
-
-  console.log('refresh', refresh);
 
   const setSearchQuery = (query) => {
     dispatch({

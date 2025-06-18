@@ -18,7 +18,7 @@ const AllAdmin = () => {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const [allDrivers, setAllDrivers] = useState([])
+  const [allAdmins, setAllAdmins] = useState([])
   const [loading, setLoading] = useState(false)
   const [isReferesh, setIsRefresh] = useState(false)
   const [page, setPage] = useState(1)
@@ -43,7 +43,7 @@ const AllAdmin = () => {
   const handleDelete = (Id) => {
     sweetAlert
       .fire({
-        title: 'Are you sure you want to delete this driver?',
+        title: 'Are you sure you want to delete this admin?',
         text: 'Once deleted you can’t revert this action',
         imageUrl: 'src/assets/images/delete_modal_icon.png',
         imageWidth: 60,
@@ -55,17 +55,17 @@ const AllAdmin = () => {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`admin/driver?ID=${Id}`, "admin").then((data) => {
+          deleteReq(`super-admin/admin?ID=${Id}`, "admin").then((data) => {
             sweetAlert.fire({
               icon: 'success',
-              title: 'Driver Deleted Successfully!',
+              title: 'Admin Deleted Successfully!',
             });
             setIsRefresh(!isReferesh)
           }).catch((e) => {
             console.log("error while deleting driver", e)
           })
         } else if (result.dismiss === sweetAlert.DismissReason.cancel) {
-          sweetAlert.fire('Cancelled', 'Driver is safe :)', 'error');
+          sweetAlert.fire('Cancelled', 'Admin is safe :)', 'error');
         }
 
       })
@@ -80,27 +80,25 @@ const AllAdmin = () => {
   // fetch All Admins
   useEffect(() => {
     setLoading(true)
-    get(`admin/info/allDrivers?page=${page}&limit=${limit}`, "admin")
+    get(`super-admin/admin?page=${page}&limit=${limit}`, "admin")
       .then((response) => {
         if (response.data.status) {
-          setAllDrivers(response.data.data)
+          setAllAdmins(response.data.data)
           setLoading(false)
         }
       })
 
-  }
-    , [isReferesh, page, limit])
+  }, [isReferesh, page, limit]);
 
   // get total pages
   useEffect(() => {
-    getTotalDocs("DRIVER", "admin").then((data) => {
-      setTotalDocs(data);
-      setTotalPages(Math.ceil(data / limit))
-    }).catch((e) => {
-      console.log("error while getting total pages", e.message);
-    })
-  }
-    , [isReferesh])
+    // getTotalDocs("DRIVER", "admin").then((data) => {
+    //   setTotalDocs(data);
+    //   setTotalPages(Math.ceil(data / limit))
+    // }).catch((e) => {
+    //   console.log("error while getting total pages", e.message);
+    // })
+  }, [isReferesh]);
 
   return (
     <>
@@ -158,7 +156,7 @@ const AllAdmin = () => {
                     </td>
                   </tr>
                 )}
-                {allDrivers && allDrivers.map((item, index) => (
+                {allAdmins.length > 0 ? allAdmins.map((item, index) => (
                   <tr key={index}>
                     {/* <td className="text-start px-4">{index + 1}</td> */}
                     <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
@@ -181,23 +179,23 @@ const AllAdmin = () => {
                         <ul className="dropdown-menu dropdown-menu-end">
                           <li>
                             <button
-                              className="dropdown-item" onClick={() => navigate(`/driver/edit/${item._id}`)}
+                              className="dropdown-item" onClick={() => navigate(`/admin/edit/${item._id}`)}
                             >
                               View/Edit Details
                             </button>
                           </li>
-                          <li>
+                          {/* <li>
                             <button
                               className="dropdown-item" onClick={() => navigate(`/driver/jobs/${item._id}`)}
                             >
                               Booking Details
                             </button>
-                          </li>
+                          </li> */}
                           <li>
                             <button
                               className="dropdown-item" onClick={() => handleDelete(item._id)}
                             >
-                              Delete Driver
+                              Delete Admin
                             </button>
                           </li>
                         </ul>
@@ -232,12 +230,14 @@ const AllAdmin = () => {
                       />
                     </td> */}
                   </tr>
-                ))}
+                )) :
+                  <td colSpan={5} className="text-center text-danger">No Records Found.</td>
+                }
               </tbody>
             </Table>
 
 
-            <Row className="mb-3 justify-content-between">
+            {/* <Row className="mb-3 justify-content-between">
               <Col md={8} className="d-flex align-items-center gap-2 ">
                 Show Entries
                 <Col md={2}>
@@ -258,7 +258,7 @@ const AllAdmin = () => {
                   onPageChange={handlePageChange}
                 />
               </Col>
-            </Row>
+            </Row> */}
           </div>
         </Col>
       </Row>

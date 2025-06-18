@@ -12,10 +12,7 @@ const UpdateLogoModal = ({ show, setShow, currentLogoUrl, onSave, setRefresh, re
     const maxSize = 5 * 1024 * 1024; // 5MB
     const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 
-    console.log('refresh upload file', refresh);
-
     useEffect(() => {
-        console.log('upload popup useEffect');
         if (localStorage.getItem('logoKey')) {
             setPreviewUrl(imgSrc + localStorage.getItem('logoKey'));
         }

@@ -29,154 +29,184 @@ import {
   cilSpreadsheet,
   cilExitToApp
 } from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
+import { useSelector } from 'react-redux'
+const getNavItems = (role) => {
+  const navItems = [
+    {
+      component: CNavItem,
+      name: 'Dashboard',
+      to: '/dashboard',
+      icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin'
+      // badge: {
+      //   color: 'info',
+      //   text: 'NEW',
+      // },
+    },
+    {
+      component: CNavGroup,
+      name: 'Client',
+      to: '/base',
+      icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+      items: [
+        {
+          component: CNavItem,
+          name: 'Add Client',
+          to: '/client/add',
+          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+        },
+        {
+          component: CNavItem,
+          name: 'All Client',
+          to: '/client/all',
+          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+        },
+      ],
+    },
+    {
+      component: CNavGroup,
+      name: 'Driver',
+      to: '/base',
+      icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin',
+      items: [
+        {
+          component: CNavItem,
+          name: 'Add Drivers',
+          to: '/driver/add',
+          display: role === 'Admin' || role === 'Super Admin'
+        },
+        {
+          component: CNavItem,
+          name: 'All Drivers',
+          to: '/driver/all',
+          display: role === 'Admin' || role === 'Super Admin'
+        },
+      ],
+    },
+    {
+      component: CNavGroup,
+      name: 'Bookings',
+      to: '/base',
+      icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+      items: [
+        {
+          component: CNavItem,
+          name: 'New Booking',
+          to: '/job/add',
+          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+        },
+        {
+          component: CNavItem,
+          name: 'All Bookings',
+          to: '/job/all',
+          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+        },
+      ],
+    },
+    {
+      component: CNavItem,
+      name: 'Service Type',
+      to: '/service/type',
+      icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin',
+    },
+    {
+      component: CNavItem,
+      name: 'Service Code',
+      to: '/service/code',
+      icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin',
+    },
+    {
+      component: CNavItem,
+      name: 'Pick Up location',
+      to: '/location/pickup',
+      icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin',
+    },
+    {
+      component: CNavItem,
+      name: 'Drop location',
+      to: '/location/drop',
+      icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Super Admin',
+    },
+    {
+      component: CNavGroup,
+      name: 'Admin',
+      to: '/base',
+      icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+      display: role === 'Super Admin',
+      items: [
+        {
+          component: CNavItem,
+          name: 'Add Admin',
+          to: '/admin/add',
+          display: role === 'Super Admin'
+        },
+        {
+          component: CNavItem,
+          name: 'All Admin',
+          to: '/admin/all',
+          display: role === 'Super Admin'
+        },
+      ],
+    },
+    {
+      component: CNavGroup,
+      name: 'Accountant',
+      to: '/base',
+      icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+      display: role === 'Super Admin',
+      items: [
+        {
+          component: CNavItem,
+          name: 'Add Accountant',
+          to: '/accountant/add',
+          display: role === 'Super Admin'
+        },
+        {
+          component: CNavItem,
+          name: 'All Accountant',
+          to: '/accountant/all',
+          display: role === 'Super Admin'
+        },
+      ],
+    },
+    {
+      component: CNavItem,
+      name: 'Reports ',
+      to: '/reports/stats',
+      icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
+      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+    },
 
-const _new_nav = [
-  {
-    component: CNavItem,
-    name: 'Dashboard',
-    to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-    // badge: {
-    //   color: 'info',
-    //   text: 'NEW',
+    // {
+    //   component: CNavGroup,
+    //   name: 'Driver',
+    //   to: '/base',
+    //   icon: <HiMiniUsers size={22} icon={cilUserPlus} customClassName="nav-icon" />,
+    //   items: [
+    //     {
+    //       component: CNavItem,
+    //       name: 'Accordion',
+    //       to: '/base/accordion',
+    //     },
+    //   ],
     // },
-  },
-  {
-    component: CNavGroup,
-    name: 'Client',
-    to: '/base',
-    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Add Client',
-        to: '/client/add',
-      },
-      {
-        component: CNavItem,
-        name: 'All Client',
-        to: '/client/all',
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Driver',
-    to: '/base',
-    icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Add Drivers',
-        to: '/driver/add',
-      },
-      {
-        component: CNavItem,
-        name: 'All Drivers',
-        to: '/driver/all',
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Bookings',
-    to: '/base',
-    icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'New Booking',
-        to: '/job/add',
-      },
-      {
-        component: CNavItem,
-        name: 'All Bookings',
-        to: '/job/all',
-      },
-    ],
-  },
-  {
-    component: CNavItem,
-    name: 'Service Type',
-    to: '/service/type',
-    icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Service Code',
-    to: '/service/code',
-    icon: <CIcon icon={cilStorage}  customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Pick Up location',
-    to: '/location/pickup',
-    icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Drop location',
-    to: '/location/drop',
-    icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavGroup,
-    name: 'Admin',
-    to: '/base',
-    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Add Admin',
-        to: '/admin/add',
-      },
-      {
-        component: CNavItem,
-        name: 'All Admin',
-        to: '/admin/all',
-      },
-    ],
-  },
-  {
-    component: CNavGroup,
-    name: 'Accountant',
-    to: '/base',
-    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Add Accountant',
-        to: '/accountant/add',
-      },
-      {
-        component: CNavItem,
-        name: 'All Accountant',
-        to: '/accountant/all',
-      },
-    ],
-  },
-  {
-    component: CNavItem,
-    name: 'Reports ',
-    to: '/reports/stats',
-    icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
-  },
+  ];
 
-  // {
-  //   component: CNavGroup,
-  //   name: 'Driver',
-  //   to: '/base',
-  //   icon: <HiMiniUsers size={22} icon={cilUserPlus} customClassName="nav-icon" />,
-  //   items: [
-  //     {
-  //       component: CNavItem,
-  //       name: 'Accordion',
-  //       to: '/base/accordion',
-  //     },
-  //   ],
-  // },
-]
+  return navItems
+    .filter(item => item.display)
+    .map(item => ({
+      ...item,
+      items: item.items?.filter(sub => sub.display),
+    }));
+};
 
 const bottomNavItems = [
   {
@@ -184,8 +214,9 @@ const bottomNavItems = [
     name: 'Logout',
     to: '/logout',
     icon: <CIcon icon={cilExitToApp} customClassName="nav-icon" />,
+    display: true
   }
 ]
 
 
-export {_new_nav,bottomNavItems}
+export { getNavItems, bottomNavItems }

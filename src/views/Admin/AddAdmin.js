@@ -9,7 +9,7 @@ function AddAdmin() {
   const formRef = useRef(); 
   const navigate = useNavigate()
   const [validated, setValidated] = useState(false)
-  const [driverData, setDriverData] = useState({
+  const [adminData, setAdminData] = useState({
     firstname: '',
     lastname: '',
     email: '',
@@ -24,17 +24,17 @@ function AddAdmin() {
   // handle change
   const handleChange = (e) => {
     const { name, value } = e.target
-    setDriverData({ ...driverData, [name]: value })
+    setAdminData({ ...adminData, [name]: value })
   }
 
   // handle file change
   const handleFileChange = (e) => {
     const { name, files } = e.target
-    setDriverData({ ...driverData, [name]: files[0] })
+    setAdminData({ ...adminData, [name]: files[0] })
   }
 
   // handle Add Admin
-  const handleAddDriver = async (event) => {
+  const handleAddAdmin = async (event) => {
     const form = event.currentTarget
     if (form.checkValidity() === false) {
       event.preventDefault()
@@ -42,23 +42,23 @@ function AddAdmin() {
     } else {
       event.preventDefault()
       setLoading(true)
-      if (driverData.firstname === '' || driverData.lastname === '' || driverData.email === '' || driverData.phone === '') {
-        sweetAlert.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'All fields are required',
-        })
-        setLoading(false)
-        return
-      }
-      post('/admin/driver', driverData, "admin").then((res) => {
+      // if (adminData.firstname === '' || adminData.lastname === '' || adminData.email === '' || adminData.phone === '') {
+      //   sweetAlert.fire({
+      //     icon: 'error',
+      //     title: 'Oops...',
+      //     text: 'All fields are required',
+      //   })
+      //   setLoading(false)
+      //   return
+      // }
+      post('/super-admin/admin', adminData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)
           sweetAlert.fire({
             icon: 'success',
-            title: 'Driver Added Successfully!',
+            title: 'Admin Added Successfully!',
           }).then(() => {
-            navigate("/driver/all")
+            navigate("/admin/all")
           })
         } else if (res.status === 400) {
           sweetAlert.fire({
@@ -69,7 +69,7 @@ function AddAdmin() {
           setLoading(false)
         }
       }).catch((error) => {
-        console.error("Error adding driver:", error)
+        console.error("Error adding admin:", error)
         setLoading(false)
         sweetAlert.fire({
           icon: 'error',
@@ -110,7 +110,7 @@ function AddAdmin() {
           </Col>
         </Row>
         <div className="shadow bg-white px-3 py-3 mt-3 custom-form">
-          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAddDriver}>
+          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAddAdmin}>
             <Row>
               <Col md={6}>
                 <Form.Group>
@@ -120,7 +120,7 @@ function AddAdmin() {
                     placeholder="Enter First Name"
                     name='firstname'
                     onChange={handleChange}
-                    value={driverData.firstname}
+                    value={adminData.firstname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -136,7 +136,7 @@ function AddAdmin() {
                     placeholder="Enter Last Name"
                     name='lastname'
                     onChange={handleChange}
-                    value={driverData.lastname}
+                    value={adminData.lastname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -154,7 +154,7 @@ function AddAdmin() {
                     placeholder="Enter Email Address"
                     name='email'
                     onChange={handleChange}
-                    value={driverData.email}
+                    value={adminData.email}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -170,7 +170,7 @@ function AddAdmin() {
                     placeholder="Enter Phone"
                     name='phone'
                     onChange={handleChange}
-                    value={driverData.phone}
+                    value={adminData.phone}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -188,7 +188,7 @@ function AddAdmin() {
                   placeholder="Enter username"
                   name='username' 
                   onChange={handleChange} 
-                  value={driverData.username}
+                  value={adminData.username}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
@@ -206,7 +206,7 @@ function AddAdmin() {
                   placeholder="Enter Password"
                   name='password' 
                   onChange={handleChange} 
-                  value={driverData.password}
+                  value={adminData.password}
                   required
                 />
                 <Form.Control.Feedback type="invalid">

@@ -34,7 +34,13 @@ const initialState = {
     serviceType: "",
     serviceTypeId: ""
   },
-  data: []
+  data: [],
+  role: localStorage.getItem('role'),
+  loggedInUser: {
+    firstName: localStorage.getItem('firstname'),
+    lastName: localStorage.getItem('lastname'),
+    email: localStorage.getItem('email')
+  }
 };
 
 // Reducer function
@@ -52,6 +58,10 @@ const changeState = (state = initialState, action) => {
       return { ...state, searchQuery2: { ...state.searchQuery2, ...payload } };
     case 'getJobData':
       return { ...state, data: payload };
+    case 'setRole':
+      return { ...state, role: payload };
+    case 'setUserInfo':
+      return { ...state, loggedInUser: payload };
     default:
       return state;
   }

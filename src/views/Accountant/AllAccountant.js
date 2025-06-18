@@ -18,7 +18,7 @@ const AllAccountant = () => {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const [allDrivers, setAllDrivers] = useState([])
+  const [allAccountants, setAllAccountants] = useState([])
   const [loading, setLoading] = useState(false)
   const [isReferesh, setIsRefresh] = useState(false)
   const [page, setPage] = useState(1)
@@ -43,7 +43,7 @@ const AllAccountant = () => {
   const handleDelete = (Id) => {
     sweetAlert
       .fire({
-        title: 'Are you sure you want to delete this driver?',
+        title: 'Are you sure you want to delete this accountant?',
         text: 'Once deleted you can’t revert this action',
         imageUrl: 'src/assets/images/delete_modal_icon.png',
         imageWidth: 60,
@@ -55,17 +55,17 @@ const AllAccountant = () => {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`admin/driver?ID=${Id}`, "admin").then((data) => {
+          deleteReq(`super-admin/accountant?ID=${Id}`, "admin").then((data) => {
             sweetAlert.fire({
               icon: 'success',
-              title: 'Driver Deleted Successfully!',
+              title: 'Accountant Deleted Successfully!',
             });
             setIsRefresh(!isReferesh)
           }).catch((e) => {
             console.log("error while deleting driver", e)
           })
         } else if (result.dismiss === sweetAlert.DismissReason.cancel) {
-          sweetAlert.fire('Cancelled', 'Driver is safe :)', 'error');
+          sweetAlert.fire('Cancelled', 'Accountant is safe :)', 'error');
         }
 
       })
@@ -80,27 +80,25 @@ const AllAccountant = () => {
   // fetch All Accountants
   useEffect(() => {
     setLoading(true)
-    get(`admin/info/allDrivers?page=${page}&limit=${limit}`, "admin")
+    get(`super-admin/accountant?page=${page}&limit=${limit}`, "admin")
       .then((response) => {
         if (response.data.status) {
-          setAllDrivers(response.data.data)
+          setAllAccountants(response.data.data)
           setLoading(false)
         }
       })
 
-  }
-    , [isReferesh, page, limit])
+  }, [isReferesh, page, limit])
 
   // get total pages
-  useEffect(() => {
-    getTotalDocs("DRIVER", "admin").then((data) => {
-      setTotalDocs(data);
-      setTotalPages(Math.ceil(data / limit))
-    }).catch((e) => {
-      console.log("error while getting total pages", e.message);
-    })
-  }
-    , [isReferesh])
+  // useEffect(() => {
+  //   getTotalDocs("DRIVER", "admin").then((data) => {
+  //     setTotalDocs(data);
+  //     setTotalPages(Math.ceil(data / limit))
+  //   }).catch((e) => {
+  //     console.log("error while getting total pages", e.message);
+  //   })
+  // }, [isReferesh])
 
   return (
     <>
@@ -109,8 +107,8 @@ const AllAccountant = () => {
           <h4 className="mb-0">All Accountant</h4>
         </Col>
         <Col className="text-end">
-          <CButton className="custom-btn" onClick={() => navigate('/driver/add')} >
-            add Accountant
+          <CButton className="custom-btn" onClick={() => navigate('/accountant/add')} >
+            Add Accountant
             <FaArrowRight size={12} className="ms-2" />
           </CButton>
         </Col>
@@ -158,7 +156,7 @@ const AllAccountant = () => {
                     </td>
                   </tr>
                 )}
-                {allDrivers && allDrivers.map((item, index) => (
+                {allAccountants.length > 0 ? allAccountants.map((item, index) => (
                   <tr key={index}>
                     {/* <td className="text-start px-4">{index + 1}</td> */}
                     <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
@@ -181,23 +179,23 @@ const AllAccountant = () => {
                         <ul className="dropdown-menu dropdown-menu-end">
                           <li>
                             <button
-                              className="dropdown-item" onClick={() => navigate(`/driver/edit/${item._id}`)}
+                              className="dropdown-item" onClick={() => navigate(`/accountant/edit/${item._id}`)}
                             >
                               View/Edit Details
                             </button>
                           </li>
-                          <li>
+                          {/* <li>
                             <button
                               className="dropdown-item" onClick={() => navigate(`/driver/jobs/${item._id}`)}
                             >
                               Booking Details
                             </button>
-                          </li>
+                          </li> */}
                           <li>
                             <button
                               className="dropdown-item" onClick={() => handleDelete(item._id)}
                             >
-                              Delete Driver
+                              Delete Accountant
                             </button>
                           </li>
                         </ul>
@@ -232,12 +230,14 @@ const AllAccountant = () => {
                       />
                     </td> */}
                   </tr>
-                ))}
+                )) :
+                  <td colSpan={5} className="text-center text-danger">No Records Found.</td>
+                }
               </tbody>
             </Table>
 
 
-            <Row className="mb-3 justify-content-between">
+            {/* <Row className="mb-3 justify-content-between">
               <Col md={8} className="d-flex align-items-center gap-2 ">
                 Show Entries
                 <Col md={2}>
@@ -258,7 +258,7 @@ const AllAccountant = () => {
                   onPageChange={handlePageChange}
                 />
               </Col>
-            </Row>
+            </Row> */}
           </div>
         </Col>
       </Row>
