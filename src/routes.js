@@ -50,6 +50,10 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 const AddClients = React.lazy(() => import('./views/Clients/AddClients.js'))
 const AllClients = React.lazy(() => import('./views/Clients/AllClients.js'))
+const AddAdmin = React.lazy(() => import('./views/Admin/AddAdmin.js'))
+const AllAdmin = React.lazy(() => import('./views/Admin/AllAdmin.js'))
+const AddAccountant = React.lazy(() => import('./views/Accountant/AddAccountant.js'))
+const AllAccountant = React.lazy(() => import('./views/Accountant/AllAccountant.js'))
 const EditClients = React.lazy(() => import('./views/Clients/EditClient.js'))
 const AddDrivers = React.lazy(() => import('./views/drivers/AddDrivers.js'))
 
@@ -76,7 +80,11 @@ const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/client/add', name: 'Add Client', element: AddClients },
+    { path: '/admin/add', name: 'Add Client', element: AddAdmin },
   { path: '/client/all', name: 'All Client', element: AllClients },
+    { path: '/admin/all', name: 'All Client', element: AllAdmin },
+       { path: '/accountant/all', name: 'All Client', element: AllAccountant },
+       { path: '/accountant/add', name: 'Add Client', element: AddAccountant },
   { path: '/client/:id/jobs', name: 'All Client Jobs', element: AllClientsJob },
   { path: '/client/job/add/:id', name: 'Add Client Job', element: AddClientJOb },
   { path: '/client/edit/:id', name: 'Edit Client', element: EditClients },

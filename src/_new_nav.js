@@ -121,6 +121,42 @@ const _new_nav = [
     icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
   },
   {
+    component: CNavGroup,
+    name: 'Admin',
+    to: '/base',
+    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Add Admin',
+        to: '/admin/add',
+      },
+      {
+        component: CNavItem,
+        name: 'All Admin',
+        to: '/admin/all',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Accountant',
+    to: '/base',
+    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Add Accountant',
+        to: '/accountant/add',
+      },
+      {
+        component: CNavItem,
+        name: 'All Accountant',
+        to: '/accountant/all',
+      },
+    ],
+  },
+  {
     component: CNavItem,
     name: 'Reports ',
     to: '/reports/stats',
