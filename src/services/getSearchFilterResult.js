@@ -8,7 +8,7 @@ export const getSeachFilterResult = async (data, role) => {
     let url = '';
     if (role === "admin") {
         token = localStorage.getItem("admintoken");
-        url = `/admin/info/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}`
+        url = `/admin/info/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}`
 
     } else if (role === "client") {
         token = localStorage.getItem("jdAirTrans-client-token");

@@ -13,6 +13,7 @@ export default function DateRangeFilter({
 	setIsFiltering,
 	searchQuery,
 	setSearchQuery,
+	activeTab
 }) {
 	// const [searchQuery, setSearchQuery] = useState({
 	//     AWB: "",
@@ -53,6 +54,7 @@ export default function DateRangeFilter({
 					}
 				})
 			);
+			console.log('filterQuery', filteredQuery);
 			getSeachFilterResult(filteredQuery, role).then((res) => {
 				// setData(res)
 				dispatch({
@@ -97,32 +99,36 @@ export default function DateRangeFilter({
 	return (
 		<>
 			<div className="d-flex flex-wrap align-items-center gap-3">
-				<div className="d-flex align-items-center">
-					{/* <Form.Label></Form.Label> */}
-					{/* <span className="me-2">From:</span> */}
-					<Form.Control
-						type="date"
-						placeholder="Start Date"
-						name="fromDate"
-						onChange={handleTimeChange}
-						onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-						value={searchQuery.fromDate}
-						style={{ width: 170 }}
-					/>
-				</div>
-				<span>-</span>
-				<div className="d-flex align-items-center">
-					{/* <span className="me-2">To:</span> */}
-					<Form.Control
-						type="date"
-						placeholder="End Date"
-						name="toDate"
-						onChange={handleTimeChange}
-						onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-						value={searchQuery.toDate}
-						style={{ width: 170 }}
-					/>
-				</div>
+				{activeTab !== 'todaysJob' &&
+					<>
+						<div className="d-flex align-items-center">
+							{/* <Form.Label></Form.Label> */}
+							{/* <span className="me-2">From:</span> */}
+							<Form.Control
+								type="date"
+								placeholder="Start Date"
+								name="fromDate"
+								onChange={handleTimeChange}
+								onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+								value={searchQuery.fromDate}
+								style={{ width: 170 }}
+							/>
+						</div>
+						<span>-</span>
+						<div className="d-flex align-items-center">
+							{/* <span className="me-2">To:</span> */}
+							<Form.Control
+								type="date"
+								placeholder="End Date"
+								name="toDate"
+								onChange={handleTimeChange}
+								onFocus={(e) => e.target.showPicker && e.target.showPicker()}
+								value={searchQuery.toDate}
+								style={{ width: 170 }}
+							/>
+						</div>
+					</>
+				}
 				{role == 'admin' &&
 					<div>
 						<Dropdown show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)} className="w-100 custom-dropdown">

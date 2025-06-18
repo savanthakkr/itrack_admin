@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getFormattedDAndT } from '../../lib/getFormatedDate'
 import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
+import FilterTags from '../../components/FilterTags'
 
 const AllJobs = () => {
   const dispatch = useDispatch()
@@ -75,41 +76,40 @@ const AllJobs = () => {
     setFilterShow(false)
   }
   const handleSearchClick = (selectedOption) => {
-    let query = {
-      AWB: searchQuery.AWB,
-      clientId: searchQuery.clientId,
-      driverId: searchQuery.driverId,
-      fromDate: searchQuery.fromDate,
-      toDate: searchQuery.toDate,
-      currentStatus: searchQuery.currentStatus,
+    setShowCanvas(false);
+
+    let payload = { ...searchQuery };
+
+    console.log('payload', payload);
+
+    if (activeTab === 'todaysJob') {
+
+      payload.fromDate = moment().format("YYYY-MM-DD");
+      payload.toDate = moment().format("YYYY-MM-DD");
+
     }
-    if (selectedOption === 'jobId') {
-      query.jobId = searchTerm
-      query.AWB = ''
-    } else if (selectedOption === 'AWB') {
-      query.AWB = searchTerm
-      query.jobId = ''
-    } else {
-      query.AWB = ''
-      query.jobId = ''
-    }
-    setIsFiltering(true)
-    getSeachFilterResult(query, 'admin').then((res) => {
-      setFilterShow(false)
-      setData(res)
-      // setSearchQuery({
-      //     AWB: "",
-      //     clientId: "",
-      //     driverId: "",
-      //     fromDate: "",
-      //     toDate: "",
-      //     currentStatus: "",
-      //     jobId: "",
-      //     clientName: "",
-      //     driverName: ""
-      // });
-    })
+    getSeachFilterResult(payload, "admin")
+      .then((res) => {
+        onSearch(res);
+        // handleClose();
+      })
+      .catch((err) => {
+        console.error('Filter API Error:', err);
+      });
   }
+
+  const onSearch = (newData) => {
+    setMessage('')
+    if (newData.length === 0) {
+      setMessage('No data found')
+    }
+    // setData(newData)
+    dispatch({
+      type: 'getJobData',
+      payload: newData,
+    });
+  }
+
   // fetch data
   const fetchData = () => {
     // setLoading(true);
@@ -154,8 +154,8 @@ const AllJobs = () => {
       return
     }
     fetchData()
-    const intervalId = setInterval(fetchData, 3000)
-    return () => clearInterval(intervalId)
+    // const intervalId = setInterval(fetchData, 3000)
+    // return () => clearInterval(intervalId)
   }, [page, limit, isReferesh, isFiltering])
 
   const handlePageChange = (page) => {
@@ -166,6 +166,7 @@ const AllJobs = () => {
   const handleLimitChange = (e) => {
     setLimit(e.target.value)
     setTotalPages(Math.ceil(totalDocs / e.target.value))
+    setPage(1);
   }
 
   const handleClear = () => {
@@ -223,38 +224,131 @@ const AllJobs = () => {
   }, [])
 
 
-  const handleRefresh = () => {
+  const handleRefresh = (filterObj, tagRemove) => {
     setLoading(true)
-    setMessage('')
+    setMessage('');
+    let queryParams = [];
 
-    let queryParams = []
+    if (!tagRemove) {
+      handleClear();
+      dispatch({
+        type: 'searchQuery2',
+        payload: {
+          AWB: "",
+          clientId: "",
+          driverId: "",
+          fromDate: "",
+          toDate: "",
+          currentStatus: "",
+          serviceCode: "",
+          jobId: "",
+          clientName: "",
+          driverName: ""
+        },
+      });
+    } else {
 
-    if (searchQuery.currentStatus)
-      queryParams.push(`currentStatus=${searchQuery.currentStatus}`)
-    if (searchQuery.clientId) queryParams.push(`clientId=${searchQuery.clientId}`)
-    if (searchQuery.driverId) queryParams.push(`driverId=${searchQuery.driverId}`)
-    if (searchQuery.fromDate) queryParams.push(`fromDate=${searchQuery.fromDate}`)
-    if (searchQuery.toDate) queryParams.push(`toDate=${searchQuery.toDate}`)
-    if (searchQuery.jobId) queryParams.push(`jobId=${searchQuery.jobId}`)
-    if (searchQuery.clientName) queryParams.push(`clientName=${searchQuery.clientName}`)
-    if (searchQuery.driverName) queryParams.push(`driverName=${searchQuery.driverName}`)
+      let filter = filterObj || searchQuery;
 
-    const query = queryParams.join('&')
+      if (filter.currentStatus)
+        queryParams.push(`currentStatus=${filter.currentStatus}`)
+      if (filter.clientId) queryParams.push(`clientId=${filter.clientId}`)
+      if (filter.driverId) queryParams.push(`driverId=${filter.driverId}`)
+      if (filter.fromDate) queryParams.push(`fromDate=${filter.fromDate}`)
+      if (filter.toDate) queryParams.push(`toDate=${filter.toDate}`)
+      if (filter.jobId) queryParams.push(`jobId=${filter.jobId}`)
+      if (filter.clientName) queryParams.push(`clientName=${filter.clientName}`)
+      if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
+      if (filter.serviceTypeId) queryParams.push(`driverName=${filter.serviceTypeId}`)
+      if (filter.serviceCodeId) queryParams.push(`driverName=${filter.serviceCodeId}`)
 
-    get(`/admin/info/jobFilter?${query}`, 'admin')
-      .then((response) => {
-        if (response?.data?.status) {
-          if (response?.data?.data?.length === 0) {
-            setMessage('No data found')
-          }
-          setData(response?.data?.data)
-          setLoading(false)
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-        setLoading(false)
-      })
+      const query = queryParams.join('&');
+
+      if (activeTab === 'todaysJob') {
+        handleTodayJobs();
+      } else {
+        get(`/admin/info/jobFilter?${query}`, 'admin')
+          .then((response) => {
+            if (response?.data?.status) {
+              if (response?.data?.data?.length === 0) {
+                setMessage('No data found')
+              }
+              // setData(response?.data?.data)
+              dispatch({
+                type: 'getJobData',
+                payload: response?.data?.data,
+              });
+              setLoading(false)
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+            setLoading(false)
+          })
+      }
+    }
+  }
+
+  const handleRemoveFilter = (key) => {
+    // const updatedQuery = { ...searchQuery };
+    // const updatedQuery = { ...searchQuery, [key]: '' };
+    // delete updatedQuery[key];
+
+    const filterObj = searchQuery;
+
+    filterObj[key] = '';
+
+    dispatch({
+      type: 'updateSearchQuery',
+      payload: { [key]: '' },
+    });
+
+    // Also remove IDs linked with names
+    // if (key === 'clientName') delete updatedQuery.clientId;
+    // if (key === 'driverName') delete updatedQuery.driverId;
+    // if (key === 'currentStatus') delete updatedQuery.currentStatus;
+
+    if (key === 'clientName') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { clientId: '' },
+      });
+      filterObj['clientId'] = '';
+    }
+
+    if (key === 'driverName') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { driverId: '' },
+      });
+      filterObj['driverId'] = '';
+    }
+
+    if (key === 'currentStatus') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { currentStatus: '' },
+      });
+      filterObj['currentStatus'] = '';
+    }
+
+    if (key === 'serviceType') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { serviceTypeId: '' },
+      });
+      filterObj['serviceTypeId'] = '';
+    }
+
+    if (key === 'serviceCode') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { serviceCodeId: '' },
+      });
+      filterObj['serviceCodeId'] = '';
+    }
+
+    handleRefresh(filterObj, true);
   }
 
   return (
@@ -338,7 +432,11 @@ const AllJobs = () => {
                 <JsonToExcelBtn jsonData={data} fileName="Booking" />
               </Col>
             </Row> */}
-
+            {Object.values(searchQuery).some((v) => v) && (
+              <div className="filter-container">
+                <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
+              </div>
+            )}
             <Table className="custom-table" bordered responsive hover>
               <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                 <tr>

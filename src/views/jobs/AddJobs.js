@@ -237,9 +237,9 @@ function AddJobs() {
         if (formData.cutoffTime === '') {
             errors.cutoffTime = "Cut of time is requited"
         }
-        if (formData.isVpap === '') {
-            errors.isVpap = "Isvap is requited"
-        }
+        // if (formData.isVpap === '') {
+        //     errors.isVpap = "Isvap is requited"
+        // }
         return errors
     }
     // handle form submission
@@ -881,26 +881,26 @@ function AddJobs() {
                             />
                         </Form.Group>
                     </Col>
-                    {/* {dropDownData.serviceType.text?.toUpperCase() === 'AIR IMPORT ' && ( */}
-                    <Col className="mt-3 w-100">
-                        <Form.Group>
-                            <Form.Label>Is VPAP</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="isVpap"
-                                onChange={(e) => handleChange(e)}
-                                value={formData?.isVpap}
-                            >
-                                <option value="">Select</option>
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </Form.Control>
-                            {errors.isVpap ? (
-                                <Form.Text className="text-danger">{errors.isVpap}</Form.Text>
-                            ) : null}
-                        </Form.Group>
-                    </Col>
-                    {/* )} */}
+                    {dropDownData.serviceType.text?.toUpperCase() === 'AIR IMPORT ' && (
+                        <Col className="mt-3 w-100">
+                            <Form.Group>
+                                <Form.Label>VPAP</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    name="isVpap"
+                                    onChange={(e) => handleChange(e)}
+                                    value={formData?.isVpap}
+                                >
+                                    <option value="">Select</option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </Form.Control>
+                                {errors.isVpap ? (
+                                    <Form.Text className="text-danger">{errors.isVpap}</Form.Text>
+                                ) : null}
+                            </Form.Group>
+                        </Col>
+                    )}
                 </Row>
                 <Row>
                     <Col md={6} className="mt-3">

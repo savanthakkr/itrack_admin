@@ -132,7 +132,9 @@ function AllClients() {
   // Limit
   const handleLimitChange = (e) => {
     setLimit(e.target.value)
+    // console.log('totalDocs', totalDocs);
     setTotalPages(Math.ceil(totalDocs / e.target.value))
+    setPage(1);
   }
 
   useEffect(() => {

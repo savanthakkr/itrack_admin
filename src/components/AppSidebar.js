@@ -84,8 +84,8 @@ const AppSidebar = () => {
               <p className="mb-0">RR</p>
             </div>
             <div>
-              <h6 className="mb-0">Name</h6>
-              <p className="mb-0">email@gmail.com</p>
+              <h6 className="mb-0">{localStorage.getItem('username')}</h6>
+              {/* <p className="mb-0">email@gmail.com</p> */}
             </div>
           </div>
         <small className="text-secondary mt-3 d-block">Version 1.0.1</small>

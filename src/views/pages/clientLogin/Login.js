@@ -37,6 +37,7 @@ const Login = () => {
         localStorage.setItem('jdAirTrans-client-token', data.token)
         localStorage.setItem('clientDriverAssign', data.data.isDriverPermission)
         localStorage.setItem('clientTrackPermission', data.data.isTrackPermission)
+        localStorage.setItem('logoKey', data.data.logoKey)
         
         navigate('/client/dashboards')
       } else {

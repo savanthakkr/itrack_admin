@@ -43,8 +43,8 @@ const AppHeader = () => {
   const [logoUrl, setLogoUrl] = useState(logo)
   const [showLogoModal, setShowLogoModal] = useState(false)
   const [data, setData] = useState({})
-    const [loading, setLoading] = useState(false)
-    const [refresh, setRefresh] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [refresh, setRefresh] = useState(false)
 
   // Function to upload and update logo
   const handleLogoSave = (file) => {
@@ -54,10 +54,11 @@ const AppHeader = () => {
   useEffect(() => {
     setColorMode('light')
     const token = localStorage.getItem('jdAirTrans-client-token');
-    console.log(token);
-    console.log("sjaksjasjasjkajska");
-    
-    
+
+    if (token) {
+      setLogoUrl(imgSrc + localStorage.getItem('logoKey'))
+    }
+
   }, [])
 
   const dispatch = useDispatch()
@@ -84,14 +85,15 @@ const AppHeader = () => {
     setLoading(true)
     if (localStorage.getItem('jdAirTrans-client-token') != null) {
       get('/client/profile', 'client').then((data) => {
-      if (data.data.status) {
-        setData(data.data.data)
-        setLogoUrl(imgSrc + data.data.data.logoKey)
-        setLoading(false)
-      }
-    })
+        if (data.data.status) {
+          setData(data.data.data)
+          setLogoUrl(imgSrc + data.data.data.logoKey)
+          setLoading(false);
+          localStorage.setItem('logoKey', data.data.data.logoKey)
+        }
+      })
     }
-    
+
   }, [refresh])
 
   useEffect(() => {
@@ -122,10 +124,12 @@ const AppHeader = () => {
       jobId: '',
       clientName: '',
       driverName: '',
-      serviceType:'',
-      serviceCode:''
+      serviceType: '',
+      serviceCode: ''
     })
   }
+
+  console.log('refresh', refresh);
 
   const setSearchQuery = (query) => {
     dispatch({
@@ -133,6 +137,7 @@ const AppHeader = () => {
       payload: query,
     })
   }
+
 
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef} style={{ height: '60px', zIndex: 1030 }}>
@@ -161,11 +166,13 @@ const AppHeader = () => {
           />
         </div>
         <UpdateLogoModal
-        show={showLogoModal}
-        setShow={setShowLogoModal}
-        currentLogoUrl={logoUrl}
-        onSave={handleLogoSave}
-      />
+          show={showLogoModal}
+          setShow={setShowLogoModal}
+          currentLogoUrl={logoUrl}
+          onSave={handleLogoSave}
+          setRefresh={setRefresh}
+          refresh={refresh}
+        />
         <CHeaderNav className="w-50 w-lg-100">
           <SearchBar
             onSearch={(results) => setSearchResults(results)}

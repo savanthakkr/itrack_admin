@@ -16,38 +16,53 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
         "Cancelled",
         "Hold",
     ];
-    const serviceCodes = [
-        { value: 'ALF', label: 'ALF' },
-        { value: 'INTBDL', label: 'INTBDL' },
-        { value: 'LOOSE', label: 'LOOSE' },
-        { value: 'METRO DELIVERY', label: 'METRO DELIVERY' },
-        { value: 'PLA', label: 'PLA' },
-        { value: 'PMC', label: 'PMC' },
-        { value: 'PAG', label: 'PAG' },
-        { value: 'PGA', label: 'PGA' },
-        { value: 'ER', label: 'ER' },
-        { value: 'HH14', label: 'HH14' },
-        { value: 'HH22', label: 'HH22' },
-        { value: 'HH34', label: 'HH34' },
-        { value: 'INTSFL', label: 'INTSFL' },
-        { value: 'WHH14', label: 'WHH14' },
-        { value: 'WHH22', label: 'WHH22' },
-        { value: 'W-AKE', label: 'W-AKE' },
-        { value: 'W-PMC', label: 'W-PMC' },
-        { value: 'AKE', label: 'AKE' },
-        { value: 'AKH', label: 'AKH' },
-        { value: 'AAX', label: 'AAX' }
-    ];
-    const serviceTypes = [
-        { value: 'Per Unit', label: 'Per Unit' },
-        { value: 'Per Hour', label: 'Per Hour' },
-        { value: 'Flat Rate', label: 'Flat Rate' },
-        { value: 'Custom', label: 'Custom' }
-    ];
+    // const serviceCodes = [
+    //     { value: 'ALF', label: 'ALF' },
+    //     { value: 'INTBDL', label: 'INTBDL' },
+    //     { value: 'LOOSE', label: 'LOOSE' },
+    //     { value: 'METRO DELIVERY', label: 'METRO DELIVERY' },
+    //     { value: 'PLA', label: 'PLA' },
+    //     { value: 'PMC', label: 'PMC' },
+    //     { value: 'PAG', label: 'PAG' },
+    //     { value: 'PGA', label: 'PGA' },
+    //     { value: 'ER', label: 'ER' },
+    //     { value: 'HH14', label: 'HH14' },
+    //     { value: 'HH22', label: 'HH22' },
+    //     { value: 'HH34', label: 'HH34' },
+    //     { value: 'INTSFL', label: 'INTSFL' },
+    //     { value: 'WHH14', label: 'WHH14' },
+    //     { value: 'WHH22', label: 'WHH22' },
+    //     { value: 'W-AKE', label: 'W-AKE' },
+    //     { value: 'W-PMC', label: 'W-PMC' },
+    //     { value: 'AKE', label: 'AKE' },
+    //     { value: 'AKH', label: 'AKH' },
+    //     { value: 'AAX', label: 'AAX' }
+    // ];
+    // const serviceTypes = [
+    //     { value: 'Per Unit', label: 'Per Unit' },
+    //     { value: 'Per Hour', label: 'Per Hour' },
+    //     { value: 'Flat Rate', label: 'Flat Rate' },
+    //     { value: 'Custom', label: 'Custom' }
+    // ];
+
+    const [serviceCodes, setServiceCodes] = useState([]);
+    const [serviceTypes, setServiceTypes] = useState([]);
 
     const [selectedOption, setSelectedOption] = useState(null);
 
+    const [disable, setDisable] = useState(true);
+
     useEffect(() => {
+        get(`/admin/service/code`, "admin").then((res) => {
+            if (res.data.status) {
+                setServiceCodes(res.data.data);
+            }
+        });
+        get(`/admin/service/type`, "admin").then((res) => {
+            if (res.data.status) {
+                setServiceTypes(res.data.data);
+            }
+        });
         get(`/admin/info/allClients`, "admin").then((res) => {
             if (res.data.status) {
                 setAllClients(res.data.data);
@@ -66,6 +81,14 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
 
     useEffect(() => {
         setSelectedOption(searchQuery);
+
+        const values = Object.values(searchQuery);
+
+        if (values.every(value => value === null || value === '')) {
+            setDisable(true);
+        } else {
+            setDisable(false)
+        }
     }, [searchQuery]);
 
     return (
@@ -132,11 +155,12 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                                         onClick={() =>
                                             setSearchQuery({
                                                 ...searchQuery,
-                                                serviceCode: code.value, // assuming code has { value, label }
+                                                serviceCode: code.text, // assuming code has { value, label }
+                                                serviceCodeId: code._id
                                             })
                                         }
                                     >
-                                        {code.label}
+                                        {code.text}
                                     </Dropdown.Item>
                                 ))}
                             </Dropdown.Menu>
@@ -194,11 +218,12 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                                         onClick={() =>
                                             setSearchQuery({
                                                 ...searchQuery,
-                                                serviceType: type.value, // assuming type has { value, label }
+                                                serviceType: type.text, // assuming type has { value, label }
+                                                serviceTypeId: type._id
                                             })
                                         }
                                     >
-                                        {type.label}
+                                        {type.text}
                                     </Dropdown.Item>
                                 ))}
                             </Dropdown.Menu>
@@ -243,7 +268,7 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
 
 
                 <Row className='mx-auto w-100'>
-                    <Button className="custom-btn" onClick={() => onApplyFilter(selectedOption)}>Apply Filter</Button>
+                    <Button className="custom-btn" disabled={disable} onClick={() => onApplyFilter(selectedOption)}>Apply Filter</Button>
                 </Row>
 
             </Offcanvas.Body>

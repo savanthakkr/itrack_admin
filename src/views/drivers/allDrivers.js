@@ -36,7 +36,7 @@ const AllDrivers = () => {
   const handleLimitChange = (e) => {
     setLimit(e.target.value);
     setTotalPages(Math.ceil(totalDocs / e.target.value))
-    setPage(page);
+    setPage(1);
   };
 
   // delete driver

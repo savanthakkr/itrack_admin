@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Button, Col, Container, Form, Row, Spinner, Modal } from 'react-bootstrap'
 import { CButton, CCard, CCardBody, CCol, CRow } from '@coreui/react'
 import makeAnimated from 'react-select/animated';
-import { post, get } from '../../lib/request.js'
+import { post, get, postWihoutMediaData, deleteReq, deleteReqWithoutMedia, updateReq } from '../../lib/request.js'
 import sweetAlert2 from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
 import { Tab, Tabs, Table } from 'react-bootstrap';
 import Select from 'react-select';
 import { BsThreeDotsVertical } from 'react-icons/bs';
+import Swal from 'sweetalert2';
 
 function AddClients() {
   const navigate = useNavigate()
@@ -59,25 +60,35 @@ function AddClients() {
     { value: 'per_unit', label: 'Per Unit' }
   ];
 
-  const handleShowModal2 = (item) => {
-    setSelectedClientId(item._id);
-    setEditRate(item.rate.replace(/[^0-9.]/g, ''));
+  const [clientRateData, setClientRateData] = useState({
+    rate: '',
+    item: '',
+    serviceCode: ''
+  });
 
-    const matchedService = serviceCodeOptions.find(opt => opt.label === item.code);
-    setEditDropDownData({
-      serviceCode: matchedService
-        ? { _id: matchedService.value, text: matchedService.label }
-        : { _id: item.code, text: item.code },
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    setClientRateData({
+      rate: '',
+      item: '',
+      serviceCode: ''
     });
+    setErrors({});
+  }, [showModal]);
 
-    const matchedUnit = unitOptions.find(opt => opt.label === item.item);
-    setEditSelectedUnit(matchedUnit || { label: item.item, value: item.item });
+  const handleShowModal2 = (item) => {
+
+    setSelectedClientId(item._id);
+
+    setClientRateData({ rate: item.rate.replace(/[^0-9.]/g, ''), serviceCode: item.serviceCode, item: item.item });
 
     setShowModal2(true);
   };
 
   // Deleting the client rate
   const handleDelete = (Id) => {
+    console.log('Id', Id);
     sweetAlert2
       .fire({
         title: 'Are you sure you want to delete this client rate?',
@@ -91,10 +102,14 @@ function AddClients() {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`/admin/client/rates?ID=${id}`, "admin").then((data) => {
-            sweetAlert2.fire({ icon: 'success', title: 'Service Type Deleted Successfully!' })
-            setIsRefresh(!isReferesh)
-
+          deleteReqWithoutMedia(`/admin/client/rate?id=${Id}`, "admin").then((data) => {
+            console.log('data', data);
+            if (data.status) {
+              sweetAlert2.fire({ icon: 'success', title: data.data.message })
+            } else {
+              sweetAlert2.fire({ icon: 'error', title: data.data.message })
+            }
+            getClientRateData();
           }).catch((e) => {
             console.log("Error while deleting:", e.message)
           })
@@ -185,7 +200,17 @@ function AddClients() {
       text: '',
       _id: '',
     },
-  })
+  });
+
+  const getClientRateData = async () => {
+    get('/admin/client/rate', 'admin')
+      .then((response) => {
+        setRates(response.data.data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -198,70 +223,132 @@ function AddClients() {
       .catch((error) => {
         console.error(error)
       })
+
+    // get client rate
+    getClientRateData();
+
   }, [])
 
-  const serviceCodeOptions = serviceCode
-    .sort((a, b) => a.text.localeCompare(b.text))
-    .map((code) => ({
-      value: code._id,
-      label: code.text,
-    }));
+  const validateClientRateForm = () => {
+    const errors = {}
+    if (clientRateData.serviceCode === '') {
+      errors.serviceCode = 'Service code is required.'
+    }
+    if (clientRateData.item === '') {
+      errors.item = 'item is required.'
+    }
+    return errors;
+  }
 
-  const handleServiceCodeChange = (selectedOption) => {
-    setDropDownData({
-      ...dropDownData,
-      serviceCode: {
-        text: selectedOption.label,
-        _id: selectedOption.value,
-      },
+  const handleClientRateSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateClientRateForm();
+
+    if (Object.keys(errors).length === 0) {
+      // Submit form
+      // create job
+      if (showModal2) {
+        updateReq(`/admin/client/rate?id=${selectedClientId}`, clientRateData, 'admin')
+          .then((response) => {
+            // setLoading5(false)
+            if (response.data.status) {
+              // get client rate
+              getClientRateData();
+              setShowModal2(false);
+              setClientRateData({
+                rate: '',
+                item: '',
+                serviceCode: ''
+              });
+              Swal.fire({
+                icon: 'success',
+                title: response.data.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response.data.message || 'Failed to add client rate',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response.data.message || 'Failed to add client rate',
+            });
+          })
+      } else if (showModal) {
+        postWihoutMediaData('/admin/client/rate', clientRateData, 'admin')
+          .then((response) => {
+            // setLoading5(false)
+            if (response.data.status) {
+              console.log('response', response);
+              // get client rate
+              getClientRateData();
+              setShowModal(false);
+              Swal.fire({
+                icon: 'success',
+                title: response.data.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response.data.message || 'Failed to add client rate',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response.data.message || 'Failed to add client rate',
+            });
+          })
+      }
+    } else {
+      setErrors(errors);
+      return;
+    }
+  }
+
+  const handleClientRateChange = (e) => {
+    const { name, value } = e.target
+    setClientRateData({ ...clientRateData, [name]: value })
+  }
+
+  const handleServiceCodeRateChange = (selectedOption) => {
+    setClientRateData({
+      ...clientRateData,
+      serviceCode: selectedOption.label,
     });
+    if (errors.serviceCode) {
+      setErrors(prev => ({ ...prev, serviceCode: "" }));
+    }
   };
 
-
-  const handleAddClientRates = () => {
-    const newRate = {
-      _id: Date.now().toString(), // Temporary unique ID
-      code: dropDownData.serviceCode.text,
-      rate: `$${parseFloat(rate).toFixed(2)}`,
-      item: selectedUnit?.label,
-    };
-
-    setRates((prevRates) => [...prevRates, newRate]);
-
-    // Reset modal fields
-    setRate('');
-    setDropDownData({ serviceCode: {} });
-    setSelectedUnit(null);
-    setShowModal(false);
+  const handleItemRateChange = (selectedOption) => {
+    setClientRateData({
+      ...clientRateData,
+      item: selectedOption.label,
+    });
+    if (errors.item) {
+      setErrors(prev => ({ ...prev, item: "" }));
+    }
   };
-  const handleEditServiceCodeChange = (selectedOption) => {
-    setEditDropDownData((prevData) => ({
-      ...prevData,
-      serviceCode: {
-        _id: selectedOption.value,
-        text: selectedOption.label,
-      },
-    }));
-  };
-  const handleUpdateClientRate = () => {
-    const updatedRates = rates.map((item) =>
-      item._id === selectedClientId
-        ? {
-          ...item,
-          rate: `$${editRate}`,
-          code: editDropDownData.serviceCode.text,
-          item: editSelectedUnit.label,
-        }
-        : item
-    );
-    setRates(updatedRates);
-    handleCloseModal2();
 
-    // Optional: Reset edit form state
-    setEditRate('');
-    setEditDropDownData({ serviceCode: {} });
-    setEditSelectedUnit(null);
-  };
+  const [serviceOptionForRate, setServiceOptionForRate] = useState();
+  useEffect(() => {
+    const service = [];
+    serviceCode?.map((item) => {
+      service.push({ value: item.text, label: item.text });
+    });
+    setServiceOptionForRate(service);
+  }, [serviceCode]);
 
   return (
     <>
@@ -447,9 +534,9 @@ function AddClients() {
               </tr>
             </thead>
             <tbody>
-              {rates.map((item) => (
+              {rates.length > 0 ? rates.map((item) => (
                 <tr key={item._id}>
-                  <td className="text-start">{item.code}</td>
+                  <td className="text-start">{item.serviceCode}</td>
                   <td className="text-start">{item.rate}</td>
                   <td className="text-start">{item.item}</td>
                   <td className="text-center action-dropdown-menu">
@@ -487,14 +574,19 @@ function AddClients() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )) :
+                <tr>
+                  <td colSpan={4} className="text-center text-danger">No Records Found.</td>
+                </tr>
+              }
             </tbody>
           </Table>
-          <Table hover responsive className="custom-table">
+
+          {/* <Table hover responsive className="custom-table">
             <thead className="table-light">
               <tr>
-                <th>Client Fuel Levy</th>
-                <th>Percent</th>
+                <td>Client Fuel Levy</td>
+                <td>20%</td>
               </tr>
             </thead>
             <tbody>
@@ -515,122 +607,146 @@ function AddClients() {
                 <td>20%</td>
               </tr>
             </tbody>
-          </Table>
+          </Table> */}
+
+          <div className='border' style={{ minHeight: '50px', paddingLeft: '10px' }}>
+            <Row className="align-items-center" style={{ minHeight: '50px' }}>
+              <Col md={6} className="d-flex align-items-center" style={{ height: '50px' }}>
+                <label className="mb-0"><b>Client Fuel Levy</b></label>
+              </Col>
+              <Col md={6} className="d-flex align-items-center" style={{ height: '50px' }}>
+                <label className="mb-0">20%</label>
+              </Col>
+            </Row>
+          </div>
         </Tab>
       </Tabs>
       {/* Add Modal */}
       <Modal show={showModal} onHide={handleCloseModal} style={{ marginTop: '10vh' }} className="custom-modal">
         <Modal.Header closeButton><Modal.Title>Add Client Rates</Modal.Title></Modal.Header>
-        <Modal.Body className="pt-0">
-          <Form.Group>
-            <Form.Label>Rate</Form.Label>
-            <Form.Control
-              type="text"
-              className="custom-form-control"
-              placeholder="Enter rate here"
-              value={rate}
-              onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
-            />
-          </Form.Group>
-          <Form.Group className="mt-3">
-            <Form.Label>Service Code</Form.Label>
-            <Select
-              className="w-100 custom-select"
-              classNamePrefix="custom-select"
-              options={serviceCodeOptions}
-              value={
-                dropDownData.serviceCode._id
-                  ? {
-                    value: dropDownData.serviceCode._id,
-                    label: dropDownData.serviceCode.text,
-                  }
-                  : null
-              }
-              onChange={handleServiceCodeChange}
-              placeholder="Enter service code"
-              isSearchable
-            />
-          </Form.Group>
-          <Form.Group className="mt-3">
-            <Form.Label>Item</Form.Label>
-            <Select
-              className="w-100 custom-select"
-              classNamePrefix="custom-select"
-              options={unitOptions}
-              value={selectedUnit}
-              onChange={(selectedOption) => setSelectedUnit(selectedOption)}
-              placeholder="Select from the list"
-              isSearchable
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button className="custom-btn" onClick={handleAddClientRates}>Submit</Button>
-          {/* <Button variant="secondary" onClick={handleCloseModal}>Close</Button> */}
-        </Modal.Footer>
-      </Modal>
+        <Form noValidate validated={validated} onSubmit={handleClientRateSubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Rate</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter rate here"
+                value={clientRateData.rate}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={handleClientRateChange}
+              />
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Service Code</Form.Label>
+              <Select
+                className="w-100 custom-select"
+                classNamePrefix="custom-select"
+                name="serviceCode"
+                options={serviceOptionForRate}
+                value={clientData.serviceCode}
+                onChange={handleServiceCodeRateChange}
+                placeholder="Enter service code"
+                isSearchable
+                required
+              />
+              {errors.serviceCode ? (
+                <Form.Text className="text-danger">{errors.serviceCode}</Form.Text>
+              ) : null}
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Item</Form.Label>
+              <Select
+                className="w-100 custom-select"
+                classNamePrefix="custom-select"
+                options={unitOptions}
+                value={clientData.item}
+                name="item"
+                // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
+                onChange={handleItemRateChange}
+                placeholder="Select from the list"
+                isSearchable
+              />
+              {errors.item ? (
+                <Form.Text className="text-danger">{errors.item}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">Submit</Button>
+            {/* <Button variant="secondary" onClick={handleCloseModal}>Close</Button> */}
+          </Modal.Footer>
+        </Form>
+      </Modal >
 
       {/* Edit Modal */}
-      <Modal
+      < Modal
         show={showModal2}
         onHide={handleCloseModal2}
-        style={{ marginTop: '10vh' }}
+        style={{ marginTop: '10vh' }
+        }
         dialogClassName="custom-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>Edit Client Rates</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="pt-0">
-          <Form.Group>
-            <Form.Label>Rate</Form.Label>
-            <Form.Control
-              type="text"
-              className="custom-form-control"
-              placeholder="Enter rate here"
-              value={editRate}
-              onChange={(e) =>
-                setEditRate(e.target.value.replace(/[^\d.]/g, ''))
-              }
-            />
-          </Form.Group>
-          <Form.Group className="mt-3">
-            <Form.Label>Service Code</Form.Label>
-            <Select
-              className="w-100 custom-select"
-              classNamePrefix="custom-select"
-              options={serviceCodeOptions}
-              value={
-                editDropDownData.serviceCode?._id
-                  ? {
-                    value: editDropDownData.serviceCode._id,
-                    label: editDropDownData.serviceCode.text,
-                  }
-                  : null
-              }
-              onChange={handleEditServiceCodeChange}
-              placeholder="Enter service code"
-              isSearchable
-            />
-          </Form.Group>
-          <Form.Group className="mt-3">
-            <Form.Label>Item</Form.Label>
-            <Select
-              className="w-100 custom-select"
-              classNamePrefix="custom-select"
-              options={unitOptions}
-              value={editSelectedUnit}
-              onChange={(selectedOption) => setEditSelectedUnit(selectedOption)}
-              placeholder="Select from the list"
-              isSearchable
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button className="custom-btn" onClick={handleUpdateClientRate}>
-            Confirm Change
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        <Form noValidate validated={validated} onSubmit={handleClientRateSubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Rate</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter rate here"
+                value={clientRateData.rate}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={handleClientRateChange}
+              />
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Service Code</Form.Label>
+              <Select
+                className="w-100 custom-select"
+                classNamePrefix="custom-select"
+                name="serviceCode"
+                options={serviceOptionForRate}
+                value={serviceOptionForRate?.find(opt => opt.value === clientRateData.serviceCode)}
+                onChange={handleServiceCodeRateChange}
+                placeholder="Enter service code"
+                isSearchable
+                required
+              />
+              {errors.serviceCode ? (
+                <Form.Text className="text-danger">{errors.serviceCode}</Form.Text>
+              ) : null}
+            </Form.Group>
+            <Form.Group className="mt-3">
+              <Form.Label>Item</Form.Label>
+              <Select
+                className="w-100 custom-select"
+                classNamePrefix="custom-select"
+                options={unitOptions}
+                value={unitOptions?.find(opt => opt.label === clientRateData.item)}
+                name="item"
+                // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
+                onChange={handleItemRateChange}
+                placeholder="Select from the list"
+                isSearchable
+              />
+              {errors.item ? (
+                <Form.Text className="text-danger">{errors.item}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">
+              Confirm Change
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal >
 
     </>
   )

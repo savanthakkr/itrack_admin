@@ -12,6 +12,9 @@ const initialState = {
     toDate: "",
     currentStatus: "",
     serviceCode: "",
+    serviceCodeId: "",
+    serviceType: "",
+    serviceTypeId: "",
     jobId: "",
     clientName: "",
     driverName: ""
@@ -25,7 +28,11 @@ const initialState = {
     currentStatus: "",
     jobId: "",
     clientName: "",
-    driverName: ""
+    driverName: "",
+    serviceCode: "",
+    serviceCodeId: "",
+    serviceType: "",
+    serviceTypeId: ""
   },
   data: []
 };

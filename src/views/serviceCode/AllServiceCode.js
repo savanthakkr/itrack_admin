@@ -32,8 +32,14 @@ function AllServiceCode() {
     setShowModal2(true)
   }
 
-  const handleCloseModal = () => setShowModal(false)
-  const handleCloseModal2 = () => setShowModal2(false)
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setServiceCode('');
+  }
+  const handleCloseModal2 = () => {
+    setShowModal2(false);
+    setServiceCode('');
+  }
 
   const handleSearch = (e) => {
     const query = e.target.value

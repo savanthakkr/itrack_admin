@@ -12,7 +12,7 @@ export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedL
     const [note, setNote] = useState(
         selectedLocation.note
     );
-    const [isPickupAddress, setIsPickupAddress] = useState(false);
+    const [isPickupAddress, setIsPickupAddress] = useState(selectedLocation.addAsPickupAddress);
     const [location, setLocation] = useState({
         latitude: selectedLocation.latitude,
         longitude: selectedLocation.longitude,
@@ -34,7 +34,9 @@ export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedL
             customName: dropLocation,
             latitude: location.latitude,
             longitude: location.longitude,
-            mapName: location.mapName
+            mapName: location.mapName,
+            note: note,
+            addAsPickupAddress: isPickupAddress
         }
         updateReq(`/admin/locations/dropoff?id=${selectedLocation._id}`, payload, "admin").then((response) => {
             if (response.data.status) {
@@ -76,15 +78,15 @@ export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedL
                 </Form.Group>
 
             </Row>
-            {/* <Row>
+            <Row>
                 <Form.Group className='mt-3'>
                     <Form.Label className='fw-bold' >Note</Form.Label>
                     <Form.Control as="textarea" rows={4} placeholder="Enter your Note Here"
                          onChange={(e) => setNote(e.target.value)} value={note} className="custom-form-control"
                     />
                 </Form.Group>
-            </Row> */}
-            {/* <Row className="mt-3">
+            </Row>
+            <Row className="mt-3">
                 <Form.Group>
                     <Form.Check
                         type="checkbox"
@@ -94,7 +96,7 @@ export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedL
                         onChange={(e) => setIsPickupAddress(e.target.checked)} 
                     />
                 </Form.Group>
-            </Row> */}
+            </Row>
             <Row>
                 <Col className='mt-3 mb-3  mx-auto' >
                     <Button className="custom-btn w-100"

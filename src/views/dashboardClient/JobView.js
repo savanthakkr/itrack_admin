@@ -383,12 +383,14 @@ const JobDetails = () => {
           </Tabs>
           <Row>
             <Col md={8} className="d-flex flex-wrap align-item-center justify-content-start ms-auto justify-content-lg-end gap-2 py-3">
-              <Button className="custom-border-btn"
-                onClick={() => navigate(`/client/dashboard/location/${data._id}`)}
-              >
-                {' '}
-                Track Driver{' '}
-              </Button>
+              {localStorage.getItem('clientTrackPermission') == 'true' &&
+                <Button className="custom-border-btn"
+                  onClick={() => navigate(`/client/dashboard/location/${data._id}`)}
+                >
+                  {' '}
+                  Track Driver{' '}
+                </Button>
+              }
               <Button className="text-white" variant="danger" onClick={handleConfirm}>
                 {' '}
                 Cancel Booking{' '}

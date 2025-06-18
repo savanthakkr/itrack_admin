@@ -6,7 +6,7 @@ import { postWihoutMediaData, updateReq } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
 export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selectedLocation }) {
-    const [isDeliveryAddress, setIsDeliveryAddress] = useState(false);
+    const [isDeliveryAddress, setIsDeliveryAddress] = useState(selectedLocation.addAsDeliveryAddress);
     const [pickUpLocation, setPickUpLocation] = useState(
         selectedLocation.customName
     );
@@ -16,8 +16,7 @@ export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selecte
     const [location, setLocation] = useState({
         latitude: selectedLocation.latitude,
         longitude: selectedLocation.longitude,
-        mapName: selectedLocation.mapName
-
+        mapName: selectedLocation.mapName,
     });
 
     const addPickUpLocation = () => {
@@ -34,7 +33,9 @@ export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selecte
             customName: pickUpLocation,
             latitude: location.latitude,
             longitude: location.longitude,
-            mapName: location.mapName
+            mapName: location.mapName,
+            note: note,
+            addAsDeliveryAddress: isDeliveryAddress
         }
         updateReq(`/admin/locations/pickup?id=${selectedLocation._id}`, payload, "admin").then((response) => {
             if (response.data.status) {

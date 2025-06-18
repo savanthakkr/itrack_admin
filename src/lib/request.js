@@ -70,6 +70,25 @@ const postWihoutMediaData = async (url, data, role) => {
 
 };
 
+const deleteReqWithoutMedia = async (url, role) => {
+    let headers = {}
+    if (role === "admin") {
+        headers = {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("admintoken")}`,
+            }
+        }
+    }
+    try {
+        const response = await axiosInstance.delete(url, headers);
+        return response;
+
+    } catch (error) {
+        console.log("error in axios", error);
+        return error.response;
+    }
+}
+
 const deleteReq = async (url, role) => {
     let headers = {}
     if (role === "admin") {
@@ -122,6 +141,13 @@ const updateImage = async (url, data, role) => {
                 'Content-Type': 'multipart/form-data'
             }
         }
+    } else {
+        headers = {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("jdAirTrans-client-token")}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        }
     }
     try {
         const response = await axiosInstance.put(url, data, headers);
@@ -133,4 +159,4 @@ const updateImage = async (url, data, role) => {
     }
 }
 
-export { get, post, deleteReq, updateReq, postWihoutMediaData, updateImage };
+export { get, post, deleteReq, updateReq, postWihoutMediaData, updateImage, deleteReqWithoutMedia };

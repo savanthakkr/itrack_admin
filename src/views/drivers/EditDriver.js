@@ -20,7 +20,7 @@ function EditDriver() {
         lastname: '',
         email: '',
         phone: '',
-        companyname: '',
+        companyName: '',
         username: '',
         password: '',
         imageKey: '',
@@ -205,8 +205,8 @@ function EditDriver() {
                             <Form.Group>
                                 <Form.Label>Company Name</Form.Label>
                                 <Form.Control type="text" placeholder="Enter Company Name"
-                                    name='companyname' onChange={(e) => handleChange(e)}
-                                    value={driverData?.companyname}
+                                    name='companyName' onChange={(e) => handleChange(e)}
+                                    value={driverData?.companyName}
                                     // required
                                 />
                                 {/* <Form.Control.Feedback type="invalid">

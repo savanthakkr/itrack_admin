@@ -22,6 +22,7 @@ import FilterOffCanvas from '../../components/Filter'
 import MyPagination from '../../components/Pagination'
 import FilterTags from '../../components/FilterTags'
 import { getSeachFilterResult } from '../../services/getSearchFilterResult'
+import moment from 'moment'
 
 
 const Dashboard = () => {
@@ -98,6 +99,22 @@ const Dashboard = () => {
 			filterObj['currentStatus'] = '';
 		}
 
+		if (key === 'serviceType') {
+			dispatch({
+				type: 'updateSearchQuery',
+				payload: { serviceTypeId: '' },
+			});
+			filterObj['serviceTypeId'] = '';
+		}
+
+		if (key === 'serviceCode') {
+			dispatch({
+				type: 'updateSearchQuery',
+				payload: { serviceCodeId: '' },
+			});
+			filterObj['serviceCodeId'] = '';
+		}
+
 		handleRefresh(filterObj, true);
 	}
 
@@ -122,7 +139,18 @@ const Dashboard = () => {
 
 	const handleSearchClick = (searchTerm, selectedOption) => {
 		setShowCanvas(false);
-		getSeachFilterResult(searchQuery, "admin")
+
+		let payload = { ...searchQuery };
+
+		console.log('payload', payload);
+
+		if (activeTab === 'todaysJob') {
+
+			payload.fromDate = moment().format("YYYY-MM-DD");
+			payload.toDate = moment().format("YYYY-MM-DD");
+
+		}
+		getSeachFilterResult(payload, "admin")
 			.then((res) => {
 				onSearch(res);
 				handleClose();
@@ -130,6 +158,7 @@ const Dashboard = () => {
 			.catch((err) => {
 				console.error('Filter API Error:', err);
 			});
+
 	};
 
 	useEffect(() => {
@@ -145,7 +174,9 @@ const Dashboard = () => {
 			searchQuery.toDate ||
 			searchQuery.jobId ||
 			searchQuery.clientName ||
-			searchQuery.driverName;
+			searchQuery.driverName ||
+			searchQuery.serviceCode ||
+			searchQuery.serviceType;
 
 		if (hasFilters && searchTerm.trim()) {
 			handleSearchClick(searchTerm, searchQuery);
@@ -180,7 +211,9 @@ const Dashboard = () => {
 			clientName: '',
 			driverName: '',
 			serviceType: '',
-			serviceCode: ''
+			serviceCode: '',
+			serviceTypeId: '',
+			serviceCodeId: ''
 		});
 
 		// if (key === 'allJobs') {
@@ -276,6 +309,8 @@ const Dashboard = () => {
 			})
 	}
 
+	console.log('data', data);
+
 	// useEffect(() => {
 	// 	setLoading(true)
 	// 	setMessage('')
@@ -318,7 +353,9 @@ const Dashboard = () => {
 			clientName: '',
 			driverName: '',
 			serviceType: '',
-			serviceCode: ''
+			serviceCode: '',
+			serviceTypeId: '',
+			serviceCodeId: ''
 		});
 
 		// setActiveTab(activeTab);
@@ -347,6 +384,9 @@ const Dashboard = () => {
 					toDate: "",
 					currentStatus: "",
 					serviceCode: "",
+					serviceType: '',
+					serviceCodeId: '',
+					serviceTypeId: '',
 					jobId: "",
 					clientName: "",
 					driverName: ""
@@ -365,6 +405,8 @@ const Dashboard = () => {
 			if (filter.jobId) queryParams.push(`jobId=${filter.jobId}`)
 			if (filter.clientName) queryParams.push(`clientName=${filter.clientName}`)
 			if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
+			if (filter.serviceTypeId) queryParams.push(`driverName=${filter.serviceTypeId}`)
+			if (filter.serviceCodeId) queryParams.push(`driverName=${filter.serviceCodeId}`)
 
 			const query = queryParams.join('&');
 
@@ -476,6 +518,7 @@ const Dashboard = () => {
 					<DateRangeFilter
 						// setData={setData}
 						role="admin"
+						activeTab={activeTab}
 						setMessage={setMessage}
 						searchQuery={searchQuery}
 						setSearchQuery={setSearchQuery}

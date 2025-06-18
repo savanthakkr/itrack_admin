@@ -39,6 +39,7 @@ const Login = () => {
       console.log("res", res)
       if (res.status === 200) {
         localStorage.setItem('admintoken', res.data.token)
+        localStorage.setItem('username', res.data.data.username)
         navigate('/dashboard')
       } else if (res.status === 400) {
         setError('Invalid username or password')

@@ -30,8 +30,14 @@ function AllServiceType() {
     setShowModal2(true)
   }
 
-  const handleCloseModal = () => setShowModal(false)
-  const handleCloseModal2 = () => setShowModal2(false)
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setServiceType('');
+  }
+  const handleCloseModal2 = () => {
+    setShowModal2(false);
+    setServiceType('');
+  }
 
   const handleAddServiceType = () => {
     if (serviceType === "") {
