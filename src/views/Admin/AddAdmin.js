@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { CButton } from '@coreui/react'
 
 function AddAdmin() {
-  const formRef = useRef(); 
+  const formRef = useRef();
   const navigate = useNavigate()
   const [validated, setValidated] = useState(false)
   const [adminData, setAdminData] = useState({
@@ -17,6 +17,7 @@ function AddAdmin() {
     username: '',
     password: '',
     logo: null,
+    companyName: ''
   })
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(false)
@@ -99,87 +100,87 @@ function AddAdmin() {
 
   return (
     <>
-        <Row className="align-items-center">
-          <Col>
-            <h4 className="mb-0">Add Admin</h4>
-          </Col>
-          <Col className="text-end">
-            <CButton className="custom-btn" onClick={() => formRef.current?.requestSubmit()}>
-              Add Admin
-            </CButton>
-          </Col>
-        </Row>
-        <div className="shadow bg-white px-3 py-3 mt-3 custom-form">
-          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAddAdmin}>
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter First Name"
-                    name='firstname'
-                    onChange={handleChange}
-                    value={adminData.firstname}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a first name.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Last Name"
-                    name='lastname'
-                    onChange={handleChange}
-                    value={adminData.lastname}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a last name.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6} className="mt-3">
-                <Form.Group>
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Enter Email Address"
-                    name='email'
-                    onChange={handleChange}
-                    value={adminData.email}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid email.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-              <Col md={6} className="mt-3">
-                <Form.Group>
-                  <Form.Label>Phone</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Enter Phone"
-                    name='phone'
-                    onChange={handleChange}
-                    value={adminData.phone}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a phone number.
-                  </Form.Control.Feedback>
-                </Form.Group>
-              </Col>
-            </Row>
-            {/* <Row>
+      <Row className="align-items-center">
+        <Col>
+          <h4 className="mb-0">Add Admin</h4>
+        </Col>
+        <Col className="text-end">
+          <CButton className="custom-btn" onClick={() => formRef.current?.requestSubmit()}>
+            Add Admin
+          </CButton>
+        </Col>
+      </Row>
+      <div className="shadow bg-white px-3 py-3 mt-3 custom-form">
+        <Form ref={formRef} noValidate validated={validated} onSubmit={handleAddAdmin}>
+          <Row>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>First Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter First Name"
+                  name='firstname'
+                  onChange={handleChange}
+                  value={adminData.firstname}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a first name.
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Last Name"
+                  name='lastname'
+                  onChange={handleChange}
+                  value={adminData.lastname}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a last name.
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} className="mt-3">
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="Enter Email Address"
+                  name='email'
+                  onChange={handleChange}
+                  value={adminData.email}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid email.
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mt-3">
+              <Form.Group>
+                <Form.Label>Phone</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Phone"
+                  name='phone'
+                  onChange={handleChange}
+                  value={adminData.phone}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a phone number.
+                </Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+          {/* <Row>
             <Col md={6} className="mt-3">
               <Form.Group>
                 <Form.Label>Username</Form.Label>
@@ -197,35 +198,35 @@ function AddAdmin() {
               </Form.Group>
             </Col>
           </Row> */}
-            <Row>
-              {/* <Col md={6} className="mt-3">
+          <Row>
+            <Col md={6} className="mt-3">
               <Form.Group>
-                <Form.Label>Password</Form.Label>
-                <Form.Control 
-                  type="password" 
-                  placeholder="Enter Password"
-                  name='password' 
-                  onChange={handleChange} 
-                  value={adminData.password}
+                <Form.Label>Company Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Company Name"
+                  name='companyName'
+                  onChange={handleChange}
+                  value={adminData.companyName}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  Please provide a password.
+                  Please provide a company name.
                 </Form.Control.Feedback>
               </Form.Group>
-            </Col> */}
-              <Col md={6} className="mt-3">
-                <Form.Group>
-                  <Form.Label>Image (Optional)</Form.Label>
-                  <Form.Control
-                    type="file"
-                    name='logo'
-                    onChange={handleFileChange}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            {/* <Row>
+            </Col>
+            <Col md={6} className="mt-3">
+              <Form.Group>
+                <Form.Label>Image (Optional)</Form.Label>
+                <Form.Control
+                  type="file"
+                  name='logo'
+                  onChange={handleFileChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          {/* <Row>
               <Col md={3} className="mt-5">
                 {loading ? <Spinner animation="border" variant="success" /> :
                   <Button
@@ -239,8 +240,8 @@ function AddAdmin() {
                 }
               </Col>
             </Row> */}
-          </Form>
-        </div>
+        </Form>
+      </div>
     </>
   )
 }

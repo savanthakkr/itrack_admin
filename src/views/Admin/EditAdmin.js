@@ -23,6 +23,7 @@ function EditAdmin() {
         username: '',
         password: '',
         imageKey: '',
+        companyName: ''
     })
 
     const formRef = useRef();
@@ -212,6 +213,21 @@ function EditAdmin() {
                                 </Form.Control.Feedback>
                             </Form.Group>
                         </Col>
+                        <Col md={6} className="mt-3">
+                            <Form.Group>
+                                <Form.Label>Company Name</Form.Label>
+                                <Form.Control type="text" placeholder="Enter company name"
+                                    name='companyName' onChange={(e) => handleChange(e)}
+                                    value={adminData?.companyName}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Please provide a company name.
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col md={6} className="mt-3">
                             <Form.Group>
                                 <Form.Label>Password</Form.Label>

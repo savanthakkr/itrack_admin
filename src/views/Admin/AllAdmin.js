@@ -107,7 +107,7 @@ const AllAdmin = () => {
           <h4 className="mb-0">All Admin</h4>
         </Col>
         <Col className="text-end">
-          <CButton className="custom-btn" onClick={() => navigate('/driver/add')} >
+          <CButton className="custom-btn" onClick={() => navigate('/admin/add')} >
             Add Admin
             <FaArrowRight size={12} className="ms-2" />
           </CButton>

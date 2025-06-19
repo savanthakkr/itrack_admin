@@ -38,7 +38,7 @@ const getNavItems = (role) => {
       name: 'Dashboard',
       to: '/dashboard',
       icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin'
+      display: role === 'Admin'
       // badge: {
       //   color: 'info',
       //   text: 'NEW',
@@ -49,19 +49,19 @@ const getNavItems = (role) => {
       name: 'Client',
       to: '/base',
       icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+      display: role === 'Admin' || role === 'Accountant',
       items: [
         {
           component: CNavItem,
           name: 'Add Client',
           to: '/client/add',
-          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+          display: role === 'Admin' || role === 'Accountant'
         },
         {
           component: CNavItem,
           name: 'All Client',
           to: '/client/all',
-          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+          display: role === 'Admin' || role === 'Accountant'
         },
       ],
     },
@@ -70,19 +70,19 @@ const getNavItems = (role) => {
       name: 'Driver',
       to: '/base',
       icon: <CIcon icon={cilTruck} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin',
+      display: role === 'Admin',
       items: [
         {
           component: CNavItem,
           name: 'Add Drivers',
           to: '/driver/add',
-          display: role === 'Admin' || role === 'Super Admin'
+          display: role === 'Admin'
         },
         {
           component: CNavItem,
           name: 'All Drivers',
           to: '/driver/all',
-          display: role === 'Admin' || role === 'Super Admin'
+          display: role === 'Admin'
         },
       ],
     },
@@ -91,19 +91,19 @@ const getNavItems = (role) => {
       name: 'Bookings',
       to: '/base',
       icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+      display: role === 'Admin' || role === 'Accountant',
       items: [
         {
           component: CNavItem,
           name: 'New Booking',
           to: '/job/add',
-          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+          display: role === 'Admin' || role === 'Accountant'
         },
         {
           component: CNavItem,
           name: 'All Bookings',
           to: '/job/all',
-          display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin'
+          display: role === 'Admin' || role === 'Accountant'
         },
       ],
     },
@@ -112,28 +112,28 @@ const getNavItems = (role) => {
       name: 'Service Type',
       to: '/service/type',
       icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin',
+      display: role === 'Admin',
     },
     {
       component: CNavItem,
       name: 'Service Code',
       to: '/service/code',
       icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin',
+      display: role === 'Admin',
     },
     {
       component: CNavItem,
       name: 'Pick Up location',
       to: '/location/pickup',
       icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin',
+      display: role === 'Admin',
     },
     {
       component: CNavItem,
       name: 'Drop location',
       to: '/location/drop',
       icon: <CIcon icon={cilLocationPin} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Super Admin',
+      display: role === 'Admin',
     },
     {
       component: CNavGroup,
@@ -161,19 +161,19 @@ const getNavItems = (role) => {
       name: 'Accountant',
       to: '/base',
       icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-      display: role === 'Super Admin',
+      display: role === 'Admin',
       items: [
         {
           component: CNavItem,
           name: 'Add Accountant',
           to: '/accountant/add',
-          display: role === 'Super Admin'
+          display: role === 'Admin'
         },
         {
           component: CNavItem,
           name: 'All Accountant',
           to: '/accountant/all',
-          display: role === 'Super Admin'
+          display: role === 'Admin'
         },
       ],
     },
@@ -182,7 +182,7 @@ const getNavItems = (role) => {
       name: 'Reports ',
       to: '/reports/stats',
       icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Accountant' || role === 'Super Admin',
+      display: role === 'Admin' || role === 'Accountant',
     },
 
     // {

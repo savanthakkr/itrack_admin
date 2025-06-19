@@ -204,7 +204,7 @@ function AllClients() {
   const handleTabSelect = (selectedTab) => {
     setActiveTab(selectedTab);
   };
-  
+
   const handleRefresh = () => {
     setLoading(true)
     setMessage('')
@@ -301,52 +301,53 @@ function AllClients() {
                       </td>
                     </tr>
                   ) : (
-                    clientData && clientData.map((client, index) => (
-                      <tr key={index}>
-                        {/* <td className="text-start px-4">{index + 1}</td> */}
-                        <td className="text-start px-4">{client?.companyName}</td>
-                        <td className="text-start px-4">{client?.email}</td>
-                        <td className="text-start px-4">{client?.phone}</td>
-                        <td className="text-start px-4">
-                          <Moment format="DD/MM/YYYY, hh:mm a">{client?.createdDateTime}</Moment>
-                        </td>
-                        <td className="text-center action-dropdown-menu">
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-link p-0 border-0"
-                              type="button"
+                    clientData.length > 0 ?
+                      clientData.map((client, index) => (
+                        <tr key={index}>
+                          {/* <td className="text-start px-4">{index + 1}</td> */}
+                          <td className="text-start px-4">{client?.companyName}</td>
+                          <td className="text-start px-4">{client?.email}</td>
+                          <td className="text-start px-4">{client?.phone}</td>
+                          <td className="text-start px-4">
+                            <Moment format="DD/MM/YYYY, hh:mm a">{client?.createdDateTime}</Moment>
+                          </td>
+                          <td className="text-center action-dropdown-menu">
+                            <div className="dropdown">
+                              <button
+                                className="btn btn-link p-0 border-0"
+                                type="button"
 
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <BsThreeDotsVertical size={18} />
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-end">
-                              <li>
-                                <button
-                                  className="dropdown-item" onClick={() => navigate(`/client/edit/${client?._id}`)}
-                                >
-                                  View/Edit Details
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item" onClick={() => navigate(`/client/${client?._id}/jobs`)}
-                                >
-                                  Booking Details
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item" onClick={() => handleDelete(client?._id)}
-                                >
-                                  Delete Client
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </td>
-                        {/* <td className="text-start px-4 cursor-pointer">
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
+                                <BsThreeDotsVertical size={18} />
+                              </button>
+                              <ul className="dropdown-menu dropdown-menu-end">
+                                <li>
+                                  <button
+                                    className="dropdown-item" onClick={() => navigate(`/client/edit/${client?._id}`)}
+                                  >
+                                    View/Edit Details
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    className="dropdown-item" onClick={() => navigate(`/client/${client?._id}/jobs`)}
+                                  >
+                                    Booking Details
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    className="dropdown-item" onClick={() => handleDelete(client?._id)}
+                                  >
+                                    Delete Client
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
+                          </td>
+                          {/* <td className="text-start px-4 cursor-pointer">
                         <FaEye
                           onClick={() => handleShowModal(client)}
                           size={22}
@@ -374,14 +375,18 @@ function AllClients() {
                           onClick={() => handleDelete(client?._id)}
                         />
                       </td> */}
+                        </tr>
+                      ))
+                      :
+                      <tr>
+                        <td colSpan={5} className="text-center text-danger">No data found</td>
                       </tr>
-                    ))
                   )}
                 </tbody>
               </Table>
             </div>
 
-            <Row className="mb-3 justify-content-between">
+            {data.length > 0 && <Row className="mb-3 justify-content-between">
               <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
                 Show Entries
                 <Col md={2}>
@@ -402,7 +407,7 @@ function AllClients() {
                   onPageChange={handlePageChange}
                 />
               </Col>
-            </Row>
+            </Row>}
           </>
         </Tab>
 

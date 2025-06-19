@@ -189,62 +189,67 @@ function AllServiceCode() {
                     </td>
                   </tr>
                 ) : (
-                  filteredData.map((item, index) => (
-                    <tr key={index}>
-                      <td className="text-start px-4">{index + 1}</td>
-                      <td className="text-start px-4">{item.text}</td>
-                      <td className="text-start px-4">
-                        {item?.createdDateTime ? getFormattedDAndT(item.createdDateTime) : ''}
-                      </td>
-                      <td className="text-start px-4">
-                        <div
-                          className="rounded-5"
-                          style={{
-                            color: '#1F9254',
-                            backgroundColor: '#EBF9F1',
-                            width: 'fit-content',
-                            padding: '4px 15px',
-                          }}
-                        >
-                          {item.status}
-                        </div>
-                      </td>
-                      <td className="text-center action-dropdown-menu">
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-link p-0 border-0"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
+                  filteredData.length > 0 ?
+                    filteredData.map((item, index) => (
+                      <tr key={index}>
+                        <td className="text-start px-4">{index + 1}</td>
+                        <td className="text-start px-4">{item.text}</td>
+                        <td className="text-start px-4">
+                          {item?.createdDateTime ? getFormattedDAndT(item.createdDateTime) : ''}
+                        </td>
+                        <td className="text-start px-4">
+                          <div
+                            className="rounded-5"
+                            style={{
+                              color: '#1F9254',
+                              backgroundColor: '#EBF9F1',
+                              width: 'fit-content',
+                              padding: '4px 15px',
+                            }}
                           >
-                            <BsThreeDotsVertical size={18} />
-                          </button>
-                          <ul className="dropdown-menu dropdown-menu-end">
-                            <li>
-                              <button
-                                className="dropdown-item" onClick={() => handleShowModal2(item)}
-                              >
-                                Edit Details
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="dropdown-item" onClick={() => handleDelete(item._id)}
-                              >
-                                Delete Service Code
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                      {/* <td className="text-start px-4 cursor-pointer">
+                            {item.status}
+                          </div>
+                        </td>
+                        <td className="text-center action-dropdown-menu">
+                          <div className="dropdown">
+                            <button
+                              className="btn btn-link p-0 border-0"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              <BsThreeDotsVertical size={18} />
+                            </button>
+                            <ul className="dropdown-menu dropdown-menu-end">
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleShowModal2(item)}
+                                >
+                                  Edit Details
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleDelete(item._id)}
+                                >
+                                  Delete Service Code
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        {/* <td className="text-start px-4 cursor-pointer">
                         <FaRegEdit size={22} color="#624DE3" onClick={() => handleShowModal2(item)} />
                       </td>
                       <td className="text-start px-4 cursor-pointer">
                         <RiDeleteBin5Line size={22} color="#A30D11" onClick={() => handleDelete(item._id)} />
                       </td> */}
+                      </tr>
+                    ))
+                    :
+                    <tr>
+                      <td colSpan={5} className="text-center text-danger">No data found</td>
                     </tr>
-                  ))
                 )}
               </tbody>
             </Table>

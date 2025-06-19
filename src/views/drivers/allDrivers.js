@@ -158,52 +158,53 @@ const AllDrivers = () => {
                     </td>
                   </tr>
                 )}
-                {allDrivers && allDrivers.map((item, index) => (
-                  <tr key={index}>
-                    {/* <td className="text-start px-4">{index + 1}</td> */}
-                    <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
-                    <td className="text-start px-4">{item.email}</td>
-                    <td className="text-start px-4">{item.phone}</td>
-                    <td className="text-start px-4">
-                      <Moment format="DD/MM/YYYY, hh:mm a">{item.createdDateTime}</Moment>
-                    </td>
-                    <td className="text-center action-dropdown-menu">
-                      <div className="dropdown">
-                        <button
-                          className="btn btn-link p-0 border-0"
-                          type="button"
+                {allDrivers.length > 0 ?
+                  allDrivers.map((item, index) => (
+                    <tr key={index}>
+                      {/* <td className="text-start px-4">{index + 1}</td> */}
+                      <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
+                      <td className="text-start px-4">{item.email}</td>
+                      <td className="text-start px-4">{item.phone}</td>
+                      <td className="text-start px-4">
+                        <Moment format="DD/MM/YYYY, hh:mm a">{item.createdDateTime}</Moment>
+                      </td>
+                      <td className="text-center action-dropdown-menu">
+                        <div className="dropdown">
+                          <button
+                            className="btn btn-link p-0 border-0"
+                            type="button"
 
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <BsThreeDotsVertical size={18} />
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => navigate(`/driver/edit/${item._id}`)}
-                            >
-                              View/Edit Details
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => navigate(`/driver/jobs/${item._id}`)}
-                            >
-                              Booking Details
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => handleDelete(item._id)}
-                            >
-                              Delete Driver
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                    {/* <td className="text-start px-4">
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            <BsThreeDotsVertical size={18} />
+                          </button>
+                          <ul className="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <button
+                                className="dropdown-item" onClick={() => navigate(`/driver/edit/${item._id}`)}
+                              >
+                                View/Edit Details
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="dropdown-item" onClick={() => navigate(`/driver/jobs/${item._id}`)}
+                              >
+                                Booking Details
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="dropdown-item" onClick={() => handleDelete(item._id)}
+                              >
+                                Delete Driver
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                      {/* <td className="text-start px-4">
                       <FaRegEdit
                         size={22}
                         className="text-primary cursor-pointer"
@@ -231,13 +232,17 @@ const AllDrivers = () => {
                         onClick={() => handleDelete(item._id)}
                       />
                     </td> */}
+                    </tr>
+                  )) :
+                  <tr>
+                    <td colSpan={14} className="text-center text-danger">No data found</td>
                   </tr>
-                ))}
+                }
               </tbody>
             </Table>
 
 
-            <Row className="mb-3 justify-content-between">
+            {allDrivers.length > 0 && <Row className="mb-3 justify-content-between">
               <Col md={8} className="d-flex align-items-center gap-2 ">
                 Show Entries
                 <Col md={2}>
@@ -258,7 +263,7 @@ const AllDrivers = () => {
                   onPageChange={handlePageChange}
                 />
               </Col>
-            </Row>
+            </Row>}
           </div>
         </Col>
       </Row>

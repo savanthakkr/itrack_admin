@@ -801,61 +801,62 @@ const Dashboard = () => {
 										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 									</tr>
 								) : (
-									data && data.map((item, index) => {
-										const isSelected = item._id === selectedItem._id;
-										const status = item?.isHold ? 'Hold' : item?.currentStatus;
-										const styles = getStatusStyles(status);
+									data.length > 0 ?
+										data?.map((item, index) => {
+											const isSelected = item._id === selectedItem._id;
+											const status = item?.isHold ? 'Hold' : item?.currentStatus;
+											const styles = getStatusStyles(status);
 
-										const tdStyle = {
-											backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-											fontSize: 13,
-											textAlign: 'left',
-										};
+											const tdStyle = {
+												backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+												fontSize: 13,
+												textAlign: 'left',
+											};
 
-										return (
-											<tr key={index} className="cursor-pointer">
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.clientId?.companyName}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.AWB}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.pieces}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.serviceTypeId?.text}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.serviceCodeId?.text}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.pickUpDetails?.pickupLocationId?.customName}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.dropOfDetails?.dropOfLocationId?.customName}
-												</td>
-												{/* <td onClick={() => handleView(item)} style={tdStyle}>
+											return (
+												<tr key={index} className="cursor-pointer">
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.clientId?.companyName}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.AWB}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.pieces}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.serviceTypeId?.text}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.serviceCodeId?.text}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.pickUpDetails?.pickupLocationId?.customName}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.dropOfDetails?.dropOfLocationId?.customName}
+													</td>
+													{/* <td onClick={() => handleView(item)} style={tdStyle}>
                           {item?.uid}
                         </td> */}
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.note}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													<div className="px-1 py-1 rounded-5 text-center" style={styles}>
-														{status}
-													</div>
-												</td>
-												{/* <td className="text-center" style={tdStyle}>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.note}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+															{status}
+														</div>
+													</td>
+													{/* <td className="text-center" style={tdStyle}>
                           {!item?.driverId ? (
                             <FaTruckMoving onClick={() => handleShowAssign(item)} />
                           ) : (
@@ -865,42 +866,46 @@ const Dashboard = () => {
                         <td className="text-center" style={tdStyle}>
                           <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
                         </td> */}
-												<td className="text-center action-dropdown-menu" style={tdStyle}>
-													<div className="dropdown">
-														<button
-															className="btn btn-link p-0 border-0"
-															type="button"
-															id={`dropdownMenuButton-${item._id}`}
-															data-bs-toggle="dropdown"
-															aria-expanded="false"
-														>
-															<BsThreeDotsVertical size={18} />
-														</button>
-														<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-															<li>
-																<button
-																	className="dropdown-item"
-																	onClick={() => {
-																		item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
-																	}}
-																>
-																	{item?.driverId ? 'Change Driver' : 'Assign Driver'}
-																</button>
-															</li>
-															<li>
-																<button
-																	className="dropdown-item"
-																	onClick={() => navigate(`/location/${item._id}`)}
-																>
-																	Package Location
-																</button>
-															</li>
-														</ul>
-													</div>
-												</td>
-											</tr>
-										);
-									})
+													<td className="text-center action-dropdown-menu" style={tdStyle}>
+														<div className="dropdown">
+															<button
+																className="btn btn-link p-0 border-0"
+																type="button"
+																id={`dropdownMenuButton-${item._id}`}
+																data-bs-toggle="dropdown"
+																aria-expanded="false"
+															>
+																<BsThreeDotsVertical size={18} />
+															</button>
+															<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+																<li>
+																	<button
+																		className="dropdown-item"
+																		onClick={() => {
+																			item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
+																		}}
+																	>
+																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
+																	</button>
+																</li>
+																<li>
+																	<button
+																		className="dropdown-item"
+																		onClick={() => navigate(`/location/${item._id}`)}
+																	>
+																		Package Location
+																	</button>
+																</li>
+															</ul>
+														</div>
+													</td>
+												</tr>
+											);
+										})
+										:
+										<tr>
+											<td colSpan={14} className="text-center text-danger">No data found</td>
+										</tr>
 								)}
 							</tbody>
 						</Table>

@@ -80,7 +80,6 @@ const AllJobs = () => {
 
     let payload = { ...searchQuery };
 
-    console.log('payload', payload);
 
     if (activeTab === 'todaysJob') {
 
@@ -643,28 +642,30 @@ const AllJobs = () => {
         </Col>
       </Row>
 
-      <Row className="mb-3 justify-content-between">
-        <Col md={6} className="d-flex align-items-center gap-2 ">
-          Show Entries
-          <Col md={2}>
-            <Form.Select
-              value={limit}
-              onChange={handleLimitChange}
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={30}>30</option>
-            </Form.Select>
+      {Object.values(searchQuery).every(value => value === null || value === '') && data.length > 0 &&
+        <Row className="mb-3 justify-content-between">
+          <Col md={6} className="d-flex align-items-center gap-2 ">
+            Show Entries
+            <Col md={2}>
+              <Form.Select
+                value={limit}
+                onChange={handleLimitChange}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={30}>30</option>
+              </Form.Select>
+            </Col>
           </Col>
-        </Col>
-        <Col md={6} className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
-          <MyPagination
-            totalPages={totalPages}
-            currentPage={page}
-            onPageChange={handlePageChange}
-          />
-        </Col>
-      </Row>
+          <Col md={6} className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+            <MyPagination
+              totalPages={totalPages}
+              currentPage={page}
+              onPageChange={handlePageChange}
+            />
+          </Col>
+        </Row>
+      }
       {/* <div className="d-flex justify-content-center mt-4">
         <div className="text-center w-100" style={{ overflowX: 'auto', maxWidth: '100%' }}>
           <MyPagination totalPages={totalPages} currentPage={page} onPageChange={handlePageChange} />
