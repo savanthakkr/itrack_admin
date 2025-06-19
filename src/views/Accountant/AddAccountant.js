@@ -51,7 +51,7 @@ function AddAccountant() {
       //   setLoading(false)
       //   return
       // }
-      post('/super-admin/accountant', accountantData, "admin").then((res) => {
+      post('/admin/accountant', accountantData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)
           sweetAlert.fire({

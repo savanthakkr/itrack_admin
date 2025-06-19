@@ -43,7 +43,7 @@ function EditAccountant() {
             old_password: accountantData.password,
             new_password: newPassword
         }
-        updateReq(`/super-admin/accountant/password-change?ID=${id}`, payload, "admin").then((data) => {
+        updateReq(`/admin/accountant/password-change?ID=${id}`, payload, "admin").then((data) => {
             if (data.data.status) {
                 setIsRefresh(!isReferesh);
                 Swal.fire({
@@ -61,7 +61,7 @@ function EditAccountant() {
     const handleImageClose = () => setShowImage(false);
 
     const handleImageUpdate = () => {
-        updateImage(`/super-admin/accountant/image-update?ID=${id}`, { image: newImage }, "admin").then((data) => {
+        updateImage(`/admin/accountant/image-update?ID=${id}`, { image: newImage }, "admin").then((data) => {
             if (data.data.status) {
                 setIsRefresh(!isReferesh);
                 Swal.fire({
@@ -81,7 +81,7 @@ function EditAccountant() {
 
         if (form.checkValidity()) {
             setLoading(true)
-            updateReq(`/super-admin/accountant?ID=${id}`, accountantData, "admin").then((data) => {
+            updateReq(`/admin/accountant?ID=${id}`, accountantData, "admin").then((data) => {
                 if (data.data.status) {
                     setIsRefresh(!isReferesh);
                     Swal.fire({
@@ -104,7 +104,7 @@ function EditAccountant() {
 
     // getting the driver data
     useEffect(() => {
-        get(`/super-admin/accountant/view?ID=${id}`, "admin")
+        get(`/admin/accountant/view?ID=${id}`, "admin")
             .then((data) => {
                 setAccountantData(data.data.data)
             })

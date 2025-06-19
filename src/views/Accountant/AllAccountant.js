@@ -55,7 +55,7 @@ const AllAccountant = () => {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`super-admin/accountant?ID=${Id}`, "admin").then((data) => {
+          deleteReq(`admin/accountant?ID=${Id}`, "admin").then((data) => {
             sweetAlert.fire({
               icon: 'success',
               title: 'Accountant Deleted Successfully!',
@@ -80,7 +80,7 @@ const AllAccountant = () => {
   // fetch All Accountants
   useEffect(() => {
     setLoading(true)
-    get(`super-admin/accountant?page=${page}&limit=${limit}`, "admin")
+    get(`admin/accountant?page=${page}&limit=${limit}`, "admin")
       .then((response) => {
         if (response.data.status) {
           setAllAccountants(response.data.data)
