@@ -82,11 +82,12 @@ const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/client/add', name: 'Add Client', element: AddClients },
-    { path: '/admin/add', name: 'Add Client', element: AddAdmin },
+  { path: '/admin/add', name: 'Add Client', element: AddAdmin },
   { path: '/client/all', name: 'All Client', element: AllClients },
-    { path: '/admin/all', name: 'All Client', element: AllAdmin },
-       { path: '/accountant/all', name: 'All Client', element: AllAccountant },
-       { path: '/accountant/add', name: 'Add Client', element: AddAccountant },
+  { path: '/invoices', name: 'All Client', element: AllClients },
+  { path: '/admin/all', name: 'All Client', element: AllAdmin },
+  { path: '/accountant/all', name: 'All Client', element: AllAccountant },
+  { path: '/accountant/add', name: 'Add Client', element: AddAccountant },
   { path: '/client/:id/jobs', name: 'All Client Jobs', element: AllClientsJob },
   { path: '/client/job/add/:id', name: 'Add Client Job', element: AddClientJOb },
   { path: '/client/edit/:id', name: 'Edit Client', element: EditClients },
@@ -106,7 +107,7 @@ const routes = [
   { path: '/location/pickup', name: 'Pickup Location', element: AllPickupLocation },
   { path: '/location/drop', name: 'Drop Location', element: AllDropLocation },
   { path: '/reports/stats', name: 'Report', element: Report },
-  { path: '/client/vpap/add/:id', name: 'Add VPAP', element: AddVpap},
+  { path: '/client/vpap/add/:id', name: 'Add VPAP', element: AddVpap },
 
   //  theme routes old
 

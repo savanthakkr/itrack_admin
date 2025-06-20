@@ -49,19 +49,19 @@ const getNavItems = (role) => {
       name: 'Client',
       to: '/base',
       icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false',
+      display: role === 'Admin' ? 'true' : 'false',
       items: [
         {
           component: CNavItem,
           name: 'Add Client',
           to: '/client/add',
-          display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+          display: role === 'Admin' ? 'true' : 'false'
         },
         {
           component: CNavItem,
           name: 'All Client',
           to: '/client/all',
-          display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+          display: role === 'Admin' ? 'true' : 'false'
         },
       ],
     },
@@ -183,6 +183,13 @@ const getNavItems = (role) => {
       to: '/reports/stats',
       icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
       display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false',
+    },
+    {
+      component: CNavItem,
+      name: 'Invoices ',
+      to: '/invoices',
+      icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
+      display: role === 'Accountant' ? 'true' : 'false',
     },
 
     // {

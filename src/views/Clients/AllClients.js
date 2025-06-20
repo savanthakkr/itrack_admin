@@ -16,7 +16,7 @@ import { CButton } from '@coreui/react'
 import DateRangeFilter from '../../components/DateRangeFilter'
 import { RiDeleteBin5Line } from 'react-icons/ri'
 import { IoMdAdd } from 'react-icons/io'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { useColorModes } from '@coreui/react'
 import { get, deleteReq } from '../../lib/request'
@@ -32,6 +32,7 @@ import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from
 import FilterOffCanvas from '../../components/Filter'
 
 function AllClients() {
+  let currentUrl = useLocation();
   let imgSrc = process.env.Image_Src
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const navigate = useNavigate()
@@ -238,6 +239,15 @@ function AllClients() {
         setLoading(false)
       })
   }
+
+  useEffect(() => {
+    if (currentUrl.pathname.includes("/invoices")) {
+      setActiveTab('invoices');
+    } else {
+      setActiveTab('allClients');
+    }
+  }, [currentUrl]);
+
   return (
     <>
       <Row className="align-items-center">
@@ -279,75 +289,76 @@ function AllClients() {
       {/* Edited */}
       <Tabs activeKey={activeTab} onSelect={handleTabSelect} id="job-tabs" className="mb-3 custom-tabs">
         {/* Job Details */}
-        <Tab eventKey="allClients" title="All Clients">
-          <>
-            <div className="client-rates-table">
-              <Table className="custom-table table-bordered" responsive hover>
-                <thead>
-                  <tr>
-                    {/* <th className="text-center px-4">#</th> */}
-                    <th className="text-start px-4">Company Name</th>
-                    <th className="text-start px-4">Email</th>
-                    <th className="text-start px-4">Phone</th>
-                    <th className="text-start px-4" style={{ width: 'auto', minWidth: '250px' }}>Registered Date</th>
-                    <th className="text-start px-4" style={{ width: 'auto', minWidth: 'auto' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
+        {!currentUrl.pathname.includes("/invoices") &&
+          <Tab eventKey="allClients" title="All Clients">
+            <>
+              <div className="client-rates-table">
+                <Table className="custom-table table-bordered" responsive hover>
+                  <thead>
                     <tr>
-                      <td colSpan={9} className="text-center">
-                        <Spinner animation="border" className="mx-auto d-block" />
-                      </td>
+                      {/* <th className="text-center px-4">#</th> */}
+                      <th className="text-start px-4">Company Name</th>
+                      <th className="text-start px-4">Email</th>
+                      <th className="text-start px-4">Phone</th>
+                      <th className="text-start px-4" style={{ width: 'auto', minWidth: '250px' }}>Registered Date</th>
+                      <th className="text-start px-4" style={{ width: 'auto', minWidth: 'auto' }}>Actions</th>
                     </tr>
-                  ) : (
-                    clientData.length > 0 ?
-                      clientData.map((client, index) => (
-                        <tr key={index}>
-                          {/* <td className="text-start px-4">{index + 1}</td> */}
-                          <td className="text-start px-4">{client?.companyName}</td>
-                          <td className="text-start px-4">{client?.email}</td>
-                          <td className="text-start px-4">{client?.phone}</td>
-                          <td className="text-start px-4">
-                            <Moment format="DD/MM/YYYY, hh:mm a">{client?.createdDateTime}</Moment>
-                          </td>
-                          <td className="text-center action-dropdown-menu">
-                            <div className="dropdown">
-                              <button
-                                className="btn btn-link p-0 border-0"
-                                type="button"
+                  </thead>
+                  <tbody>
+                    {loading ? (
+                      <tr>
+                        <td colSpan={9} className="text-center">
+                          <Spinner animation="border" className="mx-auto d-block" />
+                        </td>
+                      </tr>
+                    ) : (
+                      clientData?.length > 0 ?
+                        clientData?.map((client, index) => (
+                          <tr key={index}>
+                            {/* <td className="text-start px-4">{index + 1}</td> */}
+                            <td className="text-start px-4">{client?.companyName}</td>
+                            <td className="text-start px-4">{client?.email}</td>
+                            <td className="text-start px-4">{client?.phone}</td>
+                            <td className="text-start px-4">
+                              <Moment format="DD/MM/YYYY, hh:mm a">{client?.createdDateTime}</Moment>
+                            </td>
+                            <td className="text-center action-dropdown-menu">
+                              <div className="dropdown">
+                                <button
+                                  className="btn btn-link p-0 border-0"
+                                  type="button"
 
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                <BsThreeDotsVertical size={18} />
-                              </button>
-                              <ul className="dropdown-menu dropdown-menu-end">
-                                <li>
-                                  <button
-                                    className="dropdown-item" onClick={() => navigate(`/client/edit/${client?._id}`)}
-                                  >
-                                    View/Edit Details
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item" onClick={() => navigate(`/client/${client?._id}/jobs`)}
-                                  >
-                                    Booking Details
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item" onClick={() => handleDelete(client?._id)}
-                                  >
-                                    Delete Client
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-                          </td>
-                          {/* <td className="text-start px-4 cursor-pointer">
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  <BsThreeDotsVertical size={18} />
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-end">
+                                  <li>
+                                    <button
+                                      className="dropdown-item" onClick={() => navigate(`/client/edit/${client?._id}`)}
+                                    >
+                                      View/Edit Details
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item" onClick={() => navigate(`/client/${client?._id}/jobs`)}
+                                    >
+                                      Booking Details
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item" onClick={() => handleDelete(client?._id)}
+                                    >
+                                      Delete Client
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+                            </td>
+                            {/* <td className="text-start px-4 cursor-pointer">
                         <FaEye
                           onClick={() => handleShowModal(client)}
                           size={22}
@@ -375,41 +386,42 @@ function AllClients() {
                           onClick={() => handleDelete(client?._id)}
                         />
                       </td> */}
+                          </tr>
+                        ))
+                        :
+                        <tr>
+                          <td colSpan={5} className="text-center text-danger">No data found</td>
                         </tr>
-                      ))
-                      :
-                      <tr>
-                        <td colSpan={5} className="text-center text-danger">No data found</td>
-                      </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
 
-            {data.length > 0 && <Row className="mb-3 justify-content-between">
-              <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
-                Show Entries
-                <Col md={2}>
-                  <Form.Select className="page-entries"
-                    value={limit}
-                    onChange={handleLimitChange}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                  </Form.Select>
+              {data.length > 0 && <Row className="mb-3 justify-content-between">
+                <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
+                  Show Entries
+                  <Col md={2}>
+                    <Form.Select className="page-entries"
+                      value={limit}
+                      onChange={handleLimitChange}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                    </Form.Select>
+                  </Col>
                 </Col>
-              </Col>
-              <Col className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
-                <MyPagination
-                  totalPages={totalPages}
-                  currentPage={page}
-                  onPageChange={handlePageChange}
-                />
-              </Col>
-            </Row>}
-          </>
-        </Tab>
+                <Col className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+                  <MyPagination
+                    totalPages={totalPages}
+                    currentPage={page}
+                    onPageChange={handlePageChange}
+                  />
+                </Col>
+              </Row>}
+            </>
+          </Tab>
+        }
 
         {/* Invoices */}
         <Tab eventKey="invoices" title="Invoices" className="client-rates-table">
@@ -471,89 +483,93 @@ function AllClients() {
                     <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                   </tr>
                 ) : (
-                  data && data.map((item, index) => {
-                    const isSelected = item._id === selectedItem._id;
-                    const status = item?.isHold ? 'Hold' : item?.currentStatus;
-                    const styles = getStatusStyles(status);
+                  data?.length > 0 ?
+                    data?.map((item, index) => {
+                      const isSelected = item._id === selectedItem._id;
+                      const status = item?.isHold ? 'Hold' : item?.currentStatus;
+                      const styles = getStatusStyles(status);
 
-                    const tdStyle = {
-                      backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                      fontSize: 13,
-                      textAlign: 'left',
-                    };
+                      const tdStyle = {
+                        backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                        fontSize: 13,
+                        textAlign: 'left',
+                      };
 
-                    return (
-                      <tr key={index} className="cursor-pointer">
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.clientId?.companyName}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.AWB}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.pieces}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.serviceTypeId?.text}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.serviceCodeId?.text}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.pickUpDetails?.pickupLocationId?.customName}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.dropOfDetails?.dropOfLocationId?.customName}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.rates != null ? item.rates : '—'}
-                        </td>
-                        <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.is_invoices === true ? 'Yes' : 'No'}
-                        </td>
-                        <td className="text-center action-dropdown-menu" style={tdStyle}>
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-link p-0 border-0"
-                              type="button"
-                              id={`dropdownMenuButton-${item._id}`}
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <BsThreeDotsVertical size={18} />
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => navigate(`/client/invoice/${item._id}`)}
-                                >
-                                  View Details
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => navigate(`/client/job/details/${item._id}`)}
-                                >
-                                  Add Manual Pricing
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                      return (
+                        <tr key={index} className="cursor-pointer">
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.clientId?.companyName}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.AWB}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.pieces}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.serviceTypeId?.text}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.serviceCodeId?.text}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.pickUpDetails?.pickupLocationId?.customName}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.dropOfDetails?.dropOfLocationId?.customName}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.rates != null ? item.rates : '—'}
+                          </td>
+                          <td onClick={() => handleView(item)} style={tdStyle}>
+                            {item?.is_invoices === true ? 'Yes' : 'No'}
+                          </td>
+                          <td className="text-center action-dropdown-menu" style={tdStyle}>
+                            <div className="dropdown">
+                              <button
+                                className="btn btn-link p-0 border-0"
+                                type="button"
+                                id={`dropdownMenuButton-${item._id}`}
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
+                                <BsThreeDotsVertical size={18} />
+                              </button>
+                              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                <li>
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={() => navigate(`/client/invoice/${item._id}`)}
+                                  >
+                                    View Details
+                                  </button>
+                                </li>
+                                <li>
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={() => navigate(`/client/job/details/${item._id}`)}
+                                  >
+                                    Add Manual Pricing
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }) :
+                    <tr>
+                      <td colSpan={12} className="text-center text-danger">No data found</td>
+                    </tr>
                 )}
               </tbody>
             </Table>
