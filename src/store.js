@@ -35,6 +35,7 @@ const initialState = {
     serviceTypeId: ""
   },
   data: [],
+  jobsCount: 0,
   role: localStorage.getItem('role'),
   loggedInUser: {
     firstName: localStorage.getItem('firstname'),
@@ -62,6 +63,8 @@ const changeState = (state = initialState, action) => {
       return { ...state, role: payload };
     case 'setUserInfo':
       return { ...state, loggedInUser: payload };
+    case 'setJobCount':
+      return { ...state, jobsCount: payload };
     default:
       return state;
   }

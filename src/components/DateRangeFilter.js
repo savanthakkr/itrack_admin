@@ -5,6 +5,7 @@ import Select from 'react-select';
 import FilterOffCanvas from './Filter';
 import { BsCheck } from 'react-icons/bs';
 import { useDispatch } from 'react-redux';
+import { getCurrentDate } from '../lib/getFormatedDate';
 
 export default function DateRangeFilter({
 	setData,
@@ -13,7 +14,9 @@ export default function DateRangeFilter({
 	setIsFiltering,
 	searchQuery,
 	setSearchQuery,
-	activeTab
+	activeTab,
+	page,
+	limit
 }) {
 	// const [searchQuery, setSearchQuery] = useState({
 	//     AWB: "",
@@ -54,14 +57,69 @@ export default function DateRangeFilter({
 					}
 				})
 			);
-			console.log('filterQuery', filteredQuery);
-			getSeachFilterResult(filteredQuery, role).then((res) => {
-				// setData(res)
-				dispatch({
-					type: 'getJobData',
-					payload: res,
-				});
-			})
+			if (page && limit) {
+				getSeachFilterResult(filteredQuery, role, page, limit).then((res) => {
+					// setData(res)
+					dispatch({
+						type: 'getJobData',
+						payload: res?.jobs,
+					});
+
+					dispatch({
+						type: 'setJobCount',
+						payload: res?.totalCount,
+					});
+				})
+			} else {
+				getSeachFilterResult(filteredQuery, role).then((res) => {
+					// setData(res)
+					dispatch({
+						type: 'getJobData',
+						payload: res?.jobs,
+					});
+
+					dispatch({
+						type: 'setJobCount',
+						payload: res?.totalCount,
+					});
+				})
+			}
+
+		} else {
+			const filterQuery = searchQuery;
+
+			if (activeTab === 'todaysJob') {
+				filterQuery.fromDate = getCurrentDate();
+				filterQuery.toDate = getCurrentDate()
+			}
+			
+			if (page && limit) {
+				getSeachFilterResult(filterQuery, role, page, limit).then((res) => {
+					// setData(res)
+					dispatch({
+						type: 'getJobData',
+						payload: res?.jobs,
+					});
+
+					dispatch({
+						type: 'setJobCount',
+						payload: res?.totalCount,
+					});
+				})
+			} else {
+				getSeachFilterResult(filterQuery, role).then((res) => {
+					// setData(res)
+					dispatch({
+						type: 'getJobData',
+						payload: res?.jobs,
+					});
+
+					dispatch({
+						type: 'setJobCount',
+						payload: res?.totalCount,
+					});
+				})
+			}
 		}
 	}, [searchQuery.fromDate, searchQuery.toDate])
 

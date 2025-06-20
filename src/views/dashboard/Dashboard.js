@@ -142,8 +142,6 @@ const Dashboard = () => {
 
 		let payload = { ...searchQuery };
 
-		console.log('payload', payload);
-
 		if (activeTab === 'todaysJob') {
 
 			payload.fromDate = moment().format("YYYY-MM-DD");
@@ -166,27 +164,27 @@ const Dashboard = () => {
 		// handleTabSelect("todaysJob");
 		setActiveTab("todaysJob");
 
-		const hasFilters =
-			searchQuery.currentStatus ||
-			searchQuery.clientId ||
-			searchQuery.driverId ||
-			searchQuery.fromDate ||
-			searchQuery.toDate ||
-			searchQuery.jobId ||
-			searchQuery.clientName ||
-			searchQuery.driverName ||
-			searchQuery.serviceCode ||
-			searchQuery.serviceType;
+		// const hasFilters =
+		// 	searchQuery.currentStatus ||
+		// 	searchQuery.clientId ||
+		// 	searchQuery.driverId ||
+		// 	searchQuery.fromDate ||
+		// 	searchQuery.toDate ||
+		// 	searchQuery.jobId ||
+		// 	searchQuery.clientName ||
+		// 	searchQuery.driverName ||
+		// 	searchQuery.serviceCode ||
+		// 	searchQuery.serviceType;
 
-		if (hasFilters && searchTerm.trim()) {
-			handleSearchClick(searchTerm, searchQuery);
-		}
+		// if (hasFilters && searchTerm.trim()) {
+		// 	handleSearchClick(searchTerm, searchQuery);
+		// }
 
-		// Retrieve the selected item from local storage if it exists
-		const storedSelectedItem = sessionStorage.getItem('selectedItem')
-		if (storedSelectedItem) {
-			setSelectedItem(JSON.parse(storedSelectedItem))
-		}
+		// // Retrieve the selected item from local storage if it exists
+		// const storedSelectedItem = sessionStorage.getItem('selectedItem')
+		// if (storedSelectedItem) {
+		// 	setSelectedItem(JSON.parse(storedSelectedItem))
+		// }
 
 	}, []);
 
@@ -264,12 +262,12 @@ const Dashboard = () => {
 		// setData(newData)
 		dispatch({
 			type: 'getJobData',
-			payload: newData,
+			payload: newData?.jobs,
 		});
 	}
 
 	const handleTodayJobs = () => {
-		setLoading(true)
+		setLoading(true);
 		get(`/admin/info/jobFilter?fromDate=${currentDate}&toDate=${currentDate}`, 'admin').then(
 			(response) => {
 				if (response?.data?.status) {
@@ -279,7 +277,7 @@ const Dashboard = () => {
 					// setData(response?.data?.data);
 					dispatch({
 						type: 'getJobData',
-						payload: response?.data?.data,
+						payload: response?.data?.data?.jobs,
 					});
 					setLoading(false)
 				}
@@ -299,7 +297,7 @@ const Dashboard = () => {
 					// setData(response?.data?.data)
 					dispatch({
 						type: 'getJobData',
-						payload: response?.data?.data,
+						payload: response?.data?.data?.jobs,
 					});
 					setLoading(false);
 					setMessage('');
@@ -309,8 +307,6 @@ const Dashboard = () => {
 				console.error(error)
 			})
 	}
-
-	console.log('data', data);
 
 	// useEffect(() => {
 	// 	setLoading(true)
@@ -334,7 +330,7 @@ const Dashboard = () => {
 	useEffect(() => {
 		if (activeTab === 'allJobs') {
 			getInitialData();
-		} else {
+		} else if (activeTab === 'todaysJob') {
 			handleTodayJobs();
 		}
 	}, [activeTab])
@@ -406,8 +402,8 @@ const Dashboard = () => {
 			if (filter.jobId) queryParams.push(`jobId=${filter.jobId}`)
 			if (filter.clientName) queryParams.push(`clientName=${filter.clientName}`)
 			if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
-			if (filter.serviceTypeId) queryParams.push(`driverName=${filter.serviceTypeId}`)
-			if (filter.serviceCodeId) queryParams.push(`driverName=${filter.serviceCodeId}`)
+			if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
+			if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
 
 			const query = queryParams.join('&');
 
@@ -423,7 +419,7 @@ const Dashboard = () => {
 							// setData(response?.data?.data)
 							dispatch({
 								type: 'getJobData',
-								payload: response?.data?.data,
+								payload: response?.data?.data?.jobs,
 							});
 							setLoading(false)
 						}
@@ -611,61 +607,62 @@ const Dashboard = () => {
 										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 									</tr>
 								) : (
-									data && data.map((item, index) => {
-										const isSelected = item._id === selectedItem._id;
-										const status = item?.isHold ? 'Hold' : item?.currentStatus;
-										const styles = getStatusStyles(status);
+									data.length > 0 ?
+										data?.map((item, index) => {
+											const isSelected = item._id === selectedItem._id;
+											const status = item?.isHold ? 'Hold' : item?.currentStatus;
+											const styles = getStatusStyles(status);
 
-										const tdStyle = {
-											backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-											fontSize: 14,
-											textAlign: 'left',
-										};
+											const tdStyle = {
+												backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+												fontSize: 14,
+												textAlign: 'left',
+											};
 
-										return (
-											<tr key={index} className="cursor-pointer">
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.clientId?.companyName}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.AWB}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.pieces}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.serviceTypeId?.text}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.serviceCodeId?.text}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.pickUpDetails?.pickupLocationId?.customName}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.dropOfDetails?.dropOfLocationId?.customName}
-												</td>
-												{/* <td onClick={() => handleView(item)} style={tdStyle}>
+											return (
+												<tr key={index} className="cursor-pointer">
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.clientId?.companyName}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.AWB}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.pieces}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.serviceTypeId?.text}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.serviceCodeId?.text}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.pickUpDetails?.pickupLocationId?.customName}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.dropOfDetails?.dropOfLocationId?.customName}
+													</td>
+													{/* <td onClick={() => handleView(item)} style={tdStyle}>
                           {item?.uid}
                         </td> */}
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.note}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
-												</td>
-												<td onClick={() => handleView(item)} style={tdStyle}>
-													<div className="px-1 py-1 rounded-5 text-center" style={styles}>
-														{status}
-													</div>
-												</td>
-												{/* <td className="text-center" style={tdStyle}>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.note}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+													</td>
+													<td onClick={() => handleView(item)} style={tdStyle}>
+														<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+															{status}
+														</div>
+													</td>
+													{/* <td className="text-center" style={tdStyle}>
                           {!item?.driverId ? (
                             <FaTruckMoving onClick={() => handleShowAssign(item)} />
                           ) : (
@@ -675,42 +672,45 @@ const Dashboard = () => {
                         <td className="text-center" style={tdStyle}>
                           <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
                         </td> */}
-												<td className="text-center action-dropdown-menu" style={tdStyle}>
-													<div className="dropdown">
-														<button
-															className="btn btn-link p-0 border-0"
-															type="button"
-															id={`dropdownMenuButton-${item._id}`}
-															data-bs-toggle="dropdown"
-															aria-expanded="false"
-														>
-															<BsThreeDotsVertical size={18} />
-														</button>
-														<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-															<li>
-																<button
-																	className="dropdown-item"
-																	onClick={() => {
-																		item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
-																	}}
-																>
-																	{item?.driverId ? 'Change Driver' : 'Assign Driver'}
-																</button>
-															</li>
-															<li>
-																<button
-																	className="dropdown-item"
-																	onClick={() => navigate(`/location/${item._id}`)}
-																>
-																	Package Location
-																</button>
-															</li>
-														</ul>
-													</div>
-												</td>
-											</tr>
-										);
-									})
+													<td className="text-center action-dropdown-menu" style={tdStyle}>
+														<div className="dropdown">
+															<button
+																className="btn btn-link p-0 border-0"
+																type="button"
+																id={`dropdownMenuButton-${item._id}`}
+																data-bs-toggle="dropdown"
+																aria-expanded="false"
+															>
+																<BsThreeDotsVertical size={18} />
+															</button>
+															<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+																<li>
+																	<button
+																		className="dropdown-item"
+																		onClick={() => {
+																			item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
+																		}}
+																	>
+																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
+																	</button>
+																</li>
+																<li>
+																	<button
+																		className="dropdown-item"
+																		onClick={() => navigate(`/location/${item._id}`)}
+																	>
+																		Package Location
+																	</button>
+																</li>
+															</ul>
+														</div>
+													</td>
+												</tr>
+											);
+										}) :
+										<tr>
+											<td colSpan={14} className="text-center text-danger">No data found</td>
+										</tr>
 								)}
 							</tbody>
 						</Table>
