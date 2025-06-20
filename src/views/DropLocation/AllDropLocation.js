@@ -126,7 +126,7 @@ function AllDropLocation() {
                 <Modal.Title>Add Drop Location</Modal.Title>
               </Modal.Header>
               <Modal.Body className="pt-0">
-                <AddDropLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} />
+                <AddDropLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} setIsAddSection={setIsAddSection} />
               </Modal.Body>
             </Modal>
 
@@ -139,6 +139,7 @@ function AllDropLocation() {
                   isReferesh={isReferesh}
                   setIsRefresh={setIsRefresh}
                   selectedLocation={selectedLocation}
+                  setUpdateSection={setUpdateSection}
                 />
               </Modal.Body>
             </Modal>

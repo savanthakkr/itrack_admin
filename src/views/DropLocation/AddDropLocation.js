@@ -5,8 +5,10 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function AddDropLocation({ isReferesh, setIsRefresh }) {
+export default function AddDropLocation({ isReferesh, setIsRefresh, setIsAddSection }) {
     const [dropLocation, setDropLocation] = useState('');
+    const [note, setNote] = useState('');
+    const [isPickupAddress, setIsPickupAddress] = useState('');
     const [location, setLocation] = useState({
         latitude: 0,
         longitude: 0,
@@ -28,7 +30,9 @@ export default function AddDropLocation({ isReferesh, setIsRefresh }) {
             customName: dropLocation,
             latitude: location.latitude,
             longitude: location.longitude,
-            mapName: location.mapName
+            mapName: location.mapName,
+            note: note,
+            addAsPickupAddress: isPickupAddress
         }
         postWihoutMediaData("/admin/locations/dropoff", payload, "admin").then((response) => {
             if (response.data.status) {
@@ -36,14 +40,15 @@ export default function AddDropLocation({ isReferesh, setIsRefresh }) {
                     icon: 'success',
                     title: 'Success',
                     text: 'Drop Location Added Successfully!',
-                })
-                setIsRefresh(!isReferesh)
+                });
+                setIsAddSection(false);
+                setIsRefresh(!isReferesh);
                 setLocation({
                     latitude: 0,
                     longitude: 0,
                     mapName: ''
-                })
-                setDropLocation('')
+                });
+                setDropLocation('');
 
             } else {
                 sweetAlert.fire({
@@ -74,6 +79,25 @@ export default function AddDropLocation({ isReferesh, setIsRefresh }) {
                     <LocationSuggestion location={location} setLocation={setLocation} />
                 </Form.Group>
 
+            </Row>
+            <Row>
+                <Form.Group className='mt-3'>
+                    <Form.Label className='fw-bold' >Note</Form.Label>
+                    <Form.Control as="textarea" rows={4} placeholder="Enter your Note Here"
+                        onChange={(e) => setNote(e.target.value)} value={note} className="custom-form-control"
+                    />
+                </Form.Group>
+            </Row>
+            <Row className="mt-3">
+                <Form.Group>
+                    <Form.Check
+                        type="checkbox"
+                        label="Add as Pickup Address"
+                        checked={isPickupAddress}
+                        className="custom-checkbox"
+                        onChange={(e) => setIsPickupAddress(e.target.checked)}
+                    />
+                </Form.Group>
             </Row>
             <Row>
                 <Col className='mt-3 mb-3  mx-auto' >

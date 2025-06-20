@@ -59,7 +59,7 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index, indent = false) => {
-    if (item.display) {
+    if (item.display === 'true') {
       const { component, name, badge, icon, to, ...rest } = item
       const isLogout = name?.toLowerCase() === 'logout'
       const Component = component
@@ -89,7 +89,7 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navGroup = (item, index) => {
-    if (item.display) {
+    if (item.display === 'true') {
       const { component, name, icon, items, to, ...rest } = item
       const Component = component
       return (

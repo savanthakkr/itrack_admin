@@ -5,8 +5,10 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
+export default function AddPickupLocation({ isReferesh, setIsRefresh, setIsAddSection }) {
     const [pickUpLocation, setPickUpLocation] = useState('');
+    const [note, setNote] = useState('');
+    const [isDeliveryAddress, setIsDeliveryAddress] = useState(false);
     const [location, setLocation] = useState({
         latitude: 0,
         longitude: 0,
@@ -28,7 +30,9 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
             customName: pickUpLocation,
             latitude: location.latitude,
             longitude: location.longitude,
-            mapName: location.mapName
+            mapName: location.mapName,
+            note: note,
+            addAsDeliveryAddress: isDeliveryAddress
         }
         postWihoutMediaData("/admin/locations/pickup", payload, "admin").then((response) => {
             if (response.data.status) {
@@ -37,6 +41,7 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
                     title: 'Success',
                     text: 'PickUp Location Added Successfully!',
                 })
+                setIsAddSection(false);
                 setIsRefresh(!isReferesh)
                 setLocation({
                     latitude: 0,
@@ -63,7 +68,7 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
             <Row>
                 <Form.Group>
                     <Form.Label className='fw-bold' >Enter Custom Name</Form.Label>
-                    <Form.Control Code="text" placeholder="Enter Name"
+                    <Form.Control placeholder="Enter Name"
                         onChange={(e) => setPickUpLocation(e.target.value)} value={pickUpLocation} className="custom-form-control"
                     />
                 </Form.Group>
@@ -76,6 +81,25 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh }) {
                     <LocationSuggestion location={location} setLocation={setLocation} />
                 </Form.Group>
 
+            </Row>
+            <Row>
+                <Form.Group className='mt-3'>
+                    <Form.Label className='fw-bold' >Note</Form.Label>
+                    <Form.Control as="textarea" rows={4} placeholder="Enter your Note Here"
+                        onChange={(e) => setNote(e.target.value)} value={note} className="custom-form-control"
+                    />
+                </Form.Group>
+            </Row>
+            <Row className="mt-3">
+                <Form.Group>
+                    <Form.Check
+                        type="checkbox"
+                        label="Add as Delivery Address"
+                        checked={isDeliveryAddress}
+                        className="custom-checkbox"
+                        onChange={(e) => setIsDeliveryAddress(e.target.checked)}
+                    />
+                </Form.Group>
             </Row>
             <Row>
                 <Col className='mt-4 mb-3  mx-auto' >

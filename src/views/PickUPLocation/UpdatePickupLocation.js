@@ -5,7 +5,7 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData, updateReq } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selectedLocation }) {
+export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selectedLocation, setUpdateSection }) {
     const [isDeliveryAddress, setIsDeliveryAddress] = useState(selectedLocation.addAsDeliveryAddress);
     const [pickUpLocation, setPickUpLocation] = useState(
         selectedLocation.customName
@@ -43,7 +43,8 @@ export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selecte
                     icon: 'success',
                     title: 'Success',
                     text: 'PickUp Location Updated Successfully!',
-                })
+                });
+                setUpdateSection(false);
                 setIsRefresh(!isReferesh)
 
 
@@ -63,7 +64,7 @@ export default function UpdatePickupLocation({ isReferesh, setIsRefresh, selecte
             <Row>
                 <Form.Group>
                     <Form.Label className='fw-bold'>Enter Custom Name</Form.Label>
-                    <Form.Control Code="text" placeholder="Enter Name"
+                    <Form.Control placeholder="Enter Name"
                         onChange={(e) => setPickUpLocation(e.target.value)} value={pickUpLocation} className="custom-form-control"
                     />
                 </Form.Group>

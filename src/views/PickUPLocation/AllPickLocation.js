@@ -136,7 +136,7 @@ function AllPickupLocation() {
                 <Modal.Title>Add Pickup Location</Modal.Title>
               </Modal.Header>
               <Modal.Body className="pt-0">
-                <AddPickupLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} />
+                <AddPickupLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} setIsAddSection={setIsAddSection}/>
               </Modal.Body>
             </Modal>
 
@@ -149,6 +149,7 @@ function AllPickupLocation() {
                   isReferesh={isReferesh}
                   setIsRefresh={setIsRefresh}
                   selectedLocation={selectedLocation}
+                  setUpdateSection={setUpdateSection}
                 />
               </Modal.Body>
             </Modal>

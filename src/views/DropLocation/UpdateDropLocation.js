@@ -5,7 +5,7 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData, updateReq } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedLocation }) {
+export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedLocation, setUpdateSection }) {
     const [dropLocation, setDropLocation] = useState(
         selectedLocation.customName
     );
@@ -44,7 +44,8 @@ export default function UpdateDropLocation({ isReferesh, setIsRefresh, selectedL
                     icon: 'success',
                     title: 'Success',
                     text: 'Drop Location Updated Successfully!',
-                })
+                });
+                setUpdateSection(false);
                 setIsRefresh(!isReferesh)
 
 

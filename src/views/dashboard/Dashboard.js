@@ -607,7 +607,7 @@ const Dashboard = () => {
 										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 									</tr>
 								) : (
-									data.length > 0 ?
+									data?.length > 0 ?
 										data?.map((item, index) => {
 											const isSelected = item._id === selectedItem._id;
 											const status = item?.isHold ? 'Hold' : item?.currentStatus;
@@ -801,7 +801,7 @@ const Dashboard = () => {
 										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 									</tr>
 								) : (
-									data.length > 0 ?
+									data?.length > 0 ?
 										data?.map((item, index) => {
 											const isSelected = item._id === selectedItem._id;
 											const status = item?.isHold ? 'Hold' : item?.currentStatus;
