@@ -170,14 +170,14 @@ export default function DateRangeFilter({
 	const toggleColumn = (col) => {
 		if (col === "All") {
 			// If "All" is selected, toggle between selecting all or clearing all
-			if (selectedColumns.length === columnOptions.length - 1) {
+			if (selectedColumns?.length === columnOptions?.length - 1) {
 				setSelectedColumns([]);
 			} else {
-				setSelectedColumns(columnOptions.filter(c => c !== "All"));
+				setSelectedColumns(columnOptions?.filter(c => c !== "All"));
 			}
 		} else {
-			if (selectedColumns.includes(col)) {
-				setSelectedColumns(selectedColumns.filter(c => c !== col));
+			if (selectedColumns?.includes(col)) {
+				setSelectedColumns(selectedColumns?.filter(c => c !== col));
 			} else {
 				setSelectedColumns([...selectedColumns, col]);
 			}
@@ -254,7 +254,7 @@ export default function DateRangeFilter({
 										className="d-flex justify-content-between align-items-center"
 									>
 										{col}
-										{selectedColumns.includes(col) && <BsCheck />}
+										{selectedColumns?.includes(col) && <BsCheck />}
 									</Dropdown.Item>
 								))}
 							</Dropdown.Menu>
