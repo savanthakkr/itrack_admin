@@ -103,7 +103,13 @@ const getNavItems = (role) => {
           component: CNavItem,
           name: 'All Bookings',
           to: '/job/all',
-          display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+          display: role === 'Admin' ? 'true' : 'false'
+        },
+        {
+          component: CNavItem,
+          name: 'All Bookings',
+          to: '/accountant/job/all',
+          display: role === 'Accountant' ? 'true' : 'false'
         },
       ],
     },

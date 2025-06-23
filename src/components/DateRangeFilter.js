@@ -19,7 +19,8 @@ export default function DateRangeFilter({
 	limit,
 	setSelectedColumns,
 	selectedColumns,
-	setJobsData
+	setJobsData,
+	accountantColumnOption
 }) {
 	// const [searchQuery, setSearchQuery] = useState({
 	//     AWB: "",
@@ -35,7 +36,7 @@ export default function DateRangeFilter({
 
 	const dispatch = useDispatch();
 
-	const columnOptions = [
+	const columnOptions = accountantColumnOption || [
 		'All', 'Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces',
 		'Service Type', 'Service Code', 'Pickup From', 'Deliver To',
 		'Driver', 'Notes', 'Transfer To', 'Status'

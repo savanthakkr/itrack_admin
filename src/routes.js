@@ -1,6 +1,7 @@
 import React from 'react'
 import EditAdmin from './views/Admin/EditAdmin.js'
 import EditAccountant from './views/Accountant/EditAccountant.js'
+import AccountantAllJobs from './views/jobs/AccountantAllJobs.js'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -100,6 +101,7 @@ const routes = [
   { path: '/job/add', name: 'Add Booking', element: AddJobs },
   { path: '/location/:id', name: 'Location', element: LocationMap },
   { path: '/job/all', name: 'All Booking', element: AllJobs },
+  { path: '/accountant/job/all', name: 'All Booking', element: AccountantAllJobs },
   { path: '/driver/all', name: 'All Drivers', element: AllDrivers },
   { path: '/driver/jobs/:id', name: 'All Driver Jobs', element: AllDriverJobs },
   { path: '/client/job/details/:id', name: 'Client Job Details', element: ClientJobDetails },
