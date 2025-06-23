@@ -23,6 +23,7 @@ import MyPagination from '../../components/Pagination'
 import FilterTags from '../../components/FilterTags'
 import { getSeachFilterResult } from '../../services/getSearchFilterResult'
 import moment from 'moment'
+import AssignClientModal from '../../components/Modals/AssignClient'
 
 
 const Dashboard = () => {
@@ -50,6 +51,8 @@ const Dashboard = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [showFilter, setShowFilter] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
+	const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
+	const [showAssignClient, setShowAssignClient] = useState(false);
 
 	const handleApplyFilter = () => {
 		// Filter logic here
@@ -137,7 +140,7 @@ const Dashboard = () => {
 		};
 	}, [navigate]);
 
-	const handleSearchClick = (searchTerm, selectedOption) => {
+	const handleSearchClick = () => {
 		setShowCanvas(false);
 
 		let payload = { ...searchQuery };
@@ -260,9 +263,10 @@ const Dashboard = () => {
 			setMessage('No data found')
 		}
 		// setData(newData)
+		const responseData = setJobsData(newData?.jobs);
 		dispatch({
 			type: 'getJobData',
-			payload: newData?.jobs,
+			payload: responseData,
 		});
 	}
 
@@ -274,15 +278,49 @@ const Dashboard = () => {
 					if (response?.data?.data?.length === 0) {
 						setMessage('No data found')
 					}
+
+					const responseData = setJobsData(response?.data?.data?.jobs);
 					// setData(response?.data?.data);
 					dispatch({
 						type: 'getJobData',
-						payload: response?.data?.data?.jobs,
+						// payload: response?.data?.data?.jobs,
+						payload: responseData
 					});
 					setLoading(false)
 				}
 			},
 		)
+	}
+
+	const setJobsData = (response) => {
+		const finalArr = [];
+
+		for (let data of response) {
+			const obj = {};
+			console.log('response', response);
+			obj._id = data?._id;
+			obj.Client = data?.clientId?.companyName;
+			// obj['Ready Time'] = data?.pickUpDetails?.readyTime;
+			obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+			// obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
+			obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+			obj.AWB = data?.AWB;
+			obj.Pieces = data?.pieces;
+			obj['Service Type'] = data?.serviceTypeId?.text;
+			obj['Service Code'] = data?.serviceCodeId?.text;
+			obj['Pickup From'] = data?.pickUpDetails?.pickupLocationId?.customName;
+			obj['Deliver To'] = data?.dropOfDetails?.dropOfLocationId?.customName;
+			obj.Driver = data?.driverId ? `${data?.driverId?.firstname}-${data?.driverId?.lastname}` : '';
+			obj.Notes = data?.note;
+			obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
+			obj.isTransfer = data?.isTransfer;
+			obj.isTransferAccept = data?.isTransferAccept;
+			obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '-';
+
+			finalArr.push(obj);
+		}
+
+		return finalArr;
 	}
 
 	// get initial data
@@ -295,9 +333,10 @@ const Dashboard = () => {
 						setMessage('No data found')
 					}
 					// setData(response?.data?.data)
+					const responseData = setJobsData(response?.data?.data?.jobs);
 					dispatch({
 						type: 'getJobData',
-						payload: response?.data?.data?.jobs,
+						payload: responseData,
 					});
 					setLoading(false);
 					setMessage('');
@@ -338,6 +377,7 @@ const Dashboard = () => {
 	const handleClear = (key) => {
 		setMessage('')
 		setIsReferesh(!isReferesh);
+		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
 		setSearchQuery({
 			AWB: '',
 			clientId: '',
@@ -368,6 +408,7 @@ const Dashboard = () => {
 		setLoading(true)
 		setMessage('');
 		let queryParams = [];
+		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status'])
 
 		if (!tagRemove) {
 			handleClear();
@@ -417,9 +458,10 @@ const Dashboard = () => {
 								setMessage('No data found')
 							}
 							// setData(response?.data?.data)
+							const responseData = setJobsData(response?.data?.data?.jobs);
 							dispatch({
 								type: 'getJobData',
-								payload: response?.data?.data?.jobs,
+								payload: responseData,
 							});
 							setLoading(false)
 						}
@@ -452,12 +494,17 @@ const Dashboard = () => {
 	const handleSort = (field) => {
 		const sortedData = sortData(data, field)
 		// setData(sortedData)
+		const responseData = setJobsData(sortedData);
 		dispatch({
 			type: 'getJobData',
-			payload: sortedData,
+			payload: responseData,
 		});
 	}
 
+	const handleTransferJob = (item) => {
+		setSelectedItem(item)
+		setShowAssignClient(true);
+	}
 
 	// useEffect(() => {
 	// 	// Retrieve the selected item from local storage if it exists
@@ -488,7 +535,7 @@ const Dashboard = () => {
 	//   })
 	//   // Getting total pages
 
-	// }, [isReferesh, page, limit])
+	// }, [isReferesh, page, limit]
 
 	return (
 		<>
@@ -519,6 +566,9 @@ const Dashboard = () => {
 						setMessage={setMessage}
 						searchQuery={searchQuery}
 						setSearchQuery={setSearchQuery}
+						selectedColumns={selectedColumns}
+						setSelectedColumns={setSelectedColumns}
+						setJobsData={setJobsData}
 					/>
 					<Button onClick={handleShow} className="input-group-text cursor-pointer custom-icon-btn">
 						<FaFilter />
@@ -532,8 +582,8 @@ const Dashboard = () => {
 			<FilterOffCanvas
 				show={showCanvas}
 				handleClose={handleCloseCanvas}
-				onApplyFilter={(selectedOption) =>
-					handleSearchClick(searchTerm, selectedOption)
+				onApplyFilter={() =>
+					handleSearchClick()
 				}
 				role="admin"
 				searchQuery={searchQuery}
@@ -553,46 +603,53 @@ const Dashboard = () => {
 						<Table responsive hover bordered>
 							<thead>
 								<tr style={{ fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-									<th className="text-center" onClick={() => handleSort('clientId.companyName')}>
-										Client
-									</th>
-									<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
-										Ready Time
-									</th>
-									<th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
-										Cutoff Time
-									</th>
-									<th className="text-center" onClick={() => handleSort('AWB')}>
-										AWB
-									</th>
-									<th className="text-center" onClick={() => handleSort('pieces')}>
-										Pieces
-									</th>
-									<th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
-										Service Type
-									</th>
-									<th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
-										Service Code
-									</th>
-									<th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
-										Pickup From
-									</th>
-									<th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
-										Deliver To
-									</th>
-									{/* <th className="text-center">
+									{selectedColumns.map((col) => (
+										<>
+											<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+												{col}
+											</th>
+											{/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+												Client
+											</th>
+											<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+												Ready Time
+											</th>
+											<th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
+												Cutoff Time
+											</th>
+											<th className="text-center" onClick={() => handleSort('AWB')}>
+												AWB
+											</th>
+											<th className="text-center" onClick={() => handleSort('pieces')}>
+												Pieces
+											</th>
+											<th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
+												Service Type
+											</th>
+											<th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
+												Service Code
+											</th>
+											<th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
+												Pickup From
+											</th>
+											<th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
+												Deliver To
+											</th> */}
+											{/* <th className="text-center">
                     <LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
                     Job ID
                   </th> */}
-									<th className="text-center" onClick={() => handleSort('note')} >
-										Notes
-									</th>
-									<th className="text-center" onClick={() => handleSort('driverId.firstname')}>
-										Driver
-									</th>
-									<th className="text-center" style={{ width: 'auto', minWidth: '170px' }} onClick={() => handleSort('currentStatus')}>
-										Status
-									</th>
+											{/* < th className="text-center" onClick={() => handleSort('note')} >
+												Notes
+											</th>
+											<th className="text-center" onClick={() => handleSort('driverId.firstname')}>
+												Driver
+											</th>
+											<th className="text-center" style={{ width: 'auto', minWidth: '170px' }} onClick={() => handleSort('currentStatus')}>
+												Status
+											</th> */}
+										</>
+									))}
 									<th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
 								</tr>
 							</thead>
@@ -610,7 +667,7 @@ const Dashboard = () => {
 									data?.length > 0 ?
 										data?.map((item, index) => {
 											const isSelected = item._id === selectedItem._id;
-											const status = item?.isHold ? 'Hold' : item?.currentStatus;
+											const status = item?.Status;
 											const styles = getStatusStyles(status);
 
 											const tdStyle = {
@@ -621,47 +678,68 @@ const Dashboard = () => {
 
 											return (
 												<tr key={index} className="cursor-pointer">
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.clientId?.companyName}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.AWB}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.pieces}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.serviceTypeId?.text}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.serviceCodeId?.text}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.pickUpDetails?.pickupLocationId?.customName}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.dropOfDetails?.dropOfLocationId?.customName}
-													</td>
-													{/* <td onClick={() => handleView(item)} style={tdStyle}>
+													{selectedColumns.map((col) => (
+														<>
+
+															{col === 'Status' ?
+																<td onClick={() => handleView(item)} style={{
+																	...tdStyle,
+																	...(item.isTransferAccept
+																		? { pointerEvents: 'none' }
+																		: {}),
+																}}>
+																	<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+																		{status}
+																	</div>
+																</td>
+																:
+																<td onClick={() => handleView(item)} style={{
+																	...tdStyle,
+																	...(item.isTransferAccept && col === 'Transfer To'
+																		? { pointerEvents: 'none' }
+																		: {}),
+																}} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																	{/* {item?.clientId?.companyName} */}
+																	{item[col] ?? "-"}
+																</td>
+															}
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+																{item[col] ? getFormattedDAndT(item[col]) : '-'}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item[col] ?? "-"}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item[col] ?? "-"}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item[col]}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item?.serviceCodeId?.text}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item?.pickUpDetails?.pickupLocationId?.customName}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item?.dropOfDetails?.dropOfLocationId?.customName}
+															</td> */}
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
                           {item?.uid}
                         </td> */}
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.note}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
-													</td>
-													<td onClick={() => handleView(item)} style={tdStyle}>
-														<div className="px-1 py-1 rounded-5 text-center" style={styles}>
-															{status}
-														</div>
-													</td>
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+																{item?.note}
+															</td>
+															<td onClick={() => handleView(item)} style={tdStyle}>
+																{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+															</td> */}
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+																<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+																	{status}
+																</div>
+															</td> */}
+														</>
+													))}
 													{/* <td className="text-center" style={tdStyle}>
                           {!item?.driverId ? (
                             <FaTruckMoving onClick={() => handleShowAssign(item)} />
@@ -672,7 +750,12 @@ const Dashboard = () => {
                         <td className="text-center" style={tdStyle}>
                           <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
                         </td> */}
-													<td className="text-center action-dropdown-menu" style={tdStyle}>
+													<td className="text-center action-dropdown-menu" style={{
+														...tdStyle,
+														...(item.isTransferAccept
+															? { pointerEvents: 'none' }
+															: {}),
+													}}>
 														<div className="dropdown">
 															<button
 																className="btn btn-link p-0 border-0"
@@ -702,6 +785,16 @@ const Dashboard = () => {
 																		Package Location
 																	</button>
 																</li>
+																{item?.Status === 'Pending' &&
+																	<li>
+																		<button
+																			className="dropdown-item"
+																			onClick={() => handleTransferJob(item)}
+																		>
+																			Transfer Job
+																		</button>
+																	</li>
+																}
 															</ul>
 														</div>
 													</td>
@@ -747,46 +840,50 @@ const Dashboard = () => {
 						<Table responsive hover bordered className="custom-table">
 							<thead>
 								<tr style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-									<th className="text-center" onClick={() => handleSort('clientId.companyName')}>
-										Client
-									</th>
-									<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
-										Ready Time
-									</th>
-									<th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
-										Cutoff Time
-									</th>
-									<th className="text-center" onClick={() => handleSort('AWB')}>
-										AWB
-									</th>
-									<th className="text-center" onClick={() => handleSort('pieces')}>
-										Pieces
-									</th>
-									<th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
-										Service Type
-									</th>
-									<th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
-										Service Code
-									</th>
-									<th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
-										Pickup From
-									</th>
-									<th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
-										Deliver To
-									</th>
-									{/* <th className="text-center">
+									{selectedColumns.map((col) => (
+										<>
+											<th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+												{col}
+											</th>
+											{/* <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+												Ready Time
+											</th>
+											<th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
+												Cutoff Time
+											</th>
+											<th className="text-center" onClick={() => handleSort('AWB')}>
+												AWB
+											</th>
+											<th className="text-center" onClick={() => handleSort('pieces')}>
+												Pieces
+											</th>
+											<th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
+												Service Type
+											</th>
+											<th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
+												Service Code
+											</th>
+											<th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
+												Pickup From
+											</th>
+											<th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
+												Deliver To
+											</th> */}
+											{/* <th className="text-center">
                     <LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
                     Job ID
                   </th> */}
-									<th className="text-center" onClick={() => handleSort('note')}>
-										Notes
-									</th>
-									<th className="text-center" onClick={() => handleSort('driverId.firstname')}>
-										Driver
-									</th>
-									<th className="text-center" onClick={() => handleSort('currentStatus')} style={{ width: 'auto', minWidth: '170px' }}>
-										Status
-									</th>
+											{/* <th className="text-center" onClick={() => handleSort('note')}>
+												Notes
+											</th>
+											<th className="text-center" onClick={() => handleSort('driverId.firstname')}>
+												Driver
+											</th>
+											<th className="text-center" onClick={() => handleSort('currentStatus')} style={{ width: 'auto', minWidth: '170px' }}>
+												Status
+											</th> */}
+										</>
+									))}
 									<th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
 								</tr>
 							</thead>
@@ -804,7 +901,7 @@ const Dashboard = () => {
 									data?.length > 0 ?
 										data?.map((item, index) => {
 											const isSelected = item._id === selectedItem._id;
-											const status = item?.isHold ? 'Hold' : item?.currentStatus;
+											const status = item?.Status;
 											const styles = getStatusStyles(status);
 
 											const tdStyle = {
@@ -815,7 +912,32 @@ const Dashboard = () => {
 
 											return (
 												<tr key={index} className="cursor-pointer">
-													<td onClick={() => handleView(item)} style={tdStyle}>
+													{selectedColumns.map((col) => (
+														<>
+
+															{col === 'Status' ?
+																<td onClick={() => handleView(item)} style={{
+																	...tdStyle,
+																	...(item.isTransferAccept
+																		? { pointerEvents: 'none' }
+																		: {}),
+																}}>
+																	<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+																		{status}
+																	</div>
+																</td>
+																:
+																<td onClick={() => handleView(item)} style={{
+																	...tdStyle,
+																	...(item.isTransferAccept && col === 'Transfer To'
+																		? { pointerEvents: 'none' }
+																		: {}),
+																}} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																	{/* {item?.clientId?.companyName} */}
+																	{item[col] ?? "-"}
+																</td>
+															}
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 														{item?.clientId?.companyName}
 													</td>
 													<td onClick={() => handleView(item)} style={tdStyle}>
@@ -841,11 +963,11 @@ const Dashboard = () => {
 													</td>
 													<td onClick={() => handleView(item)} style={tdStyle}>
 														{item?.dropOfDetails?.dropOfLocationId?.customName}
-													</td>
-													{/* <td onClick={() => handleView(item)} style={tdStyle}>
+													</td> */}
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
                           {item?.uid}
                         </td> */}
-													<td onClick={() => handleView(item)} style={tdStyle}>
+															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 														{item?.note}
 													</td>
 													<td onClick={() => handleView(item)} style={tdStyle}>
@@ -855,7 +977,9 @@ const Dashboard = () => {
 														<div className="px-1 py-1 rounded-5 text-center" style={styles}>
 															{status}
 														</div>
-													</td>
+													</td> */}
+														</>
+													))}
 													{/* <td className="text-center" style={tdStyle}>
                           {!item?.driverId ? (
                             <FaTruckMoving onClick={() => handleShowAssign(item)} />
@@ -866,7 +990,12 @@ const Dashboard = () => {
                         <td className="text-center" style={tdStyle}>
                           <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
                         </td> */}
-													<td className="text-center action-dropdown-menu" style={tdStyle}>
+													<td className="text-center action-dropdown-menu" style={{
+														...tdStyle,
+														...(item.isTransferAccept
+															? { pointerEvents: 'none' }
+															: {}),
+													}}>
 														<div className="dropdown">
 															<button
 																className="btn btn-link p-0 border-0"
@@ -896,6 +1025,16 @@ const Dashboard = () => {
 																		Package Location
 																	</button>
 																</li>
+																{item?.Status === 'Pending' &&
+																	<li>
+																		<button
+																			className="dropdown-item"
+																			onClick={() => handleTransferJob(item)}
+																		>
+																			Transfer Job
+																		</button>
+																	</li>
+																}
 															</ul>
 														</div>
 													</td>
@@ -911,7 +1050,7 @@ const Dashboard = () => {
 						</Table>
 					</div>
 				</Tab>
-			</Tabs>
+			</Tabs >
 			{show && (
 				<EditJob
 					show={show}
@@ -920,26 +1059,44 @@ const Dashboard = () => {
 					setIsRefresh={setIsReferesh}
 					isReferesh={isReferesh}
 				/>
-			)}
+			)
+			}
 			{showView && <ViewJobs show={showView} handleClose={handleCloseView} job={selectedItem} />}
-			{showAssign && (
-				<AssignDriverModal
-					show={showAssign}
-					setShow={setShowAssign}
-					jobId={selectedItem._id}
-					setIsRefresh={setIsReferesh}
-					isReferesh={isReferesh}
-				/>
-			)}
-			{showChangeDriver && (
-				<ChangeDriverModal
-					show={showChangeDriver}
-					setShow={setShowChangeDriver}
-					jobId={selectedItem._id}
-					setIsRefresh={setIsReferesh}
-					isReferesh={isReferesh}
-				/>
-			)}
+			{
+				showAssign && (
+					<AssignDriverModal
+						show={showAssign}
+						setShow={setShowAssign}
+						jobId={selectedItem._id}
+						setIsRefresh={setIsReferesh}
+						isReferesh={isReferesh}
+					/>
+				)
+			}
+			{
+				showChangeDriver && (
+					<ChangeDriverModal
+						show={showChangeDriver}
+						setShow={setShowChangeDriver}
+						jobId={selectedItem._id}
+						setIsRefresh={setIsReferesh}
+						isReferesh={isReferesh}
+					/>
+				)
+			}
+			{
+				showAssignClient ? (
+					<AssignClientModal
+						show={showAssignClient}
+						setShow={setShowAssignClient}
+						jobId={selectedItem._id}
+						setIsRefresh={setIsReferesh}
+						isReferesh={isReferesh}
+					/>
+				) : (
+					''
+				)
+			}
 		</>
 	)
 }

@@ -12,7 +12,7 @@ export const getSeachFilterResult = async (data, role, page, limit) => {
 
     } else if (role === "client") {
         token = localStorage.getItem("jdAirTrans-client-token");
-        url = `/client/jobFilter?AWB=${data.AWB}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&page=${page || ''}&limit=${limit || ""}`
+        url = `/client/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&page=${page || ''}&limit=${limit || ""}`
     }
 
     let headers = {

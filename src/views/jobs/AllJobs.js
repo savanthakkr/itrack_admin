@@ -24,6 +24,7 @@ import { getFormattedDAndT } from '../../lib/getFormatedDate'
 import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
+import AssignClientModal from '../../components/Modals/AssignClient'
 
 const AllJobs = () => {
     const dispatch = useDispatch()
@@ -42,17 +43,49 @@ const AllJobs = () => {
     const handleShow = () => setShowCanvas(true);
     const [selectedJob, setSelectedJob] = useState(null)
 
-    const [showAssign, setShowAssign] = useState(false)
+    const [showAssign, setShowAssign] = useState(false);
+    const [showAssignClient, setShowAssignClient] = useState(false);
     const [showChangeDriver, setShowChangeDriver] = useState(false)
     const [filterShow, setFilterShow] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltering, setIsFiltering] = useState(false);
+    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
 
     const setSearchQuery = (query) => {
         dispatch({
             type: 'updateSearchQuery2',
             payload: query
         })
+    }
+
+    const setJobsData = (response) => {
+        const finalArr = [];
+
+        for (let data of response) {
+            const obj = {};
+            obj._id = data?._id;
+            obj.Client = data?.clientId?.companyName;
+            // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
+            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+            // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
+            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+            obj.AWB = data?.AWB;
+            obj.Pieces = data?.pieces;
+            obj['Service Type'] = data?.serviceTypeId?.text;
+            obj['Service Code'] = data?.serviceCodeId?.text;
+            obj['Pickup From'] = data?.pickUpDetails?.pickupLocationId?.customName;
+            obj['Deliver To'] = data?.dropOfDetails?.dropOfLocationId?.customName;
+            obj.Driver = data?.driverId ? `${data?.driverId?.firstname}-${data?.driverId?.lastname}` : '';
+            obj.Notes = data?.note;
+            obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
+            obj.isTransfer = data?.isTransfer;
+            obj.isTransferAccept = data?.isTransferAccept;
+            obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '-';
+
+            finalArr.push(obj);
+        }
+
+        return finalArr;
     }
 
     // handle view
@@ -76,6 +109,7 @@ const AllJobs = () => {
     const handleFilterClose = () => {
         setFilterShow(false)
     }
+
     const handleSearchClick = (selectedOption) => {
         setFilterShow(false);
 
@@ -97,9 +131,10 @@ const AllJobs = () => {
             setMessage('No data found')
         }
         // setData(newData)
+        const responseData = setJobsData(newData?.jobs);
         dispatch({
             type: 'getJobData',
-            payload: newData?.jobs,
+            payload: responseData,
         });
         dispatch({
             type: 'setJobCount',
@@ -117,9 +152,10 @@ const AllJobs = () => {
             get(`/admin/info/jobFilter?page=${page}&limit=${limit}`, 'admin')
                 .then((response) => {
                     // setData(response?.data?.data)
+                    const responseData = setJobsData(response?.data?.data?.jobs);
                     dispatch({
                         type: 'getJobData',
-                        payload: response?.data?.data?.jobs,
+                        payload: responseData,
                     });
                     dispatch({
                         type: 'setJobCount',
@@ -156,9 +192,10 @@ const AllJobs = () => {
                             setMessage('No data found')
                         }
                         // setData(response?.data?.data)
+                        const responseData = setJobsData(response?.data?.data?.jobs);
                         dispatch({
                             type: 'getJobData',
-                            payload: response?.data?.data?.jobs,
+                            payload: responseData,
                         });
                         dispatch({
                             type: 'setJobCount',
@@ -204,9 +241,10 @@ const AllJobs = () => {
             get(url, 'admin').then((res) => {
                 if (res.data.status) {
                     // setData(res.data.data);
+                    const responseData = setJobsData(res.data.data);
                     dispatch({
                         type: 'getJobData',
-                        payload: res.data.data,
+                        payload: responseData,
                     });
                 }
             });
@@ -223,9 +261,10 @@ const AllJobs = () => {
         const sortedData = sortData(data, field)
         // setIsFiltering(true)
         // setData(sortedData)
+        const responseData = setJobsData(sortedData);
         dispatch({
             type: 'getJobData',
-            payload: sortedData,
+            payload: responseData,
         });
     }
 
@@ -233,6 +272,7 @@ const AllJobs = () => {
         setPage(1);
         setLimit(10);
         setMessage('');
+        setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
         // setIsRefresh(!isReferesh)
         const filter = {
             AWB: "",
@@ -331,6 +371,11 @@ const AllJobs = () => {
         fetchData(filter);
     }
 
+    const handleTransferJob = (item) => {
+        setSelectedJob(item)
+        setShowAssignClient(true);
+    }
+
     return (
         <>
             <Row className="d-flex pb-3 align-items-center justify-content-between">
@@ -353,6 +398,9 @@ const AllJobs = () => {
                         setIsFiltering={setIsFiltering}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
+                        selectedColumns={selectedColumns}
+                        setSelectedColumns={setSelectedColumns}
+                        setJobsData={setJobsData}
                         page={page}
                         limit={limit}
                     />
@@ -422,7 +470,14 @@ const AllJobs = () => {
                         <Table className="custom-table" bordered responsive hover>
                             <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                 <tr>
-                                    <th className="text-start" onClick={() => handleSort('clientId.companyName')}>
+                                    {selectedColumns.map((col, index) => (
+                                        <>
+                                            <th className="text-center" key={index} onClick={() => handleSort('pickUpDetails.readyTime')}>
+                                                {col}
+                                            </th>
+                                        </>
+                                    ))}
+                                    {/* <th className="text-start" onClick={() => handleSort('clientId.companyName')}>
                                         Client
                                     </th>
                                     <th className="text-start" onClick={() => handleSort('pickUpDetails.readyTime')}>
@@ -448,11 +503,11 @@ const AllJobs = () => {
                                     </th>
                                     <th className="text-start" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
                                         Deliver To
-                                    </th>
+                                    </th> */}
                                     {/* <th className="text-start" onClick={() => handleSort('uid')}>
                     Job Id
                   </th> */}
-                                    <th className="text-start" onClick={() => handleSort('driverId.firstname')}>
+                                    {/* <th className="text-start" onClick={() => handleSort('driverId.firstname')}>
                                         Driver
                                     </th>
                                     <th className="text-center" style={{ width: 'auto', minWidth: '100px' }} onClick={() => handleSort('notes')}>
@@ -460,7 +515,7 @@ const AllJobs = () => {
                                     </th>
                                     <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} onClick={() => handleSort('currentStatus')}>
                                         Status
-                                    </th>
+                                    </th> */}
                                     <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} colSpan={4}>
                                         Action
                                     </th>
@@ -475,12 +530,44 @@ const AllJobs = () => {
                                     </tr>
                                 ) : (
                                     data?.map((item, index) => {
-                                        const isSelected = item._id === selectedJob?._id
-                                        const status = item?.isHold ? 'Hold' : item?.currentStatus
-                                        const styles = getStatusStyles(status)
+                                        const isSelected = item?._id === selectedJob?._id;
+                                        const status = item?.Status;
+                                        const styles = getStatusStyles(status);
+                                        const tdStyle = {
+                                            backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                                            fontSize: 14,
+                                            textAlign: 'left',
+                                        };
                                         return (
                                             <tr key={index} className="cursor-pointer">
-                                                <td className="text-start"
+                                                {selectedColumns.map((col) => (
+                                                    <>
+
+                                                        {col === 'Status' ?
+                                                            <td onClick={() => handleView(item)} style={{
+                                                                ...tdStyle,
+                                                                ...(item.isTransferAccept
+                                                                    ? { pointerEvents: 'none' }
+                                                                    : {}),
+                                                            }}>
+                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                    {status}
+                                                                </div>
+                                                            </td>
+                                                            :
+                                                            <td onClick={() => handleView(item)} style={{
+                                                                ...tdStyle,
+                                                                ...(item.isTransferAccept && col === 'Transfer To'
+                                                                    ? { pointerEvents: 'none' }
+                                                                    : {}),
+                                                            }} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
+                                                                {/* {item?.clientId?.companyName} */}
+                                                                {item[col] ?? "-"}
+                                                            </td>
+                                                        }
+                                                    </>
+                                                ))}
+                                                {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -533,14 +620,14 @@ const AllJobs = () => {
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
                                                     {item?.dropOfDetails?.dropOfLocationId?.customName}
-                                                </td>
+                                                </td> */}
                                                 {/* <td className="text-start"
                           onClick={() => handleView(item)}
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
                           {item?.uid}
                         </td> */}
-                                                <td className="text-start"
+                                                {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -560,10 +647,13 @@ const AllJobs = () => {
                                                     <div className="px-1 py-1 rounded-5 text-center" style={styles}>
                                                         {status}
                                                     </div>
-                                                </td>
-                                                <td className="text-center action-dropdown-menu"
-                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                >
+                                                </td> */}
+                                                <td className="text-center action-dropdown-menu" style={{
+                                                    ...tdStyle,
+                                                    ...(item.isTransferAccept
+                                                        ? { pointerEvents: 'none' }
+                                                        : {}),
+                                                }}>
                                                     <div className="dropdown">
                                                         <button
                                                             className="btn btn-link p-0 border-0"
@@ -593,6 +683,16 @@ const AllJobs = () => {
                                                                     Package Location
                                                                 </button>
                                                             </li>
+                                                            {item?.Status === 'Pending' &&
+                                                                <li>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() => handleTransferJob(item)}
+                                                                    >
+                                                                        Transfer Job
+                                                                    </button>
+                                                                </li>
+                                                            }
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -658,6 +758,17 @@ const AllJobs = () => {
                 <AssignDriverModal
                     show={showAssign}
                     setShow={setShowAssign}
+                    jobId={selectedJob._id}
+                    setIsRefresh={setIsRefresh}
+                    isReferesh={isReferesh}
+                />
+            ) : (
+                ''
+            )}
+            {showAssignClient ? (
+                <AssignClientModal
+                    show={showAssignClient}
+                    setShow={setShowAssignClient}
                     jobId={selectedJob._id}
                     setIsRefresh={setIsRefresh}
                     isReferesh={isReferesh}

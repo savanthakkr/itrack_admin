@@ -53,21 +53,24 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
     const [disable, setDisable] = useState(true);
 
     useEffect(() => {
-        get(`/admin/service/code`, "admin").then((res) => {
-            if (res.data.status) {
-                setServiceCodes(res.data.data);
-            }
-        });
-        get(`/admin/service/type`, "admin").then((res) => {
-            if (res.data.status) {
-                setServiceTypes(res.data.data);
-            }
-        });
-        get(`/admin/info/allClients`, "admin").then((res) => {
-            if (res.data.status) {
-                setAllClients(res.data.data);
-            }
-        });
+        if (role === "admin") {
+            get(`/admin/service/code`, "admin").then((res) => {
+                if (res.data.status) {
+                    setServiceCodes(res.data.data);
+                }
+            });
+            get(`/admin/service/type`, "admin").then((res) => {
+                if (res.data.status) {
+                    setServiceTypes(res.data.data);
+                }
+            });
+            get(`/admin/info/allClients`, "admin").then((res) => {
+                if (res.data.status) {
+                    setAllClients(res.data.data);
+                }
+            });
+        }
+
         let url = `/admin/info/allDrivers`;
         if (role === "client") {
             url = `/client/driverList`;
@@ -131,42 +134,45 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                     </Col>
                 </Row>
 
-                <Row>
-                    <Col md={12} className="mt-3">
-                        <label htmlFor="serviceCodeDropdown" className="form-label fw-semibold">
-                            Service Code
-                        </label>
-                        <Dropdown className="custom-dropdown">
-                            <Dropdown.Toggle
-                                variant="outline-secondary"
-                                className="w-100 mx-auto d-flex justify-content-between align-items-center"
-                                id="serviceCodeDropdown"
-                                style={{ textAlign: "left", color: searchQuery?.serviceCode ? "#000" : "#BDBDBD" }}
-                            >
-                                {searchQuery?.serviceCode ? searchQuery.serviceCode : "Select from the list"}
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu
-                                className="w-100 custom-scroll"
-                                style={{ maxHeight: "250px", overflowY: "auto" }}
-                            >
-                                {serviceCodes.map((code, index) => (
-                                    <Dropdown.Item
-                                        key={index}
-                                        onClick={() =>
-                                            setSearchQuery({
-                                                ...searchQuery,
-                                                serviceCode: code.text, // assuming code has { value, label }
-                                                serviceCodeId: code._id
-                                            })
-                                        }
-                                    >
-                                        {code.text}
-                                    </Dropdown.Item>
-                                ))}
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Col>
-                </Row>
+                {role === 'admin' &&
+                    <Row>
+                        <Col md={12} className="mt-3">
+                            <label htmlFor="serviceCodeDropdown" className="form-label fw-semibold">
+                                Service Code
+                            </label>
+                            <Dropdown className="custom-dropdown">
+                                <Dropdown.Toggle
+                                    variant="outline-secondary"
+                                    className="w-100 mx-auto d-flex justify-content-between align-items-center"
+                                    id="serviceCodeDropdown"
+                                    style={{ textAlign: "left", color: searchQuery?.serviceCode ? "#000" : "#BDBDBD" }}
+                                >
+                                    {searchQuery?.serviceCode ? searchQuery.serviceCode : "Select from the list"}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu
+                                    className="w-100 custom-scroll"
+                                    style={{ maxHeight: "250px", overflowY: "auto" }}
+                                >
+                                    {serviceCodes.map((code, index) => (
+                                        <Dropdown.Item
+                                            key={index}
+                                            onClick={() =>
+                                                setSearchQuery({
+                                                    ...searchQuery,
+                                                    serviceCode: code.text, // assuming code has { value, label }
+                                                    serviceCodeId: code._id
+                                                })
+                                            }
+                                        >
+                                            {code.text}
+                                        </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Col>
+                    </Row>
+                }
+
                 {role === "admin" && (
                     <Row>
                         <Col md={12} className='mt-3'>
@@ -194,42 +200,46 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                         </Col>
                     </Row>
                 )}
-                <Row>
-                    <Col md={12} className="mt-3">
-                        <label htmlFor="serviceTypeDropdown" className="form-label fw-semibold">
-                            Service Type
-                        </label>
-                        <Dropdown className="custom-dropdown">
-                            <Dropdown.Toggle
-                                variant="outline-secondary"
-                                className="w-100 mx-auto d-flex justify-content-between align-items-center"
-                                id="serviceTypeDropdown"
-                                style={{ textAlign: "left", color: searchQuery?.serviceType ? "#000" : "#BDBDBD" }}
-                            >
-                                {searchQuery?.serviceType ? searchQuery.serviceType : "Select from the list"}
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu
-                                className="w-100 custom-scroll"
-                                style={{ maxHeight: "250px", overflowY: "auto" }}
-                            >
-                                {serviceTypes.map((type, index) => (
-                                    <Dropdown.Item
-                                        key={index}
-                                        onClick={() =>
-                                            setSearchQuery({
-                                                ...searchQuery,
-                                                serviceType: type.text, // assuming type has { value, label }
-                                                serviceTypeId: type._id
-                                            })
-                                        }
-                                    >
-                                        {type.text}
-                                    </Dropdown.Item>
-                                ))}
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Col>
-                </Row>
+
+                {role === 'admin' &&
+                    <Row>
+                        <Col md={12} className="mt-3">
+                            <label htmlFor="serviceTypeDropdown" className="form-label fw-semibold">
+                                Service Type
+                            </label>
+                            <Dropdown className="custom-dropdown">
+                                <Dropdown.Toggle
+                                    variant="outline-secondary"
+                                    className="w-100 mx-auto d-flex justify-content-between align-items-center"
+                                    id="serviceTypeDropdown"
+                                    style={{ textAlign: "left", color: searchQuery?.serviceType ? "#000" : "#BDBDBD" }}
+                                >
+                                    {searchQuery?.serviceType ? searchQuery.serviceType : "Select from the list"}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu
+                                    className="w-100 custom-scroll"
+                                    style={{ maxHeight: "250px", overflowY: "auto" }}
+                                >
+                                    {serviceTypes.map((type, index) => (
+                                        <Dropdown.Item
+                                            key={index}
+                                            onClick={() =>
+                                                setSearchQuery({
+                                                    ...searchQuery,
+                                                    serviceType: type.text, // assuming type has { value, label }
+                                                    serviceTypeId: type._id
+                                                })
+                                            }
+                                        >
+                                            {type.text}
+                                        </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Col>
+                    </Row>
+                }
+
                 <Row>
                     <Col md={12} className='mt-3'>
                         <label htmlFor="statusDropdown" className="form-label fw-semibold">

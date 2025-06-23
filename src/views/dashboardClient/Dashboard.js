@@ -22,19 +22,22 @@ import sortData from '../../services/sortData'
 import { FaFilter } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterOffCanvas from '../../components/Filter'
+import FilterTags from '../../components/FilterTags'
+import { getSeachFilterResult } from '../../services/getSearchFilterResult'
 
 const Dashboard = () => {
   let trackPermission = localStorage.getItem('clientTrackPermission')
   let assignDriverP = localStorage.getItem('clientDriverAssign')
   console.log(trackPermission);
 
-  const currentDate = getCurrentDate()
+  const currentDate = getCurrentDate();
   const dispatch = useDispatch()
 
   const navigate = useNavigate()
   const [show, setShow] = useState(false)
   const [showView, setShowView] = useState(false)
-  const [data, setData] = useState([])
+  // const [data, setData] = useState([])
+  const data = useSelector((state) => state.data);
   const [loading, setLoading] = useState(true)
   const [selectedJob, setSelectedJob] = useState(null)
   const [message, setMessage] = useState('')
@@ -44,17 +47,93 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("todaysJob");
   const [selectedItem, setSelectedItem] = useState(location.state?.selectedItem || {})
 
-  useEffect(() => {
-    handleTabSelect("todaysJob");
-  }, []);
+  // useEffect(() => {
+  //   setActiveTab("todaysJob");
+  // }, []);
+
+  const handleRemoveFilter = (key) => {
+    // const updatedQuery = { ...searchQuery };
+    // const updatedQuery = { ...searchQuery, [key]: '' };
+    // delete updatedQuery[key];
+
+    const filterObj = searchQuery;
+
+    filterObj[key] = '';
+
+    dispatch({
+      type: 'updateSearchQuery',
+      payload: { [key]: '' },
+    });
+
+    // Also remove IDs linked with names
+    // if (key === 'clientName') delete updatedQuery.clientId;
+    // if (key === 'driverName') delete updatedQuery.driverId;
+    // if (key === 'currentStatus') delete updatedQuery.currentStatus;
+
+    if (key === 'clientName') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { clientId: '' },
+      });
+      filterObj['clientId'] = '';
+    }
+
+    if (key === 'driverName') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { driverId: '' },
+      });
+      filterObj['driverId'] = '';
+    }
+
+    if (key === 'currentStatus') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { currentStatus: '' },
+      });
+      filterObj['currentStatus'] = '';
+    }
+
+    if (key === 'serviceType') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { serviceTypeId: '' },
+      });
+      filterObj['serviceTypeId'] = '';
+    }
+
+    if (key === 'serviceCode') {
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: { serviceCodeId: '' },
+      });
+      filterObj['serviceCodeId'] = '';
+    }
+
+    handleRefresh(filterObj, true);
+  }
+
   const handleTabSelect = (key) => {
     setActiveTab(key);
-
-    if (key === 'allJobs') {
-      handleClear();
-    } else {
-      handleTodayJobs();
-    }
+    // handleClear();
+    // setMessage('')
+    // setIsReferesh(!isReferesh);
+    setSearchQuery({
+      AWB: '',
+      clientId: '',
+      driverId: '',
+      fromDate: '',
+      toDate: '',
+      currentStatus: '',
+      serviceCode: '',
+      jobId: '',
+      clientName: '',
+      driverName: '',
+      serviceType: '',
+      serviceCode: '',
+      serviceTypeId: '',
+      serviceCodeId: ''
+    });
   };
 
   const setSearchQuery = (query) => {
@@ -63,6 +142,27 @@ const Dashboard = () => {
       payload: query,
     })
   }
+
+  const handleSearchClick = () => {
+    setShowCanvas(false);
+
+    let payload = { ...searchQuery };
+
+    if (activeTab === 'todaysJob') {
+      payload.fromDate = moment().format("YYYY-MM-DD");
+      payload.toDate = moment().format("YYYY-MM-DD");
+    }
+
+    getSeachFilterResult(payload, "client")
+      .then((res) => {
+        onSearch(res);
+        handleClose();
+      })
+      .catch((err) => {
+        console.error('Filter API Error:', err);
+      });
+
+  };
 
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
@@ -86,8 +186,13 @@ const Dashboard = () => {
     if (newData.length === 0) {
       setMessage('No data found')
     }
-    setData(newData)
+    // setData(newData)
+    dispatch({
+      type: 'getJobData',
+      payload: newData?.jobs,
+    });
   }
+
   // handle assign driver modal
   const handleShowAssign = (item) => {
     setSelectedJob(item)
@@ -95,61 +200,59 @@ const Dashboard = () => {
   }
 
   const handleTodayJobs = () => {
-    setLoading(true)
-    setMessage('')
+    setLoading(true);
     get(`/client/jobFilter?fromDate=${currentDate}&toDate=${currentDate}`, 'client').then(
       (response) => {
-        console.log('res', response);
-        if (response.data.status) {
-          if (response.data.data.length === 0) {
+        if (response?.data?.status) {
+          if (response?.data?.data?.length === 0) {
             setMessage('No data found')
           }
-          setData(response?.data?.data)
+          // setData(response?.data?.data);
+          dispatch({
+            type: 'getJobData',
+            // payload: response?.data?.data?.jobs,
+            payload: response?.data?.data?.jobs
+          });
           setLoading(false)
         }
       },
     )
   }
 
-  // get all jobs
-  const fetchInitialData = () => {
-    get(`/client/jobFilter?currentStatus=Un-Delivered`, 'client').then((response) => {
-      if (response.data.status) {
-        if (response.data.data.length === 0) {
-          setMessage('No data found')
+  // get initial data
+  const getInitialData = () => {
+    setLoading(true);
+    get(`/client/jobFilter?currentStatus=Un-Delivered`, 'client')
+      .then((response) => {
+        if (response?.data?.status) {
+          if (response?.data?.data?.length === 0) {
+            setMessage('No data found')
+          }
+          // setData(response?.data?.data)
+          dispatch({
+            type: 'getJobData',
+            payload: response?.data?.data?.jobs,
+          });
+          setLoading(false);
+          setMessage('');
         }
-        setData(response?.data?.data)
-        console.log(response?.data?.data);
-
-        setLoading(false)
-
-      }
-    })
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   useEffect(() => {
-    setLoading(true)
-    setMessage('')
-    if (
-      searchQuery.currentStatus ||
-      searchQuery.clientId ||
-      searchQuery.driverId ||
-      searchQuery.fromDate ||
-      searchQuery.toDate ||
-      searchQuery.jobId ||
-      searchQuery.clientName ||
-      searchQuery.driverName
-    ) {
-      setLoading(false)
-    } else {
-      fetchInitialData()
+    if (activeTab === 'allJobs') {
+      getInitialData();
+    } else if (activeTab === 'todaysJob') {
+      handleTodayJobs();
     }
-  }, [isReferesh])
+  }, [activeTab])
 
-
-  const handleClear = () => {
+  const handleClear = (key) => {
     setMessage('')
-    setIsReferesh(!isReferesh)
+    setIsReferesh(!isReferesh);
     setSearchQuery({
       AWB: '',
       clientId: '',
@@ -157,11 +260,25 @@ const Dashboard = () => {
       fromDate: '',
       toDate: '',
       currentStatus: '',
+      serviceCode: '',
       jobId: '',
       clientName: '',
       driverName: '',
-    })
+      serviceType: '',
+      serviceCode: '',
+      serviceTypeId: '',
+      serviceCodeId: ''
+    });
+
+    // setActiveTab(activeTab);
+
+    if (activeTab === 'allJobs') {
+      getInitialData();
+    } else {
+      handleTodayJobs();
+    }
   }
+
   // handle sort
   const handleSort = (field) => {
     const sortedData = sortData(data, field)
@@ -175,10 +292,80 @@ const Dashboard = () => {
       setSelectedJob(JSON.parse(storedSelectedItem))
     }
   }, [])
+
   // handle Filter
   const handleFilterClose = () => {
     setFilterShow(false)
   }
+
+  const handleRefresh = (filterObj, tagRemove) => {
+    setLoading(true)
+    setMessage('');
+    let queryParams = [];
+
+    if (!tagRemove) {
+      handleClear();
+      dispatch({
+        type: 'updateSearchQuery',
+        payload: {
+          AWB: "",
+          clientId: "",
+          driverId: "",
+          fromDate: "",
+          toDate: "",
+          currentStatus: "",
+          serviceCode: "",
+          serviceType: '',
+          serviceCodeId: '',
+          serviceTypeId: '',
+          jobId: "",
+          clientName: "",
+          driverName: ""
+        },
+      });
+    } else {
+
+      let filter = filterObj || searchQuery;
+
+      if (filter.currentStatus)
+        queryParams.push(`currentStatus=${filter.currentStatus}`)
+      if (filter.clientId) queryParams.push(`clientId=${filter.clientId}`)
+      if (filter.driverId) queryParams.push(`driverId=${filter.driverId}`)
+      if (filter.fromDate) queryParams.push(`fromDate=${filter.fromDate}`)
+      if (filter.toDate) queryParams.push(`toDate=${filter.toDate}`)
+      if (filter.jobId) queryParams.push(`jobId=${filter.jobId}`)
+      if (filter.clientName) queryParams.push(`clientName=${filter.clientName}`)
+      if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
+      if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
+      if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
+
+      const query = queryParams.join('&');
+
+      if (activeTab === 'todaysJob') {
+        handleTodayJobs();
+      } else {
+        get(`/client/jobFilter?${query}`, 'client')
+          .then((response) => {
+            if (response?.data?.status) {
+              if (response?.data?.data?.length === 0) {
+                setMessage('No data found')
+              }
+              // setData(response?.data?.data)
+              dispatch({
+                type: 'getJobData',
+                payload: response?.data?.data?.jobs,
+              });
+              setLoading(false)
+            }
+          })
+          .catch((error) => {
+            console.error(error)
+            setLoading(false)
+          })
+      }
+    }
+  }
+
   return (
     <>
       <Row className="d-flex pb-3 align-items-center justify-content-between">
@@ -202,7 +389,8 @@ const Dashboard = () => {
             <FaSyncAlt />
           </Button>
           <DateRangeFilter
-            setData={setData}
+            // setData={setData}
+            activeTab={activeTab}
             role="client"
             setMessage={setMessage}
             searchQuery={searchQuery}
@@ -219,11 +407,18 @@ const Dashboard = () => {
       <FilterOffCanvas
         show={showCanvas}
         handleClose={handleCloseCanvas}
-        onApplyFilter={(selectedOption) => handleSearchClick(searchTerm, selectedOption)}
+        onApplyFilter={() => handleSearchClick()}
         role={'client'}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
+
+      {Object.values(searchQuery).some((v) => v) && (
+        <div className="filter-container">
+          <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
+        </div>
+      )}
+
       <div className="client-rates-table">
         <Tabs activeKey={activeTab} onSelect={handleTabSelect} defaultActiveKey="todaysJob" id="todays-job" className="mb-3 custom-tabs">
           {/* Today's Job Tab */}
@@ -282,58 +477,59 @@ const Dashboard = () => {
                       <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                     </tr>
                   ) : (
-                    data && data.map((item, index) => {
-                      const isSelected = item._id === selectedItem._id;
-                      const status = item?.isHold ? 'Hold' : item?.currentStatus;
-                      const styles = getStatusStyles(status);
+                    data.length > 0 ?
+                      data?.map((item, index) => {
+                        const isSelected = item._id === selectedItem._id;
+                        const status = item?.isHold ? 'Hold' : item?.currentStatus;
+                        const styles = getStatusStyles(status);
 
-                      const tdStyle = {
-                        backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                        fontSize: 14,
-                        textAlign: 'left',
-                      };
+                        const tdStyle = {
+                          backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                          fontSize: 14,
+                          textAlign: 'left',
+                        };
 
-                      return (
-                        <tr key={index} className="cursor-pointer">
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.clientId?.companyName}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.AWB}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.pieces}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.serviceTypeId?.text}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.serviceCodeId?.text}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.pickUpDetails?.pickupLocationId?.customName}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.dropOfDetails?.dropOfLocationId?.customName}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.uid}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
-                          </td>
-                          <td onClick={() => handleView(item)} style={tdStyle}>
-                            <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                              {status}
-                            </div>
-                          </td>
-                          {/* <td className="text-center" style={tdStyle}>
+                        return (
+                          <tr key={index} className="cursor-pointer">
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.clientId?.companyName}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.AWB}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.pieces}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.serviceTypeId?.text}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.serviceCodeId?.text}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.pickUpDetails?.pickupLocationId?.customName}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.dropOfDetails?.dropOfLocationId?.customName}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.uid}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+                            </td>
+                            <td onClick={() => handleView(item)} style={tdStyle}>
+                              <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                {status}
+                              </div>
+                            </td>
+                            {/* <td className="text-center" style={tdStyle}>
                           {!item?.driverId ? (
                             <FaTruckMoving onClick={() => handleShowAssign(item)} />
                           ) : (
@@ -343,54 +539,57 @@ const Dashboard = () => {
                         <td className="text-center" style={tdStyle}>
                           <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
                         </td> */}
-                          <td className="text-center action-dropdown-menu" style={tdStyle}>
-                            <div className="dropdown">
-                              <button
-                                className="btn btn-link p-0 border-0"
-                                type="button"
-                                id={`dropdownMenuButton-${item._id}`}
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                <BsThreeDotsVertical size={18} />
-                              </button>
-                              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleEdit(item)}
-                                  >
-                                    Edit Job
-                                  </button>
-                                </li>
-                                {assignDriverP === 'true' && (
+                            <td className="text-center action-dropdown-menu" style={tdStyle}>
+                              <div className="dropdown">
+                                <button
+                                  className="btn btn-link p-0 border-0"
+                                  type="button"
+                                  id={`dropdownMenuButton-${item._id}`}
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  <BsThreeDotsVertical size={18} />
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
                                   <li>
                                     <button
                                       className="dropdown-item"
-                                      onClick={() => {
-                                        handleShowAssign(item)
-                                      }}
+                                      onClick={() => handleEdit(item)}
                                     >
-                                      Change Driver
+                                      Edit Job
                                     </button>
                                   </li>
-                                )}
-                                {trackPermission === 'true' && (
-                                  <li>
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
-                                    >
-                                      Package Location
-                                    </button>
-                                  </li>
-                                )}
-                              </ul>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
+                                  {assignDriverP === 'true' && (
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                          handleShowAssign(item)
+                                        }}
+                                      >
+                                        Change Driver
+                                      </button>
+                                    </li>
+                                  )}
+                                  {trackPermission === 'true' && (
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
+                                      >
+                                        Package Location
+                                      </button>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }) :
+                      <tr>
+                        <td colSpan={14} className="text-center text-danger">No data found</td>
+                      </tr>
                   )}
                 </tbody>
               </Table>
@@ -452,163 +651,162 @@ const Dashboard = () => {
                   {message ? (
                     <tr>
                       {' '}
-                      <td colSpan={12} className="text-center text-danger">
-                        {message}
-                      </td>
+                      <tr>
+                        <td colSpan={14} className="text-center text-danger">{message}</td>
+                      </tr>
                     </tr>
                   ) : loading ? (
                     <tr>
-                      {' '}
-                      <Spinner animation="border" variant="primary" />
+                      <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                     </tr>
                   ) : (
-                    data &&
-                    data.map((item, index) => {
-                      const isSelected = item._id === selectedJob?._id
-                      const status = item?.isHold ? 'Hold' : item?.currentStatus
-                      const styles = getStatusStyles(status)
-                      const tdStyle = {
-                        backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                        fontSize: 14,
-                        textAlign: 'left',
-                      };
+                    data?.length > 0 ?
+                      data?.map((item, index) => {
+                        const isSelected = item._id === selectedJob?._id
+                        const status = item?.isHold ? 'Hold' : item?.currentStatus
+                        const styles = getStatusStyles(status)
+                        const tdStyle = {
+                          backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                          fontSize: 14,
+                          textAlign: 'left',
+                        };
 
-                      return (
-                        <tr key={index} className='cursor-pointer' >
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.clientId?.companyName}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.AWB}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.pieces}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.serviceTypeId?.text}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.serviceCodeId?.text}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.pickUpDetails?.pickupLocationId?.customName}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.dropOfDetails?.dropOfLocationId?.customName}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {item?.uid}
-                          </td>
-                          <td
-                            onClick={() => handleView(item)}
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {' '}
-                            {item?.driverId
-                              ? `${item?.driverId?.firstname}-${item?.driverId?.lastname}`
-                              : ''}{' '}
-                          </td>
-                          <td
-                            className="text-center"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                              {status}
-                            </div>
-                          </td>
-                          <td className="text-center action-dropdown-menu" style={tdStyle}>
-                            <div className="dropdown">
-                              <button
-                                className="btn btn-link p-0 border-0"
-                                type="button"
-                                id={`dropdownMenuButton-${item._id}`}
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                <BsThreeDotsVertical size={18} />
-                              </button>
-                              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleEdit(item)}
-                                  >
-                                    Edit Job
-                                  </button>
-                                </li>
-                                {assignDriverP === 'true' && (
+                        return (
+                          <tr key={index} className='cursor-pointer' >
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.clientId?.companyName}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.AWB}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.pieces}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.serviceTypeId?.text}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.serviceCodeId?.text}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.pickUpDetails?.pickupLocationId?.customName}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.dropOfDetails?.dropOfLocationId?.customName}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {item?.uid}
+                            </td>
+                            <td
+                              onClick={() => handleView(item)}
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              {' '}
+                              {item?.driverId
+                                ? `${item?.driverId?.firstname}-${item?.driverId?.lastname}`
+                                : ''}{' '}
+                            </td>
+                            <td
+                              className="text-center"
+                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                            >
+                              <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                {status}
+                              </div>
+                            </td>
+                            <td className="text-center action-dropdown-menu" style={tdStyle}>
+                              <div className="dropdown">
+                                <button
+                                  className="btn btn-link p-0 border-0"
+                                  type="button"
+                                  id={`dropdownMenuButton-${item._id}`}
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  <BsThreeDotsVertical size={18} />
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
                                   <li>
                                     <button
                                       className="dropdown-item"
-                                      onClick={() => {
-                                        handleShowAssign(item)
-                                      }}
+                                      onClick={() => handleEdit(item)}
                                     >
-                                      Change Driver
+                                      Edit Job
                                     </button>
                                   </li>
-                                )}
-                                {trackPermission === 'true' && (
-                                  <li>
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
-                                    >
-                                      Package Location
-                                    </button>
-                                  </li>
-                                )}
-                              </ul>
-                            </div>
-                          </td>
-                          {/* <td
+                                  {assignDriverP === 'true' && (
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => {
+                                          handleShowAssign(item)
+                                        }}
+                                      >
+                                        Change Driver
+                                      </button>
+                                    </li>
+                                  )}
+                                  {trackPermission === 'true' && (
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
+                                      >
+                                        Package Location
+                                      </button>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            </td>
+                            {/* <td
                         className="text-center cursor-pointer "
                         style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                       >
@@ -641,9 +839,12 @@ const Dashboard = () => {
                       ) : (
                         ''
                       )} */}
-                        </tr>
-                      )
-                    })
+                          </tr>
+                        )
+                      }) :
+                      <tr>
+                        <td colSpan={14} className="text-center text-danger">No data found</td>
+                      </tr>
                   )}
                 </tbody>
               </Table>

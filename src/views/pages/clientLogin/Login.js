@@ -34,11 +34,16 @@ const Login = () => {
       const res = await axios.put('/client/login', { username, password })
       const { status, message, data } = res?.data
       if (status) {
+        console.log('client data', data?.data);
         localStorage.setItem('jdAirTrans-client-token', data.token)
         localStorage.setItem('clientDriverAssign', data.data.isDriverPermission)
         localStorage.setItem('clientTrackPermission', data.data.isTrackPermission)
-        localStorage.setItem('logoKey', data.data.logoKey)
-        
+        localStorage.setItem('logoKey', data.data.logoKey);
+        localStorage.setItem('email', data.data.email)
+        localStorage.setItem('role', 'Client')
+        localStorage.setItem('firstname', data.data.firstname)
+        localStorage.setItem('lastname', data.data.lastname)
+
         navigate('/client/dashboards')
       } else {
         setFault({ isErr: true, msg: message })

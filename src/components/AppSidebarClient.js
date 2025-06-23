@@ -36,7 +36,6 @@ const AppSidebarCLient = () => {
     get('/client/profile', 'client').then((data) => {
       if (data.data.status) {
         setData(data.data.data)
-        console.log(data.data.data);
         
         setLoading(false)
       }

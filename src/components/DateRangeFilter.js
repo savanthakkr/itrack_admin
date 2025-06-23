@@ -16,7 +16,10 @@ export default function DateRangeFilter({
 	setSearchQuery,
 	activeTab,
 	page,
-	limit
+	limit,
+	setSelectedColumns,
+	selectedColumns,
+	setJobsData
 }) {
 	// const [searchQuery, setSearchQuery] = useState({
 	//     AWB: "",
@@ -30,7 +33,13 @@ export default function DateRangeFilter({
 	//     driverName: ""
 	// });
 
-	const dispatch = useDispatch()
+	const dispatch = useDispatch();
+
+	const columnOptions = [
+		'All', 'Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces',
+		'Service Type', 'Service Code', 'Pickup From', 'Deliver To',
+		'Driver', 'Notes', 'Transfer To', 'Status'
+	];
 
 	const handleTimeChange = (e) => {
 		setSearchQuery({ ...searchQuery, [e.target.name]: e.target.value })
@@ -60,10 +69,18 @@ export default function DateRangeFilter({
 			if (page && limit) {
 				getSeachFilterResult(filteredQuery, role, page, limit).then((res) => {
 					// setData(res)
-					dispatch({
-						type: 'getJobData',
-						payload: res?.jobs,
-					});
+					if (setJobsData) {
+						const responseData = setJobsData(res?.jobs);
+						dispatch({
+							type: 'getJobData',
+							payload: responseData,
+						});
+					} else {
+						dispatch({
+							type: 'getJobData',
+							payload: res?.jobs,
+						});
+					}
 
 					dispatch({
 						type: 'setJobCount',
@@ -73,10 +90,18 @@ export default function DateRangeFilter({
 			} else {
 				getSeachFilterResult(filteredQuery, role).then((res) => {
 					// setData(res)
-					dispatch({
-						type: 'getJobData',
-						payload: res?.jobs,
-					});
+					if (setJobsData) {
+						const responseData = setJobsData(res?.jobs);
+						dispatch({
+							type: 'getJobData',
+							payload: responseData,
+						});
+					} else {
+						dispatch({
+							type: 'getJobData',
+							payload: res?.jobs,
+						});
+					}
 
 					dispatch({
 						type: 'setJobCount',
@@ -92,14 +117,22 @@ export default function DateRangeFilter({
 				filterQuery.fromDate = getCurrentDate();
 				filterQuery.toDate = getCurrentDate()
 			}
-			
+
 			if (page && limit) {
 				getSeachFilterResult(filterQuery, role, page, limit).then((res) => {
 					// setData(res)
-					dispatch({
-						type: 'getJobData',
-						payload: res?.jobs,
-					});
+					if (setJobsData) {
+						const responseData = setJobsData(res?.jobs);
+						dispatch({
+							type: 'getJobData',
+							payload: responseData,
+						});
+					} else {
+						dispatch({
+							type: 'getJobData',
+							payload: res?.jobs,
+						});
+					}
 
 					dispatch({
 						type: 'setJobCount',
@@ -109,10 +142,18 @@ export default function DateRangeFilter({
 			} else {
 				getSeachFilterResult(filterQuery, role).then((res) => {
 					// setData(res)
-					dispatch({
-						type: 'getJobData',
-						payload: res?.jobs,
-					});
+					if (setJobsData) {
+						const responseData = setJobsData(res?.jobs);
+						dispatch({
+							type: 'getJobData',
+							payload: responseData,
+						});
+					} else {
+						dispatch({
+							type: 'getJobData',
+							payload: res?.jobs,
+						});
+					}
 
 					dispatch({
 						type: 'setJobCount',
@@ -121,18 +162,28 @@ export default function DateRangeFilter({
 				})
 			}
 		}
-	}, [searchQuery.fromDate, searchQuery.toDate])
+	}, [searchQuery.fromDate, searchQuery.toDate]);
 
 	const [showDropdown, setShowDropdown] = useState(false);
-	const [selectedColumns, setSelectedColumns] = useState([]);
+	// const [selectedColumns, setSelectedColumns] = useState([]);
 
 	const toggleColumn = (col) => {
-		if (selectedColumns.includes(col)) {
-			setSelectedColumns(selectedColumns.filter(c => c !== col));
+		if (col === "All") {
+			// If "All" is selected, toggle between selecting all or clearing all
+			if (selectedColumns.length === columnOptions.length - 1) {
+				setSelectedColumns([]);
+			} else {
+				setSelectedColumns(columnOptions.filter(c => c !== "All"));
+			}
 		} else {
-			setSelectedColumns([...selectedColumns, col]);
-		}
-	};
+			if (selectedColumns.includes(col)) {
+				setSelectedColumns(selectedColumns.filter(c => c !== col));
+			} else {
+				setSelectedColumns([...selectedColumns, col]);
+			}
+		};
+	}
+
 	// const columnOptions = [
 	//   { value: 'all', label: 'All' },
 	//   { value: 'client', label: 'Client' },
@@ -148,11 +199,6 @@ export default function DateRangeFilter({
 	//   { value: 'notes', label: 'Notes' },
 	//   { value: 'status', label: 'Status' },
 	// ]
-	const columnOptions = [
-		'All', 'Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces',
-		'Service Type', 'Service Code', 'Pickup From', 'Deliver To',
-		'Driver', 'Notes', 'Status'
-	];
 
 	return (
 		<>

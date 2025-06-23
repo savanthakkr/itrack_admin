@@ -30,6 +30,7 @@ const navigation = [
     name: 'Dashboard',
     to: '/client/dashboards',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+    display: 'true'
     // badge: {
     //   color: 'info',
     //   text: 'NEW',
@@ -40,16 +41,19 @@ const navigation = [
     name: 'Bookings',
     to: '/base',
     icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
+    display: 'true',
     items: [
       {
         component: CNavItem,
         name: 'New Booking',
         to: '/client/dashboard/job/add',
+        display: 'true'
       },
       {
         component: CNavItem,
         name: 'All Bookings',
         to: '/client/dashboard/job/all',
+        display: 'true'
       },
     ],
   },
@@ -68,6 +72,7 @@ const navigation = [
     name: 'Reports ',
     to: '/client/dashboard/reports/stats',
     icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
+    display: 'true'
   },
 
 ]
@@ -78,12 +83,14 @@ const bottomNavItems = [
     name: 'Profile',
     to: '/client/dashboard/profile',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    display: 'true'
   },
   {
     component: CNavItem,
     name: 'Logout',
     to: '/logout',
     icon: <CIcon icon={cilExitToApp} customClassName="nav-icon" />,
+    display: 'true'
   },
 ]
 

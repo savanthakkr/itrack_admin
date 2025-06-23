@@ -235,7 +235,7 @@ const JobDetails = () => {
                     <Col md={6} className="mb-3">
                       <Form.Group controlId="driverName">
                         <Form.Label>Driver Name</Form.Label>
-                        <Form.Control type="text" readOnly value={data?.driverId.firstname + ' ' + data?.driverId.lastname} />
+                        <Form.Control type="text" readOnly value={data?.driverId ? data?.driverId?.firstname + ' ' + data?.driverId?.lastname : ""} />
                       </Form.Group>
                     </Col>
                   </Row>
