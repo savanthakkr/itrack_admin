@@ -605,7 +605,7 @@ const Dashboard = () => {
 								<tr style={{ fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
 									{selectedColumns.map((col) => (
 										<>
-											<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+											<th className="text-center" onClick={() => handleSort(item)}>
 												{col}
 											</th>
 											{/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
@@ -842,7 +842,7 @@ const Dashboard = () => {
 								<tr style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
 									{selectedColumns.map((col) => (
 										<>
-											<th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+											<th className="text-center" onClick={() => handleSort(item)}>
 												{col}
 											</th>
 											{/* <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>

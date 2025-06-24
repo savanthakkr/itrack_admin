@@ -472,7 +472,7 @@ const AllJobs = () => {
                                 <tr>
                                     {selectedColumns.map((col, index) => (
                                         <>
-                                            <th className="text-center" key={index} onClick={() => handleSort('pickUpDetails.readyTime')}>
+                                            <th className="text-center" key={index} onClick={() => handleSort(item)}>
                                                 {col}
                                             </th>
                                         </>

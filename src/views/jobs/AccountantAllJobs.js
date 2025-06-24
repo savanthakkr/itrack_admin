@@ -1,10 +1,10 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { FaTruckMoving, FaEye, FaMapMarkedAlt, FaFilter } from 'react-icons/fa'
 import { useEffect, useState } from 'react'
-import { get } from '../../lib/request'
+import { get, updateReq } from '../../lib/request'
 import { getTotalDocs } from '../../services/getTotalDocs'
 import MyPagination from '../../components/Pagination'
-import { Button, Col, Container, Form, Row, Table, Modal, Spinner } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row, Table, Modal, Spinner, Dropdown } from 'react-bootstrap'
 import { FaSearch } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import AssignDriverModal from '../../components/Modals/AssignDriver'
@@ -25,6 +25,7 @@ import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
 import AssignClientModal from '../../components/Modals/AssignClient'
+import Swal from 'sweetalert2'
 
 const AccountantAllJobs = () => {
     const dispatch = useDispatch()
@@ -51,6 +52,9 @@ const AccountantAllJobs = () => {
     const [isFiltering, setIsFiltering] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
     const [checkedItems, setCheckedItems] = useState([]);
+    const [serviceCodes, setServiceCodes] = useState([]);
+    const [serviceTypes, setServiceTypes] = useState([]);
+
 
     const setSearchQuery = (query) => {
         dispatch({
@@ -61,15 +65,16 @@ const AccountantAllJobs = () => {
 
     const setJobsData = (response) => {
         const finalArr = [];
-        console.log('response', response);
+
         for (let data of response) {
             const obj = {};
+            
             obj._id = data?._id;
             obj.Client = data?.clientId?.companyName;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
-            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "";
             // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
-            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "";
             obj.AWB = data?.AWB;
             obj.Pieces = data?.pieces;
             obj['Service Type'] = data?.serviceTypeId?.text;
@@ -81,16 +86,19 @@ const AccountantAllJobs = () => {
             obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
             obj.isTransfer = data?.isTransfer;
             obj.isTransferAccept = data?.isTransferAccept;
-            obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '-';
-            obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime) : "-";
-            obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "-";
-            obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "-";
-            obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "-";
-            obj['Admin Notes'] = data?.adminNote || "-";
-            obj['Base Rate'] = data?.baseRate || "-";
-            obj['Fuel Surcharge'] = data?.fueLSurcharge || "-";
-            obj['Invoice Number'] = data?.invoiceNumber || "-";
-            obj['Customer Job Number'] = data?.custRefNumber || "-";
+            obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '';
+            obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime) : "";
+            obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "";
+            obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
+            obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
+            obj['Admin Notes'] = data?.adminNote || "";
+            obj['Base Rate'] = data?.rates || "";
+            obj['Fuel Surcharge'] = data?.fuel_charge || "";
+            obj['Invoice Number'] = data?.invoiceNumber || "";
+            obj['Customer Job Number'] = data?.custRefNumber || "";
+            obj['Weight'] = data?.weight || "";
+            obj['serviceTypeId'] = data?.serviceTypeId ? data?.serviceTypeId?._id : "";
+            obj['serviceCodeId'] = data?.serviceCodeId ? data?.serviceCodeId?._id : "";
             finalArr.push(obj);
         }
 
@@ -376,8 +384,12 @@ const AccountantAllJobs = () => {
     }
 
     const columnOptions = [
-        'All', 'Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes'
+        'All', 'Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes'
     ];
+
+    const editableFields = [
+        'Ready Time', 'AWB', 'Customer Job Number', 'Service Type', 'Service Code', 'Pieces', 'Weight', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Notes', 'Base Rate', 'Fuel Surcharge'
+    ]
 
     const handleCheckBoxChange = (e, item) => {
         const isChecked = e.target.checked;
@@ -394,10 +406,17 @@ const AccountantAllJobs = () => {
         });
     };
 
-    const handleFieldChange = (itemId, fieldName, value) => {
+    const handleFieldChange = (itemId, fieldName, value, id = null) => {
         setCheckedItems((prev) =>
             prev.map((item) =>
-                item._id === itemId ? { ...item, [fieldName]: value } : item
+                item._id === itemId
+                    ? {
+                        ...item,
+                        [fieldName]: value,
+                        ...(fieldName === 'Service Code' && id ? { serviceCodeId: id } : {}),
+                        ...(fieldName === 'Service Type' && id ? { serviceTypeId: id } : {})
+                    }
+                    : item
             )
         );
     };
@@ -410,7 +429,39 @@ const AccountantAllJobs = () => {
 
         try {
 
-            console.log('checkedItems', checkedItems);
+            const payload = checkedItems.map(item => ({
+                _id: item['_id'],
+                AWB: item['AWB'],
+                custRefNumber: item['Customer Job Number'],
+                serviceTypeId: item['serviceTypeId'],
+                serviceCodeId: item['serviceCodeId'],
+                pieces: item['Pieces'],
+                weight: item['Weight'],
+                pickUpDetails: {
+                    readyTime: formatDateTimeValue(item['Ready Time']) || item['Ready Time'],
+                    arrivalTime: formatDateTimeValue(item['Arrived At Pickup']) || item['Arrived At Pickup'],
+                    pickedUpTime: formatDateTimeValue(item['Picked Up Time']) || item['Picked Up Time']
+                },
+                dropOfDetails: {
+                    arrivalTime: formatDateTimeValue(item['Arrival At Delivery']) || item['Arrival At Delivery'],
+                    deliveredTime: formatDateTimeValue(item['Delivered Time']) || item['Delivered Time']
+                },
+                note: item['Notes'],
+                rates: item['Base Rate'],
+                fuel_charge: item['Fuel Surcharge']
+            }));
+
+            updateReq(`/admin/accountant/edit-job`, payload, "admin").then((data) => {
+                if (data.data.status) {
+                    setIsRefresh(!isReferesh);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Job has been Updated Successfully!',
+                    });
+                    fetchData();
+                    setCheckedItems([]);
+                }
+            })
         } catch (error) {
             console.error("Failed to update jobs:", error);
             alert("Update failed. Try again.");
@@ -418,6 +469,44 @@ const AccountantAllJobs = () => {
     };
 
     const isItemChecked = (id) => checkedItems.some(i => i._id === id);
+
+    useEffect(() => {
+        get(`/admin/service/code`, "admin").then((res) => {
+            if (res.data.status) {
+                setServiceCodes(res.data.data);
+            }
+        });
+        get(`/admin/service/type`, "admin").then((res) => {
+            if (res.data.status) {
+                setServiceTypes(res.data.data);
+            }
+        });
+    }, []);
+
+    const formatDateTimeValue = (dateString) => {
+        if (!dateString) return '';
+
+        // Example input: "17/06/2025, 05:39 pm"
+        const [datePart, timePartRaw] = dateString.split(', ');
+        if (!datePart || !timePartRaw) return '';
+
+        const [day, month, year] = datePart.split('/');
+        const [time, meridian] = timePartRaw.split(' ');
+        let [hour, minute] = time.split(':');
+
+        hour = parseInt(hour, 10);
+        if (meridian.toLowerCase() === 'pm' && hour < 12) {
+            hour += 12;
+        } else if (meridian.toLowerCase() === 'am' && hour === 12) {
+            hour = 0;
+        }
+
+        // Pad with leading zero if needed
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour
+            .toString()
+            .padStart(2, '0')}:${minute}`;
+        return formatted;
+    };
 
     return (
         <>
@@ -505,60 +594,96 @@ const AccountantAllJobs = () => {
                                                 {selectedColumns.map((col) => {
                                                     const isChecked = isItemChecked(item._id);
                                                     const editableItem = checkedItems.find(i => i._id === item._id);
-                                                    const displayValue = editableItem?.[col] ?? item[col];
-                                                    return (
-                                                        <>
 
-                                                            {col === 'Status' ?
-                                                                <td onClick={() => handleView(item)} style={{
+                                                    let displayValue;
+                                                    if (editableItem && col in editableItem) {
+                                                        displayValue = editableItem[col];
+                                                    } else if (col === 'Service Code') {
+                                                        const codeObj = serviceCodes.find(sc => sc._id === item.serviceCodeId);
+                                                        displayValue = codeObj?.text;
+                                                    } else if (col === 'Service Type') {
+                                                        const typeObj = serviceTypes.find(st => st._id === item.serviceTypeId);
+                                                        displayValue = typeObj?.text;
+                                                    } else {
+                                                        displayValue = item[col];
+                                                    }
+
+                                                    // If col is Status, render special style (unchanged)
+                                                    if (col === 'Status') {
+                                                        return (
+                                                            <td
+                                                                key={col}
+                                                                onClick={() => handleView(item)}
+                                                                style={{
                                                                     ...tdStyle,
-                                                                    ...(item.isTransferAccept
-                                                                        ? { pointerEvents: 'none' }
-                                                                        : {}),
-                                                                }}>
-                                                                    <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                                                                        {status}
-                                                                    </div>
-                                                                </td>
-                                                                :
-                                                                <>
-                                                                    {/* <td key={col} onClick={() => handleView(item)} style={tdStyle}> */}
-                                                                    <td key={col} style={tdStyle}>
-                                                                        {isChecked ? (
-                                                                            <Form.Control
-                                                                                size="sm"
-                                                                                value={displayValue}
-                                                                                onChange={(e) =>
-                                                                                    handleFieldChange(item._id, col, e.target.value)
-                                                                                }
-                                                                                onKeyDown={(e) => {
-                                                                                    if (e.key === 'Enter') {
-                                                                                        handleSubmitCheckedItems();
-                                                                                    }
-                                                                                }}
-                                                                            />
-                                                                        ) : (
-                                                                            displayValue ?? "-"
-                                                                        )}
-                                                                    </td>
-                                                                    {/* <td onClick={() => handleView(item)} style={{
-                                                                    ...tdStyle,
-                                                                    ...(item.isTransferAccept && col === 'Transfer To'
-                                                                        ? { pointerEvents: 'none' }
-                                                                        : {}),
-                                                                }} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
-                                                                    {item[col] ?? "-"}
-                                                                </td> */}
-                                                                </>
-                                                            }
-                                                        </>
-                                                    )
+                                                                    ...(item.isTransferAccept ? { pointerEvents: 'none' } : {})
+                                                                }}
+                                                            >
+                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                    {status}
+                                                                </div>
+                                                            </td>
+                                                        );
+                                                    }
+
+                                                    // For all other editable columns
+                                                    return (
+                                                        <td key={col} style={tdStyle}>
+                                                            {editableFields.includes(col) && isChecked ? (
+                                                                col === 'Service Code' || col === 'Service Type' ? (
+                                                                    <Form.Select
+                                                                        size="sm"
+                                                                        value={
+                                                                            col === 'Service Code'
+                                                                                ? (editableItem?.serviceCodeId || item.serviceCodeId || '')
+                                                                                : (editableItem?.serviceTypeId || item.serviceTypeId || '')
+                                                                        }
+                                                                        onChange={(e) => {
+                                                                            const selectedId = e.target.value;
+                                                                            const selectedItem = (col === 'Service Code' ? serviceCodes : serviceTypes).find(item => item._id === selectedId);
+                                                                            handleFieldChange(item._id, col, selectedItem?.text || '', selectedId);
+                                                                        }}
+                                                                        onKeyDown={(e) => {
+                                                                            if (e.key === 'Enter') {
+                                                                                handleSubmitCheckedItems();
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <option value="">Select</option>
+                                                                        {(col === 'Service Code' ? serviceCodes : serviceTypes).map((option) => (
+                                                                            <option key={option._id} value={option._id}>
+                                                                                {option.text}
+                                                                            </option>
+                                                                        ))}
+                                                                    </Form.Select>
+                                                                ) : ['Ready Time', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time'].includes(col) ? (
+                                                                    <Form.Control
+                                                                        type="datetime-local"
+                                                                        size="sm"
+                                                                        value={formatDateTimeValue(displayValue) || displayValue}
+                                                                        // value={displayValue}
+                                                                        onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                    />
+                                                                ) : (
+                                                                    <Form.Control
+                                                                        size="sm"
+                                                                        value={displayValue}
+                                                                        onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                    />
+                                                                )
+                                                            ) : (
+                                                                displayValue ?? "-"
+                                                            )}
+                                                        </td>
+                                                    );
                                                 })}
                                                 <td className="text-center" style={{
                                                     ...tdStyle,
-                                                    ...(item.isTransferAccept
-                                                        ? { pointerEvents: 'none' }
-                                                        : {}),
+                                                    // ...(item.isTransferAccept
+                                                    //     ? { pointerEvents: 'none' }
+                                                    //     : {}),
                                                 }}>
                                                     <Form.Check
                                                         type="checkbox"
