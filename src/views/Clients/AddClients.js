@@ -63,7 +63,7 @@ function AddClients() {
   const [clientRateData, setClientRateData] = useState({
     rate: '',
     item: '',
-    serviceCode: ''
+    serviceCodeId: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -72,7 +72,7 @@ function AddClients() {
     setClientRateData({
       rate: '',
       item: '',
-      serviceCode: ''
+      serviceCodeId: ''
     });
     setErrors({});
   }, [showModal]);
@@ -81,7 +81,7 @@ function AddClients() {
 
     setSelectedClientId(item._id);
 
-    setClientRateData({ rate: item.rate.replace(/[^0-9.]/g, ''), serviceCode: item.serviceCode, item: item.item });
+    setClientRateData({ rate: item.rate.replace(/[^0-9.]/g, ''), serviceCodeId: item.serviceCodeId?._id, item: item.item });
 
     setShowModal2(true);
   };
@@ -231,8 +231,8 @@ function AddClients() {
 
   const validateClientRateForm = () => {
     const errors = {}
-    if (clientRateData.serviceCode === '') {
-      errors.serviceCode = 'Service code is required.'
+    if (clientRateData.serviceCodeId === '') {
+      errors.serviceCodeId = 'Service code is required.'
     }
     if (clientRateData.item === '') {
       errors.item = 'item is required.'
@@ -258,7 +258,7 @@ function AddClients() {
               setClientRateData({
                 rate: '',
                 item: '',
-                serviceCode: ''
+                serviceCodeId: ''
               });
               Swal.fire({
                 icon: 'success',
@@ -324,10 +324,10 @@ function AddClients() {
   const handleServiceCodeRateChange = (selectedOption) => {
     setClientRateData({
       ...clientRateData,
-      serviceCode: selectedOption.label,
+      serviceCodeId: selectedOption.value,
     });
-    if (errors.serviceCode) {
-      setErrors(prev => ({ ...prev, serviceCode: "" }));
+    if (errors.serviceCodeId) {
+      setErrors(prev => ({ ...prev, serviceCodeId: "" }));
     }
   };
 
@@ -345,7 +345,7 @@ function AddClients() {
   useEffect(() => {
     const service = [];
     serviceCode?.map((item) => {
-      service.push({ value: item.text, label: item.text });
+      service.push({ value: item._id, label: item.text });
     });
     setServiceOptionForRate(service);
   }, [serviceCode]);
@@ -536,7 +536,7 @@ function AddClients() {
             <tbody>
               {rates.length > 0 ? rates.map((item) => (
                 <tr key={item._id}>
-                  <td className="text-start">{item.serviceCode}</td>
+                  <td className="text-start">{item?.serviceCodeId?.text}</td>
                   <td className="text-start">{item.rate}</td>
                   <td className="text-start">{item.item}</td>
                   <td className="text-center action-dropdown-menu">
@@ -632,7 +632,7 @@ function AddClients() {
                 type="text"
                 className="custom-form-control"
                 placeholder="Enter rate here"
-                value={clientRateData.rate}
+                value={clientRateData?.rate}
                 name="rate"
                 // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
                 onChange={handleClientRateChange}
@@ -643,16 +643,16 @@ function AddClients() {
               <Select
                 className="w-100 custom-select"
                 classNamePrefix="custom-select"
-                name="serviceCode"
+                name="serviceCodeId"
                 options={serviceOptionForRate}
-                value={clientData.serviceCode}
+                value={clientData?.serviceCodeId?._id}
                 onChange={handleServiceCodeRateChange}
                 placeholder="Enter service code"
                 isSearchable
                 required
               />
-              {errors.serviceCode ? (
-                <Form.Text className="text-danger">{errors.serviceCode}</Form.Text>
+              {errors.serviceCodeId ? (
+                <Form.Text className="text-danger">{errors.serviceCodeId}</Form.Text>
               ) : null}
             </Form.Group>
             <Form.Group className="mt-3">
@@ -661,7 +661,7 @@ function AddClients() {
                 className="w-100 custom-select"
                 classNamePrefix="custom-select"
                 options={unitOptions}
-                value={clientData.item}
+                value={clientData?.item}
                 name="item"
                 // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
                 onChange={handleItemRateChange}
@@ -699,7 +699,7 @@ function AddClients() {
                 type="text"
                 className="custom-form-control"
                 placeholder="Enter rate here"
-                value={clientRateData.rate}
+                value={clientRateData?.rate}
                 name="rate"
                 // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
                 onChange={handleClientRateChange}
@@ -710,16 +710,16 @@ function AddClients() {
               <Select
                 className="w-100 custom-select"
                 classNamePrefix="custom-select"
-                name="serviceCode"
+                name="serviceCodeId"
                 options={serviceOptionForRate}
-                value={serviceOptionForRate?.find(opt => opt.value === clientRateData.serviceCode)}
+                value={serviceOptionForRate?.find(opt => opt.value === clientRateData?.serviceCodeId)}
                 onChange={handleServiceCodeRateChange}
                 placeholder="Enter service code"
                 isSearchable
                 required
               />
-              {errors.serviceCode ? (
-                <Form.Text className="text-danger">{errors.serviceCode}</Form.Text>
+              {errors.serviceCodeId ? (
+                <Form.Text className="text-danger">{errors.serviceCodeId}</Form.Text>
               ) : null}
             </Form.Group>
             <Form.Group className="mt-3">
@@ -728,7 +728,7 @@ function AddClients() {
                 className="w-100 custom-select"
                 classNamePrefix="custom-select"
                 options={unitOptions}
-                value={unitOptions?.find(opt => opt.label === clientRateData.item)}
+                value={unitOptions?.find(opt => opt.label === clientRateData?.item)}
                 name="item"
                 // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
                 onChange={handleItemRateChange}

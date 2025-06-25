@@ -40,7 +40,7 @@ function AddJobs() {
         cutoffTime: '',
         attachments: [],
         note: '',
-        isVpap: '',
+        isVpap: 'false',
         adminNote: '',
     })
     const [dropDownData, setDropDownData] = useState({
@@ -895,9 +895,6 @@ function AddJobs() {
                                     <option value="true">Yes</option>
                                     <option value="false">No</option>
                                 </Form.Control>
-                                {dropDownData.serviceType.text?.toUpperCase().trim() === 'AIR IMPORT' && errors.isVpap ? (
-                                    <Form.Text className="text-danger">{errors.isVpap}</Form.Text>
-                                ) : null}
                             </Form.Group>
                         </Col>
                     )}
