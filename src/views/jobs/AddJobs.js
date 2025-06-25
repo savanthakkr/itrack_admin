@@ -64,6 +64,10 @@ function AddJobs() {
             name: '',
             _id: '',
         },
+        weight: {
+            value: '',
+            label: ''
+        }
     })
 
     const clientOptions = clients
@@ -82,6 +86,89 @@ function AddJobs() {
             },
         });
     };
+
+    const weightOptions = [
+        {
+            value: '0-50',
+            label: '0-50',
+            rate: 32.80
+        },
+        {
+            value: '51-499',
+            label: '51-499',
+            rate: 37.42
+        },
+        {
+            value: '500-999',
+            label: '500-999',
+            rate: 46.53
+        },
+        {
+            value: '1000-1999',
+            label: '1000-1999',
+            rate: 56.01
+        },
+        {
+            value: '2000-2999',
+            label: '2000-2999',
+            rate: 65.11
+        },
+        {
+            value: '3000-3999',
+            label: '3000-3999',
+            rate: 76.72
+        },
+        {
+            value: '4000-4999',
+            label: '4000-4999',
+            rate: 88.44
+        },
+        {
+            value: '5000-5999',
+            label: '5000-5999',
+            rate: 99.66
+        },
+        {
+            value: '6000-6999',
+            label: '6000-6999',
+            rate: 111.63
+        },
+        {
+            value: '7000-7999',
+            label: '7000-7999',
+            rate: 123.23
+        },
+        {
+            value: '8000-8999',
+            label: '8000-8999',
+            rate: 139.44
+        },
+        {
+            value: '9000-9999',
+            label: '9000-9999',
+            rate: 187.09
+        },
+        {
+            value: '10,000-10,999',
+            label: '10,000-10,999',
+            rate: 212.05
+        },
+        {
+            value: '11,000-11,999',
+            label: '11,000-11,999',
+            rate: 237.00
+        },
+        {
+            value: '12,000-12,999',
+            label: '12,000-12,999',
+            rate: 261.94
+        },
+        {
+            value: '13,000-13,999',
+            label: '13,000-13,999',
+            rate: 286.88
+        }
+    ]
 
     const pickupOptions = pickupLocations
         .sort((a, b) => a.customName.localeCompare(b.customName))
@@ -149,6 +236,19 @@ function AddJobs() {
                 _id: selectedOption.value,
             },
         });
+    };
+
+    const handleWeightChange = (selectedOption) => {
+        setDropDownData({
+            ...dropDownData,
+            weight: {
+                label: selectedOption.label,
+                value: selectedOption.value,
+                rate: selectedOption.rate
+            },
+        });
+        formData.weight = selectedOption.value;
+        formData.rates = selectedOption.rate;
     };
     // handle change
     const handleChange = (e) => {
@@ -278,7 +378,7 @@ function AddJobs() {
         const payload = new FormData()
         payload.append('AWB', formData.AWB)
         payload.append('pieces', formData.pieces)
-        payload.append('weight', formData.weight)
+        payload.append('weight', formData.weight);
         payload.append('serviceTypeId', dropDownData.serviceType._id)
         payload.append('custRefNumber', formData.custRefNumber)
         payload.append('serviceCodeId', dropDownData.serviceCode._id)
@@ -290,6 +390,10 @@ function AddJobs() {
         payload.append('isVpap', formData.isVpap)
         payload.append('clientId', dropDownData.selectedClient._id)
         payload.append('adminNote', formData.adminNote)
+
+        if(formData.rates) {
+          payload.append('rates', formData.rates)  
+        }
 
         formData.attachments.forEach((file) => {
             payload.append('attachments', file)
@@ -561,61 +665,7 @@ function AddJobs() {
                         </Form.Group>
                     </Col>
                     <Col md={6} className="mt-3">
-                        <Form.Group>
-                            <Form.Label>Weight</Form.Label>
-                            <Form.Control
-                                type="number"
-                                name="weight"
-                                placeholder="Number"
-                                maxLength={20}
-                                onChange={(e) => handleChange(e)}
-                                value={formData?.weight}
-                            />
-                            {errors.weight ? (
-                                <Form.Text className="text-danger">{errors.weight}</Form.Text>
-                            ) : null}
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md={6} className="mt-3">
                         <Form.Label>Service Type</Form.Label>
-                        {/* <Dropdown data-bs-theme="primary">
-              <Dropdown.Toggle
-                id="dropdown-button-dark-example1"
-                variant="secondary"
-                className="w-100 dropdown-css-custom d-flex justify-content-between align-items-center"
-              >
-                {dropDownData.serviceType.text
-                  ? dropDownData.serviceType.text
-                  : 'Select Service Type'}
-              </Dropdown.Toggle>
-              <Dropdown.Menu
-                className="w-100 custom-scroll"
-                style={{ maxHeight: '250px', overflowY: 'auto' }}
-              >
-                {loading ? (
-                  <div className="text-center py-2">
-                    <Spinner animation="border" />
-                  </div>
-                ) : (
-                  [...serviceTypes]
-                    .sort((a, b) => a.text.localeCompare(b.text)).map((serviceType) => (
-                      <Dropdown.Item
-                        key={serviceType._id}
-                        onClick={() =>
-                          setDropDownData({
-                            ...dropDownData,
-                            serviceType: { text: serviceType.text, _id: serviceType._id },
-                          })
-                        }
-                      >
-                        {serviceType.text}
-                      </Dropdown.Item>
-                    ))
-                )}
-              </Dropdown.Menu>
-            </Dropdown> */}
                         <Select
                             className="w-100 custom-select"
                             classNamePrefix="custom-select"
@@ -636,6 +686,8 @@ function AddJobs() {
                             <Form.Text className="text-danger">{errors.serviceTypeId}</Form.Text>
                         ) : null}
                     </Col>
+                </Row>
+                <Row>
                     <Col md={6} className="mt-3">
                         <Form.Group>
                             <Form.Label>Service Code</Form.Label>
@@ -655,46 +707,53 @@ function AddJobs() {
                                 placeholder="Select Service Code"
                                 isSearchable
                             />
-                            {/* <Dropdown data-bs-theme="dark">
-                <Dropdown.Toggle
-                  id="dropdown-button-dark-example1"
-                  variant="secondary"
-                  className="w-100 dropdown-css-custom d-flex justify-content-between align-items-center"
-                >
-                  {dropDownData.serviceCode.text
-                    ? dropDownData.serviceCode.text
-                    : 'Select Service Code'}
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  className="w-100 custom-scroll"
-                  style={{ maxHeight: '250px', overflowY: 'auto' }}
-                >
-                  {loading2 ? (
-                    <div className="text-center py-2">
-                      <Spinner animation="border" />
-                    </div>
-                  ) : (
-                    [...serviceCode]
-                      .sort((a, b) => a.text.localeCompare(b.text))?.map((serviceCode) => (
-                        <Dropdown.Item
-                          key={serviceCode._id}
-                          onClick={() =>
-                            setDropDownData({
-                              ...dropDownData,
-                              serviceCode: { text: serviceCode.text, _id: serviceCode._id },
-                            })
-                          }
-                        >
-                          {serviceCode.text}
-                        </Dropdown.Item>
-                      ))
-                  )}
-                </Dropdown.Menu>
-              </Dropdown> */}
                             {errors.serviceCodeId ? (
                                 <Form.Text className="text-danger">{errors.serviceCodeId}</Form.Text>
                             ) : null}
                         </Form.Group>
+                    </Col>
+
+                    <Col md={6} className="mt-3">
+                        {dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === 'loose' ?
+                            <Form.Group>
+                                <Form.Label>Weight</Form.Label>
+                                <Select
+                                    className="w-100 custom-select"
+                                    classNamePrefix="custom-select"
+                                    options={weightOptions}
+                                    value={
+                                        dropDownData.weight.value
+                                            ? {
+                                                value: dropDownData.weight.value,
+                                                label: dropDownData.weight.label,
+                                                rate: dropDownData.weight.rate
+                                            }
+                                            : null
+                                    }
+                                    onChange={handleWeightChange}
+                                    placeholder="Select Weight Range"
+                                    isSearchable
+                                />
+                                {errors.weight ? (
+                                    <Form.Text className="text-danger">{errors.weight}</Form.Text>
+                                ) : null}
+                            </Form.Group>
+                            :
+                            <Form.Group>
+                                <Form.Label>Weight</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="weight"
+                                    placeholder="Number"
+                                    maxLength={20}
+                                    onChange={(e) => handleChange(e)}
+                                    value={formData?.weight}
+                                />
+                                {errors.weight ? (
+                                    <Form.Text className="text-danger">{errors.weight}</Form.Text>
+                                ) : null}
+                            </Form.Group>
+                        }
                     </Col>
                 </Row>
                 <Row>

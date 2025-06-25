@@ -4,7 +4,7 @@ import { get, postWihoutMediaData } from '../../lib/request';
 import swal from 'sweetalert2';
 import { BsCircleFill } from 'react-icons/bs';
 
-const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, role }) => {
+const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, role, fetchData }) => {
     const [options, setOptions] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -29,14 +29,10 @@ const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, rol
     const handleAssignClient = () => {
         const data = {
             job_id: jobId,
-            client_id: selectedClient._id
+            admin_id: selectedClient._id
         }
 
-        let url = '/admin/client/assignClient';
-
-        if (role === "client") {
-            url = `/admin/client/assignDriver`
-        }
+        let url = '/admin/assignAdmin';
 
         postWihoutMediaData(`${url}`, data, "admin")
             .then((response) => {
@@ -47,6 +43,7 @@ const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, rol
                     });
                     handleClose();
                     setIsRefresh(!isReferesh);
+                    fetchData();
 
                 }
             })
@@ -54,7 +51,7 @@ const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, rol
 
 
     const loadOptions = async () => {
-        let url = `/admin/info/allClients`
+        let url = `/admin/info/allAdmin`
         try {
             setLoading(true);
             const response = await get(`${url}`, "admin");

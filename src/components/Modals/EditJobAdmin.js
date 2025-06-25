@@ -202,7 +202,7 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
               <Form.Group as={Col} controlId="formGridEmail">
                 <Form.Label>Weight</Form.Label>
                 <Form.Control
-                  type="number"
+                  type="text"
                   placeholder="Weight"
                   value={editFormData.weight}
                   name="weight"

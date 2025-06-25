@@ -314,8 +314,8 @@ const Dashboard = () => {
 			obj.Notes = data?.note;
 			obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
 			obj.isTransfer = data?.isTransfer;
-			obj.isTransferAccept = data?.isTransferAccept;
-			obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '-';
+			obj.blurJob = data?.blurJob;
+			obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
 
 			finalArr.push(obj);
 		}
@@ -684,7 +684,7 @@ const Dashboard = () => {
 															{col === 'Status' ?
 																<td onClick={() => handleView(item)} style={{
 																	...tdStyle,
-																	...(item.isTransferAccept
+																	...(item.blurJob
 																		? { pointerEvents: 'none' }
 																		: {}),
 																}}>
@@ -695,10 +695,10 @@ const Dashboard = () => {
 																:
 																<td onClick={() => handleView(item)} style={{
 																	...tdStyle,
-																	...(item.isTransferAccept && col === 'Transfer To'
+																	...(item.blurJob && col === 'Transfer To'
 																		? { pointerEvents: 'none' }
 																		: {}),
-																}} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
 																	{/* {item?.clientId?.companyName} */}
 																	{item[col] ?? "-"}
 																</td>
@@ -752,7 +752,7 @@ const Dashboard = () => {
                         </td> */}
 													<td className="text-center action-dropdown-menu" style={{
 														...tdStyle,
-														...(item.isTransferAccept
+														...(item.blurJob
 															? { pointerEvents: 'none' }
 															: {}),
 													}}>
@@ -918,7 +918,7 @@ const Dashboard = () => {
 															{col === 'Status' ?
 																<td onClick={() => handleView(item)} style={{
 																	...tdStyle,
-																	...(item.isTransferAccept
+																	...(item.blurJob
 																		? { pointerEvents: 'none' }
 																		: {}),
 																}}>
@@ -929,10 +929,10 @@ const Dashboard = () => {
 																:
 																<td onClick={() => handleView(item)} style={{
 																	...tdStyle,
-																	...(item.isTransferAccept && col === 'Transfer To'
+																	...(item.blurJob && col === 'Transfer To'
 																		? { pointerEvents: 'none' }
 																		: {}),
-																}} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
 																	{/* {item?.clientId?.companyName} */}
 																	{item[col] ?? "-"}
 																</td>
@@ -992,7 +992,7 @@ const Dashboard = () => {
                         </td> */}
 													<td className="text-center action-dropdown-menu" style={{
 														...tdStyle,
-														...(item.isTransferAccept
+														...(item.blurJob
 															? { pointerEvents: 'none' }
 															: {}),
 													}}>
@@ -1025,7 +1025,7 @@ const Dashboard = () => {
 																		Package Location
 																	</button>
 																</li>
-																{item?.Status === 'Pending' &&
+																{item?.Status === 'Pending' && item?.isTransfer === false &&
 																	<li>
 																		<button
 																			className="dropdown-item"

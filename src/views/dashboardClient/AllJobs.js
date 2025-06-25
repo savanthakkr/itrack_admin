@@ -1032,16 +1032,14 @@ const AllJobs = () => {
                                   Accept Job
                                 </button>
                               </li>
-                              {assignPermission === 'true' && !item?.driverId && (
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleJobDecline(item)}
-                                  >
-                                    Decline Job
-                                  </button>
-                                </li>
-                              )}
+                              <li>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => handleJobDecline(item)}
+                                >
+                                  Decline Job
+                                </button>
+                              </li>
                             </ul>
                           </div>
                         </td>

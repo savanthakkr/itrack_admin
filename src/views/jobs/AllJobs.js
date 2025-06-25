@@ -1,10 +1,10 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { FaTruckMoving, FaEye, FaMapMarkedAlt, FaFilter } from 'react-icons/fa'
 import { useEffect, useState } from 'react'
-import { get } from '../../lib/request'
+import { get, postWihoutMediaData } from '../../lib/request'
 import { getTotalDocs } from '../../services/getTotalDocs'
 import MyPagination from '../../components/Pagination'
-import { Button, Col, Container, Form, Row, Table, Modal, Spinner } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row, Table, Modal, Spinner, Tabs, Tab } from 'react-bootstrap'
 import { FaSearch } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import AssignDriverModal from '../../components/Modals/AssignDriver'
@@ -25,6 +25,7 @@ import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
 import AssignClientModal from '../../components/Modals/AssignClient'
+import Swal from 'sweetalert2'
 
 const AllJobs = () => {
     const dispatch = useDispatch()
@@ -50,6 +51,7 @@ const AllJobs = () => {
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltering, setIsFiltering] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
+    const [activeTab, setActiveTab] = useState("allJobs");
 
     const setSearchQuery = (query) => {
         dispatch({
@@ -79,8 +81,8 @@ const AllJobs = () => {
             obj.Notes = data?.note;
             obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
             obj.isTransfer = data?.isTransfer;
-            obj.isTransferAccept = data?.isTransferAccept;
-            obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '-';
+            obj.blurJob = data?.blurJob;
+            obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
 
             finalArr.push(obj);
         }
@@ -211,12 +213,39 @@ const AllJobs = () => {
         }
     }
 
+    const getJobTransferRequests = () => {
+        setLoading(true);
+        get(`/admin/transfer-job-requests`, 'admin')
+            .then((response) => {
+                // setData(response?.data?.data)
+                dispatch({
+                    type: 'getJobData',
+                    payload: response?.data?.data,
+                });
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.error(error)
+                setLoading(false)
+            })
+    }
+
+    useEffect(() => {
+        if (activeTab === 'allJobs') {
+            fetchData();
+        } else if (activeTab === 'jobRequest') {
+            getJobTransferRequests();
+        }
+    }, [activeTab]);
+
     useEffect(() => {
         setTotalPages(Math.ceil(jobsCount / limit))
     }, [limit, jobsCount])
 
     useEffect(() => {
-        fetchData()
+        if (activeTab === 'allJobs') {
+            fetchData();
+        }
     }, [page, limit]);
 
     const handlePageChange = (page) => {
@@ -376,41 +405,99 @@ const AllJobs = () => {
         setShowAssignClient(true);
     }
 
+    const handleJobAccept = (item) => {
+        const data = {
+            job_id: item._id
+        }
+        postWihoutMediaData('/admin/acceptJob', data, "admin")
+            .then((response) => {
+                if (response.data.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Job has been accepted successfully!',
+                    });
+                    // handleClose();
+                    getJobTransferRequests();
+
+                }
+            })
+    }
+
+    const handleJobDecline = (item) => {
+        const data = {
+            job_id: item._id
+        }
+        postWihoutMediaData('/admin/declineJob', data, "admin")
+            .then((response) => {
+                if (response.data.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Job has been declined successfully!',
+                    });
+                    // handleClose();
+                    getJobTransferRequests();
+
+                }
+            })
+    }
+
+    const handleTabSelect = (key) => {
+        setActiveTab(key);
+        setSearchQuery({
+            AWB: '',
+            clientId: '',
+            driverId: '',
+            fromDate: '',
+            toDate: '',
+            currentStatus: '',
+            serviceCode: '',
+            jobId: '',
+            clientName: '',
+            driverName: '',
+            serviceType: '',
+            serviceCode: '',
+            serviceTypeId: '',
+            serviceCodeId: ''
+        });
+    };
+
     return (
         <>
             <Row className="d-flex pb-3 align-items-center justify-content-between">
-                <Col lg={2} className="m-0">
-                    <h3>All Bookings</h3>
+                <Col lg={activeTab === 'allJobs' ? 2 : 12} className="m-0">
+                    <h3>{activeTab === 'allJobs' ? 'All Bookings' : 'Job Transfer Requests'}</h3>
                 </Col>
 
-                <Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-md-0">
-                    <Button
-                        variant="dark"
-                        className="input-group-text cursor-pointer custom-icon-btn"
-                        onClick={handleRefresh}
-                    >
-                        <FaSyncAlt />
-                    </Button>
-                    <DateRangeFilter
-                        // setData={setData}
-                        role="admin"
-                        setMessage={setMessage}
-                        setIsFiltering={setIsFiltering}
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        selectedColumns={selectedColumns}
-                        setSelectedColumns={setSelectedColumns}
-                        setJobsData={setJobsData}
-                        page={page}
-                        limit={limit}
-                    />
-                    <Button onClick={() => setFilterShow(true)} className="input-group-text cursor-pointer custom-icon-btn">
-                        <FaFilter />
-                    </Button>
-                    <Button onClick={handleRefresh} style={{ fontSize: '12px' }} className="custom-btn">
-                        Clear Filters
-                    </Button>
-                </Col>
+                {activeTab === 'allJobs' &&
+                    <Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-md-0">
+                        <Button
+                            variant="dark"
+                            className="input-group-text cursor-pointer custom-icon-btn"
+                            onClick={handleRefresh}
+                        >
+                            <FaSyncAlt />
+                        </Button>
+                        <DateRangeFilter
+                            // setData={setData}
+                            role="admin"
+                            setMessage={setMessage}
+                            setIsFiltering={setIsFiltering}
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                            selectedColumns={selectedColumns}
+                            setSelectedColumns={setSelectedColumns}
+                            setJobsData={setJobsData}
+                            page={page}
+                            limit={limit}
+                        />
+                        <Button onClick={() => setFilterShow(true)} className="input-group-text cursor-pointer custom-icon-btn">
+                            <FaFilter />
+                        </Button>
+                        <Button onClick={handleRefresh} style={{ fontSize: '12px' }} className="custom-btn">
+                            Clear Filters
+                        </Button>
+                    </Col>
+                }
             </Row>
             <Row>
                 <Col md={12}>
@@ -467,17 +554,21 @@ const AllJobs = () => {
                                 <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
                             </div>
                         )}
-                        <Table className="custom-table" bordered responsive hover>
-                            <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                                <tr>
-                                    {selectedColumns.map((col, index) => (
-                                        <>
-                                            <th className="text-center" key={index} onClick={() => handleSort(item)}>
-                                                {col}
-                                            </th>
-                                        </>
-                                    ))}
-                                    {/* <th className="text-start" onClick={() => handleSort('clientId.companyName')}>
+                        <Tabs activeKey={activeTab} onSelect={handleTabSelect} defaultActiveKey="allJobs" id="todays-job" className="mb-3 custom-tabs">
+                            {/* Today's Job Tab */}
+                            <Tab eventKey="allJobs" title="All Jobs" className="client-rates-table">
+                                <div className="client-rates-table">
+                                    <Table className="custom-table" bordered responsive hover>
+                                        <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                            <tr>
+                                                {selectedColumns.map((col, index) => (
+                                                    <>
+                                                        <th className="text-center" key={index} onClick={() => handleSort(item)}>
+                                                            {col}
+                                                        </th>
+                                                    </>
+                                                ))}
+                                                {/* <th className="text-start" onClick={() => handleSort('clientId.companyName')}>
                                         Client
                                     </th>
                                     <th className="text-start" onClick={() => handleSort('pickUpDetails.readyTime')}>
@@ -504,10 +595,10 @@ const AllJobs = () => {
                                     <th className="text-start" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
                                         Deliver To
                                     </th> */}
-                                    {/* <th className="text-start" onClick={() => handleSort('uid')}>
+                                                {/* <th className="text-start" onClick={() => handleSort('uid')}>
                     Job Id
                   </th> */}
-                                    {/* <th className="text-start" onClick={() => handleSort('driverId.firstname')}>
+                                                {/* <th className="text-start" onClick={() => handleSort('driverId.firstname')}>
                                         Driver
                                     </th>
                                     <th className="text-center" style={{ width: 'auto', minWidth: '100px' }} onClick={() => handleSort('notes')}>
@@ -516,58 +607,64 @@ const AllJobs = () => {
                                     <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} onClick={() => handleSort('currentStatus')}>
                                         Status
                                     </th> */}
-                                    <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} colSpan={4}>
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody style={{ fontSize: 13 }}>
-                                {data?.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={14} className="text-center text-danger">
-                                            No jobs found
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    data?.map((item, index) => {
-                                        const isSelected = item?._id === selectedJob?._id;
-                                        const status = item?.Status;
-                                        const styles = getStatusStyles(status);
-                                        const tdStyle = {
-                                            backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                                            fontSize: 14,
-                                            textAlign: 'left',
-                                        };
-                                        return (
-                                            <tr key={index} className="cursor-pointer">
-                                                {selectedColumns.map((col) => (
-                                                    <>
+                                                <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} colSpan={4}>
+                                                    Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style={{ fontSize: 13 }}>
+                                            {data?.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={14} className="text-center text-danger">
+                                                        No jobs found
+                                                    </td>
+                                                </tr>
+                                            ) : loading ? (
+                                                <tr>
+                                                    <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
+                                                </tr>
+                                            ) : (
+                                                data?.map((item, index) => {
+                                                    const isSelected = item?._id === selectedJob?._id;
+                                                    const status = item?.Status;
+                                                    const styles = getStatusStyles(status);
+                                                    const tdStyle = {
+                                                        backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                                                        fontSize: 14,
+                                                        textAlign: 'left',
+                                                    };
+                                                    return (
+                                                        <tr key={index} className="cursor-pointer">
+                                                            {selectedColumns.map((col) => (
+                                                                <>
 
-                                                        {col === 'Status' ?
-                                                            <td onClick={() => handleView(item)} style={{
-                                                                ...tdStyle,
-                                                                ...(item.isTransferAccept
-                                                                    ? { pointerEvents: 'none' }
-                                                                    : {}),
-                                                            }}>
-                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                                                                    {status}
-                                                                </div>
-                                                            </td>
-                                                            :
-                                                            <td onClick={() => handleView(item)} style={{
-                                                                ...tdStyle,
-                                                                ...(item.isTransferAccept && col === 'Transfer To'
-                                                                    ? { pointerEvents: 'none' }
-                                                                    : {}),
-                                                            }} className={item.isTransferAccept && col !== 'Transfer To' ? 'blurred-row' : ''}>
-                                                                {/* {item?.clientId?.companyName} */}
-                                                                {item[col] ?? "-"}
-                                                            </td>
-                                                        }
-                                                    </>
-                                                ))}
-                                                {/* <td className="text-start"
+                                                                    {col === 'Status' ?
+                                                                        <td onClick={() => handleView(item)} style={{
+                                                                            ...tdStyle,
+                                                                            ...(item.blurJob
+                                                                                ? { pointerEvents: 'none' }
+                                                                                : {}),
+                                                                        }}>
+                                                                            <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                                {status}
+                                                                            </div>
+                                                                        </td>
+                                                                        :
+                                                                        <td onClick={() => handleView(item)} style={{
+                                                                            ...tdStyle,
+                                                                            ...(item.blurJob && col === 'Transfer To'
+                                                                                ? { pointerEvents: 'none' }
+                                                                                : {}),
+                                                                        }}
+                                                                            className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
+                                                                        >
+                                                                            {/* {item?.clientId?.companyName} */}
+                                                                            {item[col] ?? "-"}
+                                                                        </td>
+                                                                    }
+                                                                </>
+                                                            ))}
+                                                            {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -621,13 +718,13 @@ const AllJobs = () => {
                                                 >
                                                     {item?.dropOfDetails?.dropOfLocationId?.customName}
                                                 </td> */}
-                                                {/* <td className="text-start"
+                                                            {/* <td className="text-start"
                           onClick={() => handleView(item)}
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
                           {item?.uid}
                         </td> */}
-                                                {/* <td className="text-start"
+                                                            {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -648,55 +745,55 @@ const AllJobs = () => {
                                                         {status}
                                                     </div>
                                                 </td> */}
-                                                <td className="text-center action-dropdown-menu" style={{
-                                                    ...tdStyle,
-                                                    ...(item.isTransferAccept
-                                                        ? { pointerEvents: 'none' }
-                                                        : {}),
-                                                }}>
-                                                    <div className="dropdown">
-                                                        <button
-                                                            className="btn btn-link p-0 border-0"
-                                                            type="button"
-                                                            id={`dropdownMenuButton-${item._id}`}
-                                                            data-bs-toggle="dropdown"
-                                                            aria-expanded="false"
-                                                        >
-                                                            <BsThreeDotsVertical size={18} />
-                                                        </button>
-                                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                                            <li>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() => {
-                                                                        item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
-                                                                    }}
-                                                                >
-                                                                    {item?.driverId ? 'Change Driver' : 'Assign Driver'}
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() => navigate(`/location/${item._id}`)}
-                                                                >
-                                                                    Package Location
-                                                                </button>
-                                                            </li>
-                                                            {item?.Status === 'Pending' &&
-                                                                <li>
+                                                            <td className="text-center action-dropdown-menu" style={{
+                                                                ...tdStyle,
+                                                                ...(item.blurJob
+                                                                    ? { pointerEvents: 'none' }
+                                                                    : {}),
+                                                            }}>
+                                                                <div className="dropdown">
                                                                     <button
-                                                                        className="dropdown-item"
-                                                                        onClick={() => handleTransferJob(item)}
+                                                                        className="btn btn-link p-0 border-0"
+                                                                        type="button"
+                                                                        id={`dropdownMenuButton-${item._id}`}
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false"
                                                                     >
-                                                                        Transfer Job
+                                                                        <BsThreeDotsVertical size={18} />
                                                                     </button>
-                                                                </li>
-                                                            }
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                                {/* <td className="text-start cursor-pointer"
+                                                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                                                        <li>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() => {
+                                                                                    item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
+                                                                                }}
+                                                                            >
+                                                                                {item?.driverId ? 'Change Driver' : 'Assign Driver'}
+                                                                            </button>
+                                                                        </li>
+                                                                        <li>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() => navigate(`/location/${item._id}`)}
+                                                                            >
+                                                                                Package Location
+                                                                            </button>
+                                                                        </li>
+                                                                        {item?.Status === 'Pending' && item?.isTransfer === false &&
+                                                                            <li>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => handleTransferJob(item)}
+                                                                                >
+                                                                                    Transfer Job
+                                                                                </button>
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                            {/* <td className="text-start cursor-pointer"
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
                           {!item?.driverId ? (
@@ -715,17 +812,184 @@ const AllJobs = () => {
                             onClick={() => navigate(`/location/${item?._id}`)}
                           />
                         </td> */}
+                                                        </tr>
+                                                    )
+                                                })
+                                            )}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                            </Tab>
+
+                            <Tab eventKey="jobRequest" title="Job Transfer Requests" className="client-rates-table">
+                                <div className="table-responsive">
+                                    <Table className="custom-table" bordered responsive hover>
+                                        <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                            <tr>
+                                                {/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+                        Client
+                      </th> */}
+                                                <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+                                                    Ready Time
+                                                </th>
+                                                <th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
+                                                    Cuttoff Time
+                                                </th>
+                                                <th className="text-center" onClick={() => handleSort('AWB')}>
+                                                    AWB
+                                                </th>
+                                                <th className="text-center" onClick={() => handleSort('pieces')}>
+                                                    Pieces
+                                                </th>
+                                                {/* <th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
+                        Service Type
+                      </th> */}
+                                                {/* <th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
+                        Service Code
+                      </th> */}
+                                                <th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
+                                                    Pickup From
+                                                </th>
+                                                <th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
+                                                    Deliver To
+                                                </th>
+                                                <th className="text-center" onClick={() => handleSort('uid')}>
+                                                    Job Id
+                                                </th>
+                                                {/* <th className="text-center" onClick={() => handleSort('driverId.firstname')}>
+                        Driver
+                      </th> */}
+                                                <th className="text-center" style={{ width: 'auto', minWidth: '150px' }} onClick={() => handleSort('currentStatus')}>
+                                                    Status
+                                                </th>
+                                                <th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>
+                                                    Actions
+                                                </th>
                                             </tr>
-                                        )
-                                    })
-                                )}
-                            </tbody>
-                        </Table>
+                                        </thead>
+                                        <tbody style={{ fontSize: 13 }}>
+                                            {data?.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={14} className="text-center text-danger">
+                                                        No job transfer request found
+                                                    </td>
+                                                </tr>
+                                            ) : loading ? (
+                                                <tr>
+                                                    <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
+                                                </tr>
+                                            ) : (
+                                                data?.map((item, index) => {
+                                                    const isSelected = item._id === selectedJob?._id
+                                                    const status = item?.isHold ? 'Hold' : item?.currentStatus
+                                                    const styles = getStatusStyles(status)
+                                                    return (
+                                                        <tr key={index} className="cursor-pointer">
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                                                            </td>
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                                                            </td>
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {item?.AWB}
+                                                            </td>
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {item?.pieces}
+                                                            </td>
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {item?.pickUpDetails?.pickupLocationId?.customName}
+                                                            </td>
+                                                            <td
+                                                                onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {item?.dropOfDetails?.dropOfLocationId?.customName}
+                                                            </td>
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                {item?.uid}
+                                                            </td>
+
+                                                            <td
+                                                                // onClick={() => handleView(item)}
+                                                                className="text-center"
+                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                            >
+                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                    {status}
+                                                                </div>
+                                                            </td>
+                                                            <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
+                                                                <div className="dropdown">
+                                                                    <button
+                                                                        className="btn btn-link p-0 border-0"
+                                                                        type="button"
+                                                                        id={`dropdownMenuButton-${item._id}`}
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false"
+                                                                    >
+                                                                        <BsThreeDotsVertical size={18} />
+                                                                    </button>
+                                                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                                                        <li>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() => handleJobAccept(item)}
+                                                                            >
+                                                                                Accept Job
+                                                                            </button>
+                                                                        </li>
+
+                                                                        <li>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() => handleJobDecline(item)}
+                                                                            >
+                                                                                Decline Job
+                                                                            </button>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            )}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                            </Tab>
+                        </Tabs >
                     </div>
                 </Col>
             </Row>
 
-            {data.length > 0 &&
+            {activeTab === 'allJobs' && data.length > 0 &&
                 <Row className="mb-3 justify-content-between">
                     <Col md={6} className="d-flex align-items-center gap-2 ">
                         Show Entries
@@ -772,6 +1036,7 @@ const AllJobs = () => {
                     jobId={selectedJob._id}
                     setIsRefresh={setIsRefresh}
                     isReferesh={isReferesh}
+                    fetchData={fetchData}
                 />
             ) : (
                 ''
