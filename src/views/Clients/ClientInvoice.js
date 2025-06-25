@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Button, Col, Container, Form, Row, Modal, Card } from 'react-bootstrap'
 import { CButton } from '@coreui/react'
 import makeAnimated from 'react-select/animated';
 import { get } from '../../lib/request.js'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment-timezone';
+import { getFormattedDAndT } from '../../lib/getFormatedDate.js';
 
 function ClientInvoice() {
   const navigate = useNavigate()
@@ -12,18 +13,19 @@ function ClientInvoice() {
   const formRef = useRef();
   const [errorMessages, setErrorMessages] = useState('')
   const [validated, setValidated] = useState(false)
-  const [clientData, setClientData] = useState({
-    allocateTo: '',
-    dispatchId: '',
-    client: '',
-    awb: '',
-    custJobNumber: '',
-    readyTime: '',
-    pickupLocation: '',
-    dropOffLocation: '',
-    arrivalTime: '',
-    deliveredTime: '',
-  })
+  const [clientData, setClientData] = useState({})
+  // const [clientData, setClientData] = useState({
+  //   allocateTo: '',
+  //   dispatchId: '',
+  //   client: '',
+  //   awb: '',
+  //   custJobNumber: '',
+  //   readyTime: '',
+  //   pickupLocation: '',
+  //   dropOffLocation: '',
+  //   arrivalTime: '',
+  //   deliveredTime: '',
+  // })
   const [isReferesh, setIsRefresh] = useState(false);
 
   const [loading, setLoading] = useState(false)
@@ -97,6 +99,25 @@ function ClientInvoice() {
     return moment().tz("Australia/Melbourne").format("YYYY-MM-DDTHH:mm");
   };
 
+  useEffect(() => {
+    get(`/admin/invoice/getById?id=${id}`, 'admin')
+      .then((response) => {
+        if (response?.data?.status) {
+          if (response?.data?.data?.length === 0) {
+            setMessage('No data found')
+          }
+          setClientData(response?.data?.data)
+          setLoading(false)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        setLoading(false)
+      })
+  }, []);
+
+  console.log('clientData', clientData);
+
 
   return (
     <>
@@ -120,7 +141,7 @@ function ClientInvoice() {
                   type="text"
                   name="allocateTo"
                   placeholder="Enter Allocate To"
-                  value={clientData.allocateTo}
+                  value={clientData?.allocateTo ? clientData?.allocateTo?.firstname + " " + clientData?.allocateTo?.lastname : ""}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
@@ -135,7 +156,7 @@ function ClientInvoice() {
                   type="text"
                   name="dispatchId"
                   placeholder="Enter Dispatch Id"
-                  value={clientData.dispatchId}
+                  value={clientData?.dispatchId?.uid || ""}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
@@ -152,7 +173,7 @@ function ClientInvoice() {
                   type="text"
                   name="client"
                   placeholder="Enter Client"
-                  value={clientData.client}
+                  value={clientData?.clientId?.companyName || ""}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
@@ -168,7 +189,7 @@ function ClientInvoice() {
                   name="Enter AWB"
                   placeholder="Text"
                   maxLength={30}
-                  value={clientData.awb}
+                  value={clientData?.AWB || ""}
                 />
               </Form.Group>
             </Col>
@@ -182,7 +203,7 @@ function ClientInvoice() {
                   placeholder="Enter Customer Job Number"
                   name="custJobNumber"
                   maxLength={30}
-                  value={clientData.custJobNumber}
+                  value={clientData.custRefNumber}
                 />
               </Form.Group>
             </Col>
@@ -190,15 +211,27 @@ function ClientInvoice() {
               <Form.Group>
                 <Form.Label>Ready Time and Date</Form.Label>
                 <Form.Control
+                  type="text"
+                  // placeholder="30/04/2025 12:00 AM"
+                  name="readyTime"
+                  maxLength={30}
+                  value={getFormattedDAndT(clientData?.pickUpDetails?.readyTime) || ""}
+                />
+              </Form.Group>
+            </Col>
+            {/* <Col md={6} className="mt-3">
+              <Form.Group>
+                <Form.Label>Ready Time and Date</Form.Label>
+                <Form.Control
                   type="datetime-local"
                   placeholder="date"
                   name="readyTime"
                   onFocus={(e) => e.target.showPicker && e.target.showPicker()}
-                  value={clientData?.readyTime || getMelbourneTime()}
-                  min={getMelbourneTime()}
+                  value={clientData?.pickUpDetails?.readyTime || ""}
+                // min={getMelbourneTime()}
                 />
               </Form.Group>
-            </Col>
+            </Col> */}
           </Row>
           <Row>
             <Col md={6} className="mt-3">
@@ -209,7 +242,7 @@ function ClientInvoice() {
                   placeholder="Enter Pick Up Location"
                   name="pickupLocation"
                   maxLength={30}
-                  value={clientData.pickupLocation}
+                  value={clientData?.pickUpDetails?.pickupLocationId?.customName || ""}
                 />
               </Form.Group>
             </Col>
@@ -221,7 +254,7 @@ function ClientInvoice() {
                   placeholder="Enter Drop Off Location"
                   name="dropOffLocation"
                   maxLength={30}
-                  value={clientData.dropOffLocation}
+                  value={clientData?.dropOfDetails?.dropOfLocationId?.customName || ""}
                 />
               </Form.Group>
             </Col>
@@ -232,10 +265,10 @@ function ClientInvoice() {
                 <Form.Label>Arrival Time</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="30/04/2025 12:00 AM"
+                  // placeholder="30/04/2025 12:00 AM"
                   name="arrivalTime"
                   maxLength={30}
-                  value={clientData.arrivalTime}
+                  value={getFormattedDAndT(clientData?.dropOfDetails?.arrivalTime) || ""}
                 />
               </Form.Group>
             </Col>
@@ -244,10 +277,10 @@ function ClientInvoice() {
                 <Form.Label>Delivered Time</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="30/04/2025 12:00 AM"
+                  // placeholder="30/04/2025 12:00 AM"
                   name="deliveredTime"
                   maxLength={30}
-                  value={clientData.deliveredTime}
+                  value={getFormattedDAndT(clientData?.dropOfDetails?.deliveredTime) || ""}
                 />
               </Form.Group>
             </Col>
@@ -261,7 +294,7 @@ function ClientInvoice() {
                   type="text"
                   placeholder="Enter Service Code"
                   name="serviceCode"
-                  value={clientData.serviceCode}
+                  value={clientData?.serviceCodeId?.text || ""}
                   required
                 />
               </Form.Group>
@@ -274,7 +307,7 @@ function ClientInvoice() {
                   type="text"
                   placeholder="Enter Service Type"
                   name="serviceType"
-                  value={clientData.serviceType}
+                  value={clientData?.serviceTypeId?.text || ""}
                   required
                 />
               </Form.Group>
@@ -289,7 +322,7 @@ function ClientInvoice() {
                   placeholder="Number"
                   name="pieces"
                   maxLength={20}
-                  value={clientData.pieces}
+                  value={clientData?.pieces || ""}
                 />
               </Form.Group>
             </Col>
@@ -301,7 +334,7 @@ function ClientInvoice() {
                   name="weight"
                   placeholder="Number"
                   maxLength={20}
-                  value={clientData.weight}
+                  value={clientData?.weight || ""}
                 />
               </Form.Group>
             </Col>
@@ -315,7 +348,7 @@ function ClientInvoice() {
                   placeholder="referenceNo"
                   name="referenceNo"
                   maxLength={20}
-                  value={clientData.referenceNo}
+                  value={clientData?.referenceNo || ""}
                 />
               </Form.Group>
             </Col>
@@ -327,7 +360,7 @@ function ClientInvoice() {
                   name="invoiced"
                   placeholder="invoiced"
                   maxLength={20}
-                  value={clientData.invoiced}
+                  value={clientData?.invoiced ? 'Yes' : 'No'}
                 />
               </Form.Group>
             </Col>
@@ -341,7 +374,7 @@ function ClientInvoice() {
                   placeholder="rates"
                   name="rates"
                   maxLength={20}
-                  value={clientData.rates}
+                  value={clientData?.rates || ""}
                 />
               </Form.Group>
             </Col>
@@ -353,7 +386,7 @@ function ClientInvoice() {
                   name="invoiceNumber"
                   placeholder="invoice number"
                   maxLength={20}
-                  value={clientData.invoiceNumber}
+                  value={clientData?.invoiceNumber || ""}
                 />
               </Form.Group>
             </Col>
@@ -367,7 +400,7 @@ function ClientInvoice() {
                   placeholder="0:00"
                   name="pickupWaitingTime"
                   maxLength={20}
-                  value={clientData.pickupWaitingTime}
+                  value={clientData?.pickUpDetails?.pickUpWaitingTime || ""}
                 />
               </Form.Group>
             </Col>
@@ -379,7 +412,7 @@ function ClientInvoice() {
                   name="fuelSurcharge"
                   placeholder="Write fuel surcharge number here"
                   maxLength={20}
-                  value={clientData.fuelSurcharge}
+                  value={clientData?.fuel_charge || ""}
                 />
               </Form.Group>
             </Col>
@@ -393,7 +426,7 @@ function ClientInvoice() {
                   placeholder="-20"
                   name="pickupWaitingRate"
                   maxLength={20}
-                  value={clientData.pickupWaitingRate}
+                  value={clientData?.pickUpDetails?.pickUpWaitingRate || ""}
                 />
               </Form.Group>
             </Col>
@@ -405,7 +438,7 @@ function ClientInvoice() {
                   placeholder="0:00"
                   name="deliveryWaitingTime"
                   maxLength={20}
-                  value={clientData.deliveryWaitingTime}
+                  value={clientData?.dropOfDetails?.dropOfWaitingTime || ""}
                 />
               </Form.Group>
             </Col>
@@ -420,7 +453,7 @@ function ClientInvoice() {
                     rows={3}
                     placeholder="Enter your note here..."
                     name="adminNote"
-                    value={clientData?.adminNote}
+                    value={clientData?.adminNote || ""}
                   />
                 </Form.Group>
               </Col>
@@ -433,7 +466,7 @@ function ClientInvoice() {
                   placeholder="-90"
                   name="deliveryWaitingRate"
                   maxLength={20}
-                  value={clientData.deliveryWaitingRate}
+                  value={clientData?.dropOfDetails?.dropOfWaitingRate || ""}
                 />
               </Form.Group>
             </Col>
@@ -471,7 +504,7 @@ function ClientInvoice() {
                   rows={3}
                   placeholder="Enter your note here..."
                   name="note"
-                  value={clientData?.note}
+                  value={clientData?.note || ""}
                 />
               </Form.Group>
             </Col>
@@ -479,60 +512,60 @@ function ClientInvoice() {
         </Form>
       </div>
       <Modal show={showAttachment} onHide={handleAttachmentClose} dialogClassName="custom-modal">
-            <Modal.Header className="border-0 text-center w-100">
-              <Modal.Title className="w-100">
+        <Modal.Header className="border-0 text-center w-100">
+          <Modal.Title className="w-100">
+            {' '}
+            <p className="mx-auto d-block">Attachments</p>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="py-3">
+          <Card>
+            <Card.Body>
+              <p className="m-1 text-center fw-bold">
                 {' '}
-                <p className="mx-auto d-block">Attachments</p>
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="py-3">
-              <Card>
-                <Card.Body>
-                  <p className="m-1 text-center fw-bold">
-                    {' '}
-                    You can download the attachment from here.{' '}
-                  </p>
-                  {data?.attachmentKeys?.map((key, index) => {
-                    return (
-                      <div key={index} className="mb-2 ">
-                        <b>{index + 1} :</b>{' '}
-                        <Button
-                          variant="success"
-                          className="rounded-0 text-white rounded-1"
-                          onClick={() => window.open(`${imgSrc}${key}`, '_blank')}
-                        >
-                          {' '}
-                          Download{' '}
-                        </Button>
-                      </div>
-                    )
-                  })}
-                  {data?.isVpap ? (
-                    <>
-                      <hr />
-                      <h5 className="fw-bold"> VPAP </h5>
-                      <VPAPdfGenerate
-                        jobDetail={{
-                          AWB: data?.AWB,
-                          driverName: data?.driverId?.firstname + ' ' + data?.driverId?.lastname,
-                          companyName: data?.clientId?.companyName,
-                          date: getFormattedDAndT(data?.pickUpDetails?.readyTime),
-                        }}
-                        VPAPData={data?.VpapId}
-                      />
-                    </>
-                  ) : (
-                    ''
-                  )}
-                </Card.Body>
-              </Card>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleAttachmentClose}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
+                You can download the attachment from here.{' '}
+              </p>
+              {data?.attachmentKeys?.map((key, index) => {
+                return (
+                  <div key={index} className="mb-2 ">
+                    <b>{index + 1} :</b>{' '}
+                    <Button
+                      variant="success"
+                      className="rounded-0 text-white rounded-1"
+                      onClick={() => window.open(`${imgSrc}${key}`, '_blank')}
+                    >
+                      {' '}
+                      Download{' '}
+                    </Button>
+                  </div>
+                )
+              })}
+              {data?.isVpap ? (
+                <>
+                  <hr />
+                  <h5 className="fw-bold"> VPAP </h5>
+                  <VPAPdfGenerate
+                    jobDetail={{
+                      AWB: data?.AWB,
+                      driverName: data?.driverId?.firstname + ' ' + data?.driverId?.lastname,
+                      companyName: data?.clientId?.companyName,
+                      date: getFormattedDAndT(data?.pickUpDetails?.readyTime),
+                    }}
+                    VPAPData={data?.VpapId}
+                  />
+                </>
+              ) : (
+                ''
+              )}
+            </Card.Body>
+          </Card>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleAttachmentClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )
 }

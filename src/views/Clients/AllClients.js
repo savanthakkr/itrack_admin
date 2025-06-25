@@ -138,59 +138,39 @@ function AllClients() {
     setPage(1);
   }
 
+  // useEffect(() => {
+  //   setLoading(true);
+  //   get(`/admin/info/allClients?page=${page}&limit=${limit}`, "admin").then((data) => {
+  //     setClientData(data.data.data)
+  //     setLoading(false)
+  //   }).catch((e) => {
+  //     console.log("errr", e.message);
+  //   })
+  //   // Getting total pages
+
+  // }, [isReferesh, page, limit])
+
   useEffect(() => {
-    setLoading(true);
-    get(`/admin/info/allClients?page=${page}&limit=${limit}`, "admin").then((data) => {
-      setClientData(data.data.data)
-      setLoading(false)
-    }).catch((e) => {
-      console.log("errr", e.message);
-    })
-    // Getting total pages
-
-  }, [isReferesh, page, limit])
+    getClientsData();
+  }, [page, limit, isReferesh]);
 
   useEffect(() => {
-    setLoading(true)
-    console.log(searchQuery.toDate);
-    console.log(searchQuery.fromDate);
-    setMessage('')
-    if (
-      searchQuery.currentStatus ||
-      searchQuery.clientId ||
-      searchQuery.driverId ||
-      searchQuery.fromDate ||
-      searchQuery.toDate ||
-      searchQuery.jobId ||
-      searchQuery.clientName ||
-      searchQuery.driverName
-    ) {
-      setLoading(false)
-
-    } else {
-      getInitialData()
+    if (activeTab === 'allClients') {
+      getClientsData();
+    } else if (activeTab === 'invoices') {
+      getInvoiceData();
     }
-  }, [page, limit, isReferesh])
-  useEffect(() => {
-    getTotalDocs("CLIENT", "admin").then((data) => {
-      setTotalDocs(data);
-      setTotalPages(Math.ceil(data / limit))
-    }).catch((e) => {
-      console.log("error while getting total pages", e.message);
-    })
-  }
-    , [isReferesh])
+  }, [activeTab]);
 
   // get invoice data
-  const getInitialData = () => {
-    get(`/admin/invoice`, 'admin')
+  const getInvoiceData = () => {
+    get(`/admin/invoice/list`, 'admin')
       .then((response) => {
-        if (response && response.length > 0) {
-          setData(response);
-        } else {
-          setData([]); // Empty state
-          setMessage('No Data Found');
+        if (response?.data?.data?.length === 0) {
+          setMessage('No data found')
         }
+        setData(response?.data?.data)
+        setLoading(false)
       })
       .catch((error) => {
         console.error(error);
@@ -202,6 +182,23 @@ function AllClients() {
       });
   }
 
+  const getClientsData = () => {
+    get(`/admin/info/allClients`, 'admin')
+      .then((response) => {
+        if (response?.data?.status) {
+          if (response?.data?.data?.length === 0) {
+            setMessage('No data found')
+          }
+          setClientData(response?.data?.data)
+          setLoading(false)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        setLoading(false)
+      })
+  }
+
   const handleTabSelect = (selectedTab) => {
     setActiveTab(selectedTab);
   };
@@ -210,34 +207,8 @@ function AllClients() {
     setLoading(true)
     setMessage('')
 
-    let queryParams = []
+    getClientsData();
 
-    if (searchQuery.currentStatus)
-      queryParams.push(`currentStatus=${searchQuery.currentStatus}`)
-    if (searchQuery.clientId) queryParams.push(`clientId=${searchQuery.clientId}`)
-    if (searchQuery.driverId) queryParams.push(`driverId=${searchQuery.driverId}`)
-    if (searchQuery.fromDate) queryParams.push(`fromDate=${searchQuery.fromDate}`)
-    if (searchQuery.toDate) queryParams.push(`toDate=${searchQuery.toDate}`)
-    if (searchQuery.jobId) queryParams.push(`jobId=${searchQuery.jobId}`)
-    if (searchQuery.clientName) queryParams.push(`clientName=${searchQuery.clientName}`)
-    if (searchQuery.driverName) queryParams.push(`driverName=${searchQuery.driverName}`)
-
-    const query = queryParams.join('&')
-
-    get(`/admin/info/jobFilter?${query}`, 'admin')
-      .then((response) => {
-        if (response?.data?.status) {
-          if (response?.data?.data?.length === 0) {
-            setMessage('No data found')
-          }
-          setData(response?.data?.data)
-          setLoading(false)
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-        setLoading(false)
-      })
   }
 
   useEffect(() => {
@@ -268,13 +239,6 @@ function AllClients() {
             >
               <FaSyncAlt />
             </Button>
-            <DateRangeFilter
-              setData={setData}
-              role="admin"
-              setMessage={setMessage}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
             <Button onClick={handleShow} className="input-group-text cursor-pointer custom-icon-btn">
               <FaFilter />
             </Button>
@@ -498,40 +462,40 @@ function AllClients() {
                       return (
                         <tr key={index} className="cursor-pointer">
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.clientId?.companyName}
+                            {item?.clientId?.companyName || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                            {getFormattedDAndT(item?.pickUpDetails?.readyTime) || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                            {getFormattedDAndT(item?.dropOfDetails?.cutOffTime) || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.AWB}
+                            {item?.AWB || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.pieces}
+                            {item?.pieces || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.serviceTypeId?.text}
+                            {item?.serviceTypeId?.text || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.serviceCodeId?.text}
+                            {item?.serviceCodeId?.text || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.pickUpDetails?.pickupLocationId?.customName}
+                            {item?.pickUpDetails?.pickupLocationId?.customName || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.dropOfDetails?.dropOfLocationId?.customName}
+                            {item?.dropOfDetails?.dropOfLocationId?.customName || "-"}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
+                            {item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : '-'}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.rates != null ? item.rates : '—'}
+                            {item?.rates != null ? item.rates : '-'}
                           </td>
                           <td onClick={() => handleView(item)} style={tdStyle}>
-                            {item?.is_invoices === true ? 'Yes' : 'No'}
+                            {item?.invoiced === true ? 'Yes' : 'No'}
                           </td>
                           <td className="text-center action-dropdown-menu" style={tdStyle}>
                             <div className="dropdown">

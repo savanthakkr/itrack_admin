@@ -881,7 +881,7 @@ function AddJobs() {
                             />
                         </Form.Group>
                     </Col>
-                    {dropDownData.serviceType.text?.toUpperCase() === 'AIR IMPORT ' && (
+                    {dropDownData.serviceType.text?.toUpperCase().trim() === 'AIR IMPORT' && (
                         <Col className="mt-3 w-100">
                             <Form.Group>
                                 <Form.Label>VPAP</Form.Label>
@@ -895,7 +895,7 @@ function AddJobs() {
                                     <option value="true">Yes</option>
                                     <option value="false">No</option>
                                 </Form.Control>
-                                {errors.isVpap ? (
+                                {dropDownData.serviceType.text?.toUpperCase().trim() === 'AIR IMPORT' && errors.isVpap ? (
                                     <Form.Text className="text-danger">{errors.isVpap}</Form.Text>
                                 ) : null}
                             </Form.Group>
