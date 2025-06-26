@@ -116,9 +116,6 @@ function ClientInvoice() {
       })
   }, []);
 
-  console.log('clientData', clientData);
-
-
   return (
     <>
       <Row className="align-items-center">
