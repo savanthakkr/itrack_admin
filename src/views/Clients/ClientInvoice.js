@@ -396,7 +396,7 @@ function ClientInvoice() {
               <Form.Group>
                 <Form.Label>Pick Up Waiting Time</Form.Label>
                 <Form.Control
-                  type="number"
+                  type="text"
                   placeholder="0:00"
                   name="pickupWaitingTime"
                   maxLength={20}
@@ -423,10 +423,10 @@ function ClientInvoice() {
                 <Form.Label>Pick Up Waiting Rate</Form.Label>
                 <Form.Control
                   type="number"
-                  placeholder="-20"
+                  // placeholder="-20"
                   name="pickupWaitingRate"
                   maxLength={20}
-                  value={clientData?.pickUpDetails?.pickUpWaitingRate || ""}
+                  value={clientData?.pickUpDetails?.pickUpWaitingRate || 0}
                 />
               </Form.Group>
             </Col>
@@ -434,11 +434,11 @@ function ClientInvoice() {
               <Form.Group>
                 <Form.Label>Delivery Waiting Time</Form.Label>
                 <Form.Control
-                  type="number"
-                  placeholder="0:00"
+                  type="text"
+                  // placeholder="0:00"
                   name="deliveryWaitingTime"
                   maxLength={20}
-                  value={clientData?.dropOfDetails?.dropOfWaitingTime || ""}
+                  value={clientData?.dropOfDetails?.deliveryWaitingTime || ""}
                 />
               </Form.Group>
             </Col>
@@ -463,10 +463,10 @@ function ClientInvoice() {
                 <Form.Label>Delivery Waiting Rate</Form.Label>
                 <Form.Control
                   type="number"
-                  placeholder="-90"
+                  // placeholder="-90"
                   name="deliveryWaitingRate"
                   maxLength={20}
-                  value={clientData?.dropOfDetails?.dropOfWaitingRate || ""}
+                  value={clientData?.dropOfDetails?.deliveryWaitingRate || 0}
                 />
               </Form.Group>
             </Col>

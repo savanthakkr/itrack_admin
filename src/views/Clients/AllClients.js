@@ -219,6 +219,8 @@ function AllClients() {
     }
   }, [currentUrl]);
 
+  console.log('data', data);
+
   return (
     <>
       <Row className="align-items-center">
