@@ -68,7 +68,7 @@ const AccountantAllJobs = () => {
 
         for (let data of response) {
             const obj = {};
-            
+
             obj._id = data?._id;
             obj.Client = data?.clientId?.companyName;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
@@ -557,6 +557,9 @@ const AccountantAllJobs = () => {
                         <Table className="custom-table" bordered responsive hover>
                             <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                 <tr>
+                                    <th className="text-center">
+                                        Edit
+                                    </th>
                                     {selectedColumns.map((col, index) => (
                                         <>
                                             <th className="text-center" key={index} onClick={() => handleSort(col)}>
@@ -564,9 +567,6 @@ const AccountantAllJobs = () => {
                                             </th>
                                         </>
                                     ))}
-                                    <th className="text-center">
-                                        Edit
-                                    </th>
                                     <th className="text-center" style={{ width: 'auto', minWidth: '120px' }} colSpan={4}>
                                         Action
                                     </th>
@@ -591,6 +591,19 @@ const AccountantAllJobs = () => {
                                         };
                                         return (
                                             <tr key={index} className="cursor-pointer">
+                                                <td className="text-center" style={{
+                                                    ...tdStyle,
+                                                    // ...(item.isTransferAccept
+                                                    //     ? { pointerEvents: 'none' }
+                                                    //     : {}),
+                                                }}>
+                                                    <Form.Check
+                                                        type="checkbox"
+                                                        name="isDriverPermission"
+                                                        checked={checkedItems.some(i => i._id === item._id)}
+                                                        onChange={(e) => handleCheckBoxChange(e, item)}
+                                                    />
+                                                </td>
                                                 {selectedColumns.map((col) => {
                                                     const isChecked = isItemChecked(item._id);
                                                     const editableItem = checkedItems.find(i => i._id === item._id);
@@ -628,70 +641,60 @@ const AccountantAllJobs = () => {
 
                                                     // For all other editable columns
                                                     return (
-                                                        <td key={col} style={tdStyle}>
-                                                            {editableFields.includes(col) && isChecked ? (
-                                                                col === 'Service Code' || col === 'Service Type' ? (
-                                                                    <Form.Select
-                                                                        size="sm"
-                                                                        value={
-                                                                            col === 'Service Code'
-                                                                                ? (editableItem?.serviceCodeId || item.serviceCodeId || '')
-                                                                                : (editableItem?.serviceTypeId || item.serviceTypeId || '')
-                                                                        }
-                                                                        onChange={(e) => {
-                                                                            const selectedId = e.target.value;
-                                                                            const selectedItem = (col === 'Service Code' ? serviceCodes : serviceTypes).find(item => item._id === selectedId);
-                                                                            handleFieldChange(item._id, col, selectedItem?.text || '', selectedId);
-                                                                        }}
-                                                                        onKeyDown={(e) => {
-                                                                            if (e.key === 'Enter') {
-                                                                                handleSubmitCheckedItems();
+                                                        <>
+                                                            <td key={col} style={tdStyle}>
+                                                                {editableFields.includes(col) && isChecked ? (
+                                                                    col === 'Service Code' || col === 'Service Type' ? (
+                                                                        <Form.Select
+                                                                            size="sm"
+                                                                            value={
+                                                                                col === 'Service Code'
+                                                                                    ? (editableItem?.serviceCodeId || item.serviceCodeId || '')
+                                                                                    : (editableItem?.serviceTypeId || item.serviceTypeId || '')
                                                                             }
-                                                                        }}
-                                                                    >
-                                                                        <option value="">Select</option>
-                                                                        {(col === 'Service Code' ? serviceCodes : serviceTypes).map((option) => (
-                                                                            <option key={option._id} value={option._id}>
-                                                                                {option.text}
-                                                                            </option>
-                                                                        ))}
-                                                                    </Form.Select>
-                                                                ) : ['Ready Time', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time'].includes(col) ? (
-                                                                    <Form.Control
-                                                                        type="datetime-local"
-                                                                        size="sm"
-                                                                        value={formatDateTimeValue(displayValue) || displayValue}
-                                                                        // value={displayValue}
-                                                                        onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
-                                                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
-                                                                    />
+                                                                            onChange={(e) => {
+                                                                                const selectedId = e.target.value;
+                                                                                const selectedItem = (col === 'Service Code' ? serviceCodes : serviceTypes).find(item => item._id === selectedId);
+                                                                                handleFieldChange(item._id, col, selectedItem?.text || '', selectedId);
+                                                                            }}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === 'Enter') {
+                                                                                    handleSubmitCheckedItems();
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <option value="">Select</option>
+                                                                            {(col === 'Service Code' ? serviceCodes : serviceTypes).map((option) => (
+                                                                                <option key={option._id} value={option._id}>
+                                                                                    {option.text}
+                                                                                </option>
+                                                                            ))}
+                                                                        </Form.Select>
+                                                                    ) : ['Ready Time', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time'].includes(col) ? (
+                                                                        <Form.Control
+                                                                            type="datetime-local"
+                                                                            size="sm"
+                                                                            value={formatDateTimeValue(displayValue) || displayValue}
+                                                                            // value={displayValue}
+                                                                            onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                            onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                        />
+                                                                    ) : (
+                                                                        <Form.Control
+                                                                            size="sm"
+                                                                            value={displayValue}
+                                                                            onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                            onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                        />
+                                                                    )
                                                                 ) : (
-                                                                    <Form.Control
-                                                                        size="sm"
-                                                                        value={displayValue}
-                                                                        onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
-                                                                        onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
-                                                                    />
-                                                                )
-                                                            ) : (
-                                                                displayValue ?? "-"
-                                                            )}
-                                                        </td>
+                                                                    displayValue ?? "-"
+                                                                )}
+                                                            </td>
+                                                        </>
                                                     );
                                                 })}
-                                                <td className="text-center" style={{
-                                                    ...tdStyle,
-                                                    // ...(item.isTransferAccept
-                                                    //     ? { pointerEvents: 'none' }
-                                                    //     : {}),
-                                                }}>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        name="isDriverPermission"
-                                                        checked={checkedItems.some(i => i._id === item._id)}
-                                                        onChange={(e) => handleCheckBoxChange(e, item)}
-                                                    />
-                                                </td>
+
                                                 <td className="text-center action-dropdown-menu" style={{
                                                     ...tdStyle,
                                                     ...(item.isTransferAccept

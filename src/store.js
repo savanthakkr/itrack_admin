@@ -17,7 +17,8 @@ const initialState = {
     serviceTypeId: "",
     jobId: "",
     clientName: "",
-    driverName: ""
+    driverName: "",
+    transferJob: false
   },
   searchQuery2: {
     AWB: "",
@@ -32,7 +33,8 @@ const initialState = {
     serviceCode: "",
     serviceCodeId: "",
     serviceType: "",
-    serviceTypeId: ""
+    serviceTypeId: "",
+    transferJob: false
   },
   data: [],
   jobsCount: 0,

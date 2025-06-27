@@ -51,7 +51,7 @@ const Dashboard = () => {
 	const [totalPages, setTotalPages] = useState(1);
 	const [showFilter, setShowFilter] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
-	const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
+	const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status', 'Transfer Status']);
 	const [showAssignClient, setShowAssignClient] = useState(false);
 
 	const handleApplyFilter = () => {
@@ -116,6 +116,14 @@ const Dashboard = () => {
 				payload: { serviceCodeId: '' },
 			});
 			filterObj['serviceCodeId'] = '';
+		}
+
+		if (key === 'transferJob') {
+			dispatch({
+				type: 'updateSearchQuery',
+				payload: { transferJob: false },
+			});
+			filterObj['transferJob'] = false;
 		}
 
 		handleRefresh(filterObj, true);
@@ -214,7 +222,8 @@ const Dashboard = () => {
 			serviceType: '',
 			serviceCode: '',
 			serviceTypeId: '',
-			serviceCodeId: ''
+			serviceCodeId: '',
+			transferJob: false
 		});
 
 		// if (key === 'allJobs') {
@@ -297,7 +306,7 @@ const Dashboard = () => {
 
 		for (let data of response) {
 			const obj = {};
-			console.log('response', response);
+			
 			obj._id = data?._id;
 			obj.Client = data?.clientId?.companyName;
 			// obj['Ready Time'] = data?.pickUpDetails?.readyTime;
@@ -316,6 +325,7 @@ const Dashboard = () => {
 			obj.isTransfer = data?.isTransfer;
 			obj.blurJob = data?.blurJob;
 			obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
+			obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : "";
 
 			finalArr.push(obj);
 		}
@@ -377,7 +387,7 @@ const Dashboard = () => {
 	const handleClear = (key) => {
 		setMessage('')
 		setIsReferesh(!isReferesh);
-		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status']);
+		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status', 'Transfer Status']);
 		setSearchQuery({
 			AWB: '',
 			clientId: '',
@@ -392,7 +402,8 @@ const Dashboard = () => {
 			serviceType: '',
 			serviceCode: '',
 			serviceTypeId: '',
-			serviceCodeId: ''
+			serviceCodeId: '',
+			transferJob: false
 		});
 
 		// setActiveTab(activeTab);
@@ -408,7 +419,7 @@ const Dashboard = () => {
 		setLoading(true)
 		setMessage('');
 		let queryParams = [];
-		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status'])
+		setSelectedColumns(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status', 'Transfer Status'])
 
 		if (!tagRemove) {
 			handleClear();
@@ -427,7 +438,8 @@ const Dashboard = () => {
 					serviceTypeId: '',
 					jobId: "",
 					clientName: "",
-					driverName: ""
+					driverName: "",
+					transferJob: false
 				},
 			});
 		} else {
@@ -445,6 +457,7 @@ const Dashboard = () => {
 			if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
 			if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
 			if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
+			if (filter.transferJob) queryParams.push(`transferJob=${filter.transferJob}`)
 
 			const query = queryParams.join('&');
 
@@ -472,21 +485,6 @@ const Dashboard = () => {
 					})
 			}
 		}
-
-		// get(`/admin/info/jobFilter?${query}`, 'admin')
-		// 	.then((response) => {
-		// 		if (response?.data?.status) {
-		// 			if (response?.data?.data?.length === 0) {
-		// 				setMessage('No data found')
-		// 			}
-		// 			setData(response?.data?.data)
-		// 			setLoading(false)
-		// 		}
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error(error)
-		// 		setLoading(false)
-		// 	})
 	}
 
 
@@ -513,29 +511,6 @@ const Dashboard = () => {
 	// 		setSelectedItem(JSON.parse(storedSelectedItem))
 	// 	}
 	// }, [])
-
-
-	// // Pagination
-	// const handlePageChange = (page) => {
-	//   setPage(page);
-	// };
-	// // Limit
-	// const handleLimitChange = (e) => {
-	//   setLimit(e.target.value)
-	//   setTotalPages(Math.ceil(totalDocs / e.target.value))
-	// }
-
-	// useEffect(() => {
-	//   setLoading(true);
-	//   get(`/admin/info/jobFilter?page=${page}&limit=${limit}`, "admin").then((data) => {
-	//     setData(response?.data?.data)
-	//     setLoading(false)
-	//   }).catch((e) => {
-	//     console.log("errr", e.message);
-	//   })
-	//   // Getting total pages
-
-	// }, [isReferesh, page, limit]
 
 	return (
 		<>
@@ -669,6 +644,8 @@ const Dashboard = () => {
 											const isSelected = item._id === selectedItem._id;
 											const status = item?.Status;
 											const styles = getStatusStyles(status);
+											const transferStatus = item['Transfer Status'];
+											const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
 
 											const tdStyle = {
 												backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
@@ -693,15 +670,27 @@ const Dashboard = () => {
 																	</div>
 																</td>
 																:
-																<td onClick={() => handleView(item)} style={{
-																	...tdStyle,
-																	...(item.blurJob && col === 'Transfer To'
-																		? { pointerEvents: 'none' }
-																		: {}),
-																}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
-																	{/* {item?.clientId?.companyName} */}
-																	{item[col] ?? "-"}
-																</td>
+																col === 'Transfer Status' ?
+																	<td onClick={() => handleView(item)} style={{
+																		...tdStyle,
+																		...(item.blurJob
+																			? { pointerEvents: 'none' }
+																			: {}),
+																	}}>
+																		<div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+																			{transferStatus || "-"}
+																		</div>
+																	</td>
+																	:
+																	<td onClick={() => handleView(item)} style={{
+																		...tdStyle,
+																		...(item.blurJob && col === 'Transfer To'
+																			? { pointerEvents: 'none' }
+																			: {}),
+																	}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																		{/* {item?.clientId?.companyName} */}
+																		{item[col] ?? "-"}
+																	</td>
 															}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 																{item[col] ? getFormattedDAndT(item[col]) : '-'}
@@ -902,6 +891,8 @@ const Dashboard = () => {
 										data?.map((item, index) => {
 											const isSelected = item._id === selectedItem._id;
 											const status = item?.Status;
+											const transferStatus = item['Transfer Status'];
+											const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
 											const styles = getStatusStyles(status);
 
 											const tdStyle = {
@@ -927,15 +918,27 @@ const Dashboard = () => {
 																	</div>
 																</td>
 																:
-																<td onClick={() => handleView(item)} style={{
-																	...tdStyle,
-																	...(item.blurJob && col === 'Transfer To'
-																		? { pointerEvents: 'none' }
-																		: {}),
-																}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
-																	{/* {item?.clientId?.companyName} */}
-																	{item[col] ?? "-"}
-																</td>
+																col === 'Transfer Status' ?
+																	<td onClick={() => handleView(item)} style={{
+																		...tdStyle,
+																		...(item.blurJob
+																			? { pointerEvents: 'none' }
+																			: {}),
+																	}}>
+																		<div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+																			{transferStatus || "-"}
+																		</div>
+																	</td>
+																	:
+																	<td onClick={() => handleView(item)} style={{
+																		...tdStyle,
+																		...(item.blurJob && col === 'Transfer To'
+																			? { pointerEvents: 'none' }
+																			: {}),
+																	}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																		{/* {item?.clientId?.companyName} */}
+																		{item[col] ?? "-"}
+																	</td>
 															}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 														{item?.clientId?.companyName}

@@ -39,7 +39,7 @@ export default function DateRangeFilter({
 	const columnOptions = accountantColumnOption || [
 		'All', 'Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces',
 		'Service Type', 'Service Code', 'Pickup From', 'Deliver To',
-		'Driver', 'Notes', 'Transfer To', 'Status'
+		'Driver', 'Notes', 'Transfer To', 'Status', 'Transfer Status'
 	];
 
 	const handleTimeChange = (e) => {

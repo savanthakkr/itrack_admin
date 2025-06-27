@@ -273,6 +273,26 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                     </Col>
                 </Row>
 
+                <Row>
+                    <Col md={12} className='mt-3'>
+                        <Form.Group as={Col} controlId="formGridPassword">
+                            {/* <Form.Label>Show transfer jobs</Form.Label> */}
+                            <Form.Check
+                                type="checkbox"
+                                label="Show transfer jobs"
+                                checked={searchQuery?.transferJob}
+                                name="transferJob"
+                                onChange={(e) =>
+                                    setSearchQuery({
+                                        ...searchQuery,
+                                        transferJob: e.target.checked,
+                                    })
+                                }
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
                 <div className="my-4" />
 
 

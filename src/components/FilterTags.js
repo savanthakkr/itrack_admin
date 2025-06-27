@@ -19,6 +19,9 @@ const FilterTags = ({ searchQuery, onRemoveFilter }) => {
     if (searchQuery.driverName) {
         tags.push({ key: 'driverName', label: `Driver: ${searchQuery.driverName}` });
     }
+    if (searchQuery.transferJob) {
+        tags.push({ key: 'transferJob', label: `Transfer Jobs` });
+    }
 
     return (
         <div className="d-flex flex-wrap gap-2 filter-container">
