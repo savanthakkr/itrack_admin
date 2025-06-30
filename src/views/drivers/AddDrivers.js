@@ -51,6 +51,8 @@ function AddDrivers() {
         setLoading(false)
         return
       }
+
+      console.log('driverData', driverData);
       post('/admin/driver', driverData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)

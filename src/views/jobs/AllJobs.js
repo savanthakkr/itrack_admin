@@ -65,8 +65,16 @@ const AllJobs = () => {
 
         for (let data of response) {
             const obj = {};
+
+            if (data?.adminId && data?.isTransferAccept) {
+
+                console.log('data', data);
+                obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
+            } else {
+                obj.Client = data?.clientId?.companyName;
+            }
+
             obj._id = data?._id;
-            obj.Client = data?.clientId?.companyName;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
             obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
             // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;

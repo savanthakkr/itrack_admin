@@ -92,13 +92,15 @@ const AccountantAllJobs = () => {
             obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
             obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
             obj['Admin Notes'] = data?.adminNote || "-";
-            obj['Base Rate'] = data?.rates || "-";
-            obj['Fuel Surcharge'] = data?.fuel_charge || "-";
-            obj['Invoice Number'] = data?.invoiceNumber || "";
+            obj['Base Rate'] = data?.rates || "";
+            obj['Fuel Surcharge'] = data?.fuel_charge || "";
+            obj['Invoice Number'] = data?.invoiceNumber || "-";
             obj['Customer Job Number'] = data?.custRefNumber || "";
             obj['Weight'] = data?.weight || "";
             obj['serviceTypeId'] = data?.serviceTypeId ? data?.serviceTypeId?._id : "";
             obj['serviceCodeId'] = data?.serviceCodeId ? data?.serviceCodeId?._id : "";
+            obj['Pickup Waiting Time Charges'] = data?.invoiceDetail?.pickUpDetails?.pickUpWaitingRate || 0;
+            obj['Delivery Wait Time Charges'] = data?.invoiceDetail?.dropOfDetails?.deliveryWaitingRate || 0;
             finalArr.push(obj);
         }
 
@@ -618,7 +620,7 @@ const AccountantAllJobs = () => {
                                                         const typeObj = serviceTypes.find(st => st._id === item.serviceTypeId);
                                                         displayValue = typeObj?.text;
                                                     } else {
-                                                        displayValue = item[col];
+                                                        displayValue = item[col] || "-";
                                                     }
 
                                                     // If col is Status, render special style (unchanged)
