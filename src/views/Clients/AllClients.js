@@ -438,11 +438,7 @@ function AllClients() {
               </thead>
 
               <tbody>
-                {message ? (
-                  <tr>
-                    <td colSpan={14} className="text-center text-danger">{message}</td>
-                  </tr>
-                ) : loading ? (
+                {loading ? (
                   <tr>
                     <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                   </tr>

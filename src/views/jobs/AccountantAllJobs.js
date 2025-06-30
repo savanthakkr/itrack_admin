@@ -50,7 +50,7 @@ const AccountantAllJobs = () => {
     const [filterShow, setFilterShow] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltering, setIsFiltering] = useState(false);
-    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
+    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
     const [checkedItems, setCheckedItems] = useState([]);
     const [serviceCodes, setServiceCodes] = useState([]);
     const [serviceTypes, setServiceTypes] = useState([]);
@@ -91,9 +91,9 @@ const AccountantAllJobs = () => {
             obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "";
             obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
             obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
-            obj['Admin Notes'] = data?.adminNote || "";
-            obj['Base Rate'] = data?.rates || "";
-            obj['Fuel Surcharge'] = data?.fuel_charge || "";
+            obj['Admin Notes'] = data?.adminNote || "-";
+            obj['Base Rate'] = data?.rates || "-";
+            obj['Fuel Surcharge'] = data?.fuel_charge || "-";
             obj['Invoice Number'] = data?.invoiceNumber || "";
             obj['Customer Job Number'] = data?.custRefNumber || "";
             obj['Weight'] = data?.weight || "";
@@ -287,7 +287,7 @@ const AccountantAllJobs = () => {
         setPage(1);
         setLimit(10);
         setMessage('');
-        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
+        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
 
         const filter = {
             AWB: "",

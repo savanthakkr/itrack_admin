@@ -161,7 +161,7 @@ const AddClientJob = () => {
     setLoading2(true)
     setLoading3(true)
     setLoading4(true)
-    get_req(clientUrl.serviceType)
+    get_req(clientUrl.serviceType, null, true)
       .then((response) => {
         setServiceTypes(response.data.data)
         setLoading(false)
@@ -169,7 +169,7 @@ const AddClientJob = () => {
       .catch((error) => {
         console.error(error)
       })
-    get_req(clientUrl.serviceCode)
+    get_req(clientUrl.serviceCode, null, true)
       .then((response) => {
         setServiceCode(response.data.data)
         setLoading2(false)

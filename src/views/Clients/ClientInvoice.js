@@ -14,6 +14,7 @@ function ClientInvoice() {
   const [errorMessages, setErrorMessages] = useState('')
   const [validated, setValidated] = useState(false)
   const [clientData, setClientData] = useState({})
+  const imgSrc = process.env.Image_Src
   // const [clientData, setClientData] = useState({
   //   allocateTo: '',
   //   dispatchId: '',
@@ -107,7 +108,10 @@ function ClientInvoice() {
             setMessage('No data found')
           }
           setClientData(response?.data?.data)
+
+
           setLoading(false)
+          console.log(clientData.custRefNumber);
         }
       })
       .catch((error) => {
@@ -341,11 +345,11 @@ function ClientInvoice() {
               <Form.Group>
                 <Form.Label>Reference No</Form.Label>
                 <Form.Control
-                  type="number"
+                  type="text"
                   placeholder="referenceNo"
                   name="referenceNo"
                   maxLength={20}
-                  value={clientData?.referenceNo || ""}
+                  value={clientData?.custRefNumber || ""}
                 />
               </Form.Group>
             </Col>
@@ -469,7 +473,7 @@ function ClientInvoice() {
             </Col>
           </Row>
           <Row>
-            <Col md={6} className="mt-3">
+            <Col md={6} className="mb-3">
               <Form.Group controlId="attachment">
                 <Form.Label>Attachment</Form.Label>
                 <div
@@ -512,7 +516,7 @@ function ClientInvoice() {
         <Modal.Header className="border-0 text-center w-100">
           <Modal.Title className="w-100">
             {' '}
-            <p className="mx-auto d-block">Attachments</p>
+            <p className="mx-auto d-block">Attachmens</p>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-3">
@@ -522,7 +526,10 @@ function ClientInvoice() {
                 {' '}
                 You can download the attachment from here.{' '}
               </p>
-              {data?.attachmentKeys?.map((key, index) => {
+              {clientData?.attachmentKeys?.length === 0 && (
+                <p className="text-center text-danger"> No Attachment Found </p>
+              )}
+              {clientData?.attachmentKeys?.map((key, index) => {
                 return (
                   <div key={index} className="mb-2 ">
                     <b>{index + 1} :</b>{' '}
@@ -537,34 +544,28 @@ function ClientInvoice() {
                   </div>
                 )
               })}
-              {data?.isVpap ? (
-                <>
-                  <hr />
-                  <h5 className="fw-bold"> VPAP </h5>
-                  <VPAPdfGenerate
-                    jobDetail={{
-                      AWB: data?.AWB,
-                      driverName: data?.driverId?.firstname + ' ' + data?.driverId?.lastname,
-                      companyName: data?.clientId?.companyName,
-                      date: getFormattedDAndT(data?.pickUpDetails?.readyTime),
-                    }}
-                    VPAPData={data?.VpapId}
-                  />
-                </>
+              <hr />
+              <h5 className="fw-bold"> VPAP </h5>
+              {clientData?.isVpap ? (
+                <VPAPdfGenerate
+                  jobDetail={{
+                    AWB: clientData?.AWB,
+                    driverName: clientData?.driverId?.firstname + ' ' + clientData?.driverId?.lastname,
+                    companyName: clientData?.clientId?.companyName,
+                    // date: getFormattedDAndT(job?.pickUpDetails?.readyTime),
+                    date: getFormattedDAndT(clientData?.pickUpDetails?.pickedUpTime),
+                  }}
+                  VPAPData={clientData?.VpapId}
+                />
               ) : (
                 ''
               )}
             </Card.Body>
           </Card>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleAttachmentClose}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
   )
 }
 
-export default ClientInvoice
+export default ClientInvoice;s

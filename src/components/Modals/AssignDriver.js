@@ -88,14 +88,14 @@ const AssignDriverModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, rol
             </Modal.Header>
             <Modal.Body className="pt-2 pb-4">
                 <Dropdown>
-                    <Dropdown.Toggle variant="primary" id="lazy-dropdown" className='w-75 mx-auto d-block  custom-bootstrap-dropdown'>
+                    <Dropdown.Toggle variant="primary" id="lazy-dropdown" className='w-100 mx-auto d-block  custom-bootstrap-dropdown'>
                         {
                             selectedDriver ? `${selectedDriver.firstname} ${selectedDriver.lastname}` : 'Select from the list'
                         }
                     </Dropdown.Toggle>
                     <Dropdown.Menu
                         ref={dropdownRef}
-                        className="series-dropdown-list overflow-scroll w-75"
+                        className="series-dropdown-list overflow-scroll w-100"
                         style={{ maxHeight: "200px", overflowY: "auto" }}
                         onScroll={handleScroll}
                     >

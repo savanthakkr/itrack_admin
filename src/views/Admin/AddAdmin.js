@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap'
+import { Badge, Button, Col, Container, Form, Row, Spinner, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { get, post } from '../../lib/request.js'
 import sweetAlert from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
@@ -21,6 +21,7 @@ function AddAdmin() {
   })
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(false)
+  const [modules, setModules] = useState([]);
 
   // handle change
   const handleChange = (e) => {
@@ -93,10 +94,23 @@ function AddAdmin() {
     })
   }
 
+  const getModuleList = async () => {
+    get('/super-admin/module-list', "admin").then((res) => {
+      // setClients(res.data.data)
+      setModules(res.data.data);
+    }).catch((error) => {
+      console.error("Error getting all modules:", error)
+      alert('Failed to get modules.')
+    })
+  }
+
   // use effect
   useEffect(() => {
-    getAllClients()
-  }, [])
+    getAllClients();
+    getModuleList();
+  }, []);
+
+  console.log('module list', modules);
 
   return (
     <>
@@ -240,10 +254,115 @@ function AddAdmin() {
                 }
               </Col>
             </Row> */}
+
+
+          {
+            modules?.map((module, index) => (
+              <>
+                <Row>
+                  <Col md={6} className="mt-3">
+                    {module.name}
+                  </Col>
+                  <Col md={6} className="mt-3">
+                    <Row>
+                      <Col md={4}>
+                        {/* <ToggleButtonGroup
+                          // value={false}
+                          exclusive
+                          name={`read_access-${index}`}
+                        // onChange={(event, newValue) => toggleAccess(index, "read_access", newValue)}
+                        >
+                          <ToggleButton
+                            // value={false}
+                            sx={{ padding: '18px 0px !important', height: "0px", minWidth: "98px" }}
+                            className={module?.permissions?.read_access ? "toggle-button-active" : ""}>
+                            Read
+                          </ToggleButton>
+                        </ToggleButtonGroup> */}
+                        <Badge
+                          key={index}
+                          bg={"primary"}
+                          // onClick={() => togglePermission(permission)}
+                          style={{
+                            cursor: "pointer",
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            borderRadius: "20px",
+                            userSelect: "none",
+                          }}
+                        >
+                          Read
+                        </Badge>
+                      </Col>
+                      <Col md={4}>
+                        {/* <ToggleButtonGroup
+                          value={module?.permissions?.write_access}
+                          exclusive
+                          name={`read_access-${index}`}
+                        // onChange={(event, newValue) => toggleAccess(index, "write_access", newValue)}
+                        >
+                          <ToggleButton
+                            // value={true}
+                            sx={{ padding: '18px 0px !important', height: "0px", minWidth: "98px" }}
+                            className={module?.permissions?.write_access ? "toggle-button-active" : ""}>
+                            Write
+                          </ToggleButton>
+                        </ToggleButtonGroup> */}
+                        <Badge
+                          key={index}
+                          bg={"secondary"}
+                          // onClick={() => togglePermission(permission)}
+                          style={{
+                            cursor: "pointer",
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            borderRadius: "20px",
+                            userSelect: "none",
+                          }}
+                        >
+                          Write
+                        </Badge>
+                      </Col>
+                      <Col md={4}>
+                        {/* <ToggleButtonGroup
+                          value={module?.permissions?.delete_access}
+                          exclusive
+                          name={`read_access-${index}`}
+                        // onChange={(event, newValue) => toggleAccess(index, "delete_access", newValue)}
+                        >
+                          <ToggleButton
+                            // value={true}
+                            sx={{ padding: '18px 0px !important', height: "0px", minWidth: "98px" }}
+                            className={module?.permissions?.delete_access ? "toggle-button-active" : ""}>
+                            Delete
+                          </ToggleButton>
+                        </ToggleButtonGroup> */}
+                        <Badge
+                          key={index}
+                          bg={"primary"}
+                          // bg={selected.includes(permission) ? "primary" : "secondary"}
+                          // onClick={() => togglePermission(permission)}
+                          style={{
+                            cursor: "pointer",
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            borderRadius: "20px",
+                            userSelect: "none",
+                          }}
+                        >
+                          Delete
+                        </Badge>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+              </>
+            ))
+          }
         </Form>
-      </div>
+      </div >
     </>
   )
 }
 
-export default AddAdmin
+export default AddAdmin;
