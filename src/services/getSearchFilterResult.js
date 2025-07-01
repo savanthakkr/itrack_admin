@@ -22,10 +22,41 @@ export const getSeachFilterResult = async (data, role, page, limit) => {
         }
     }
     try {
-        const response = await axiosInstance.get(url,headers);
+        const response = await axiosInstance.get(url, headers);
         if (response.data.status) {
             return response.data.data;
-        }else{
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.error("error while getting toatal docs", error.message);
+        return 0;
+    }
+}
+
+export const getSeachFilterResultInvoice = async (data, role, page, limit) => {
+    let token = '';
+    let url = '';
+    if (role === "admin") {
+        token = localStorage.getItem("admintoken");
+        url = `/admin/invoice/list?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&page=${page || ''}&limit=${limit || ""}`
+
+    } else if (role === "client") {
+        token = localStorage.getItem("jdAirTrans-client-token");
+        url = `/admin/invoice/list?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&page=${page || ''}&limit=${limit || ""}`
+    }
+
+    let headers = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+        }
+    }
+    try {
+        const response = await axiosInstance.get(url, headers);
+        if (response.data.status) {
+            return response.data.data;
+        } else {
             return [];
         }
     } catch (error) {

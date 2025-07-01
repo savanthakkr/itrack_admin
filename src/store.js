@@ -37,7 +37,9 @@ const initialState = {
     transferJob: false
   },
   data: [],
+  invoiceData: [],
   jobsCount: 0,
+  invoiceCount: 0,
   role: localStorage.getItem('role'),
   loggedInUser: {
     firstName: localStorage.getItem('firstname'),
@@ -61,12 +63,16 @@ const changeState = (state = initialState, action) => {
       return { ...state, searchQuery2: { ...state.searchQuery2, ...payload } };
     case 'getJobData':
       return { ...state, data: payload };
+    case 'getInvoiceData':
+      return { ...state, invoiceData: payload };
     case 'setRole':
       return { ...state, role: payload };
     case 'setUserInfo':
       return { ...state, loggedInUser: payload };
     case 'setJobCount':
       return { ...state, jobsCount: payload };
+    case 'setInvoiceCount':
+      return { ...state, invoiceCount: payload };
     default:
       return state;
   }

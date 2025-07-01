@@ -714,7 +714,7 @@ const AccountantAllJobs = () => {
                                                             <BsThreeDotsVertical size={18} />
                                                         </button>
                                                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                                            <li>
+                                                            {/* <li>
                                                                 <button
                                                                     className="dropdown-item"
                                                                     onClick={() => {
@@ -723,7 +723,7 @@ const AccountantAllJobs = () => {
                                                                 >
                                                                     {item?.driverId ? 'Change Driver' : 'Assign Driver'}
                                                                 </button>
-                                                            </li>
+                                                            </li> */}
                                                             <li>
                                                                 <button
                                                                     className="dropdown-item"

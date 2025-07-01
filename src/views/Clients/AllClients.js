@@ -30,6 +30,7 @@ import sortData from '../../services/sortData'
 import getStatusStyles from '../../services/getStatusColor'
 import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from '../../lib/getFormatedDate'
 import FilterOffCanvas from '../../components/Filter'
+import { getSeachFilterResultInvoice } from '../../services/getSearchFilterResult'
 
 function AllClients() {
   let currentUrl = useLocation();
@@ -41,7 +42,8 @@ function AllClients() {
   const [loading, setLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [isReferesh, setIsRefresh] = useState(false)
-  const [data, setData] = useState([])
+  // const [data, setData] = useState([])
+  const data = useSelector((state) => state.data);
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10)
@@ -52,12 +54,268 @@ function AllClients() {
   const searchQuery = useSelector((state) => state.searchQuery)
   const handleShow = () => setShowCanvas(true);
   const [showCanvas, setShowCanvas] = useState(false)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const invoiceCount = useSelector((state) => state.jobsCount);
+  const [filterShow, setFilterShow] = useState(false)
+
+  const setSearchQuery = (query) => {
+    dispatch({
+      type: 'updateSearchQuery2',
+      payload: query
+    })
+  }
+
+  const handleFilterClose = () => {
+    setFilterShow(false)
+  }
+
+  const handleSearchClick = (selectedOption) => {
+    setFilterShow(false);
+
+    let payload = { ...searchQuery };
+
+    getSeachFilterResultInvoice(payload, "admin", page, limit)
+      .then((res) => {
+        onSearch(res);
+        // handleClose();
+      })
+      .catch((err) => {
+        console.error('Filter API Error:', err);
+      });
+  }
+
+  const onSearch = (newData) => {
+    setMessage('')
+    if (newData.length === 0) {
+      setMessage('No data found')
+    }
+    // setData(newData)
+    const responseData = newData?.invoices;
+    dispatch({
+      type: 'getInvoiceData',
+      payload: responseData,
+    });
+    dispatch({
+      type: 'setInvoiceCount',
+      payload: newData?.totalCount,
+    });
+  }
+
+  // fetch data
+  const fetchInvoiceData = (filterObj) => {
+    setLoading(true);
+
+    let filter = filterObj || searchQuery;
+
+    if (Object.values(filter).every(value => value === null)) {
+      get(`/admin/invoice/list?page=${page}&limit=${limit}`, 'admin')
+        .then((response) => {
+          // setData(response?.data?.data)
+          const responseData = response?.data?.data?.invoices;
+          dispatch({
+            type: 'getInvoiceData',
+            payload: responseData,
+          });
+          dispatch({
+            type: 'setInvoiceCount',
+            payload: response?.data?.data?.totalCount,
+          });
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error(error)
+          setLoading(false)
+        });
+    } else {
+
+      let queryParams = [];
+
+      if (filter.currentStatus)
+        queryParams.push(`currentStatus=${filter.currentStatus}`)
+      if (filter.clientId) queryParams.push(`clientId=${filter.clientId}`)
+      if (filter.driverId) queryParams.push(`driverId=${filter.driverId}`)
+      if (filter.fromDate) queryParams.push(`fromDate=${filter.fromDate}`)
+      if (filter.toDate) queryParams.push(`toDate=${filter.toDate}`)
+      if (filter.jobId) queryParams.push(`jobId=${filter.jobId}`)
+      if (filter.clientName) queryParams.push(`clientName=${filter.clientName}`)
+      if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
+      if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
+      if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
+
+      const query = queryParams.join('&');
+
+      get(`/admin/invoice/list?${query}&page=${page}&limit=${limit}`, 'admin')
+        .then((response) => {
+          if (response?.data?.status) {
+            if (response?.data?.data?.length === 0) {
+              setMessage('No data found')
+            }
+            // setData(response?.data?.data)
+            const responseData = response?.data?.data?.invoices;
+            dispatch({
+              type: 'getInvoiceData',
+              payload: responseData,
+            });
+            dispatch({
+              type: 'setInvoiceCount',
+              payload: response?.data?.data?.totalCount,
+            });
+            setLoading(false)
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          setLoading(false)
+        })
+    }
+  }
+
+  useEffect(() => {
+    if (activeTab === 'allClients') {
+      getClientsData();
+    } else if (activeTab === 'invoices') {
+      fetchInvoiceData();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'invoices') {
+      setTotalPages(Math.ceil(invoiceCount / limit))
+    }
+  }, [limit, invoiceCount]);
+
+  useEffect(() => {
+    if (activeTab === 'invoices') {
+      fetchInvoiceData();
+    } else if (activeTab === 'allClients') {
+      getClientsData();
+    }
+  }, [page, limit]);
+
+  const handlePageChange = (page) => {
+    setPage(page)
+  }
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
+
+  const handleLimitChange = (e) => {
+    if (activeTab === 'invoices') {
+      setLimit(e.target.value)
+      setTotalPages(Math.ceil(invoiceCount / e.target.value));
+      setPage(1);
+    } else if (activeTab === 'allClients') {
+      getTotalDocs("CLIENT", "admin").then((data) => {
+        setTotalDocs(data);
+        setTotalPages(Math.ceil(data / limit))
+      }).catch((e) => {
+        console.log("error while getting total pages", e.message);
+      })
+    }
+  }
+
+  const handleRefresh = () => {
+    setPage(1);
+    setLimit(10);
+    setMessage('');
+
+    const filter = {
+      AWB: "",
+      clientId: "",
+      driverId: "",
+      fromDate: "",
+      toDate: "",
+      currentStatus: "",
+      serviceCode: "",
+      serviceType: '',
+      serviceCodeId: '',
+      serviceTypeId: '',
+      jobId: "",
+      clientName: "",
+      driverName: "",
+      transferJob: false
+    }
+    setSearchQuery({
+      AWB: "",
+      clientId: "",
+      driverId: "",
+      fromDate: "",
+      toDate: "",
+      currentStatus: "",
+      serviceCode: "",
+      serviceType: '',
+      serviceCodeId: '',
+      serviceTypeId: '',
+      jobId: "",
+      clientName: "",
+      driverName: "",
+      transferJob: false
+    });
+    fetchInvoiceData(filter);
+  }
+
+  const handleRemoveFilter = (key) => {
+
+    const filterObj = searchQuery;
+
+    filterObj[key] = '';
+
+    dispatch({
+      type: 'updateSearchQuery2',
+      payload: { [key]: '' },
+    });
+
+    if (key === 'clientName') {
+      dispatch({
+        type: 'updateSearchQuery2',
+        payload: { clientId: '' },
+      });
+      filterObj['clientId'] = '';
+    }
+
+    if (key === 'driverName') {
+      dispatch({
+        type: 'updateSearchQuery2',
+        payload: { driverId: '' },
+      });
+      filterObj['driverId'] = '';
+    }
+
+    if (key === 'currentStatus') {
+      dispatch({
+        type: 'updateSearchQuery2',
+        payload: { currentStatus: '' },
+      });
+      filterObj['currentStatus'] = '';
+    }
+
+    if (key === 'serviceType') {
+      dispatch({
+        type: 'updateSearchQuery2',
+        payload: { serviceTypeId: '' },
+      });
+      filterObj['serviceTypeId'] = '';
+    }
+
+    if (key === 'serviceCode') {
+      dispatch({
+        type: 'updateSearchQuery2',
+        payload: { serviceCodeId: '' },
+      });
+      filterObj['serviceCodeId'] = '';
+    }
+
+    let filter = filterObj;
+
+    fetchInvoiceData(filter);
+  }
 
   const tabLabels = {
     allClients: 'All Clients',
     invoices: 'Invoices',
   };
+
   const handleShowModal = (client) => {
     setSelectedClient(client)
     setShowModal(true)
@@ -74,30 +332,7 @@ function AllClients() {
   const handleCloseModal = () => {
     setShowModal(false)
   }
-  const setSearchQuery = (query) => {
-    dispatch({
-      type: 'updateSearchQuery',
-      payload: query,
-    })
-  }
 
-  const handleClear = () => {
-    setMessage('')
-    setIsRefresh(!isReferesh)
-    setSearchQuery({
-      AWB: '',
-      clientId: '',
-      driverId: '',
-      fromDate: '',
-      toDate: '',
-      currentStatus: '',
-      jobId: '',
-      clientName: '',
-      driverName: '',
-      serviceType: '',
-      serviceCode: ''
-    })
-  }
   // Deleting the client
   const handleDelete = (Id) => {
     sweetAlert
@@ -126,64 +361,37 @@ function AllClients() {
         }
       })
   }
-  // Pagination
-  const handlePageChange = (page) => {
-    setPage(page);
-  };
-  // Limit
-  const handleLimitChange = (e) => {
-    setLimit(e.target.value)
-    // console.log('totalDocs', totalDocs);
-    setTotalPages(Math.ceil(totalDocs / e.target.value))
-    setPage(1);
-  }
 
   // useEffect(() => {
-  //   setLoading(true);
-  //   get(`/admin/info/allClients?page=${page}&limit=${limit}`, "admin").then((data) => {
-  //     setClientData(data.data.data)
-  //     setLoading(false)
-  //   }).catch((e) => {
-  //     console.log("errr", e.message);
-  //   })
-  //   // Getting total pages
+  //   if (activeTab === 'allClients') {
+  //     getClientsData();
+  //   } else if (activeTab === 'invoices') {
+  //     getInvoiceData();
+  //   }
+  // }, [activeTab, page, limit, isReferesh]);
 
-  // }, [isReferesh, page, limit])
-
-  useEffect(() => {
-    getClientsData();
-  }, [page, limit, isReferesh]);
-
+  // get total pages
   useEffect(() => {
     if (activeTab === 'allClients') {
-      getClientsData();
-    } else if (activeTab === 'invoices') {
-      getInvoiceData();
+      getTotalDocs("CLIENT", "admin").then((data) => {
+        setTotalDocs(data);
+        setTotalPages(Math.ceil(data / limit))
+      }).catch((e) => {
+        console.log("error while getting total pages", e.message);
+      })
     }
-  }, [activeTab]);
-
-  // get invoice data
-  const getInvoiceData = () => {
-    get(`/admin/invoice/list`, 'admin')
-      .then((response) => {
-        if (response?.data?.data?.length === 0) {
-          setMessage('No data found')
-        }
-        setData(response?.data?.data)
-        setLoading(false)
-      })
-      .catch((error) => {
-        console.error(error);
-        setData([]); // Reset data
-        setMessage('No Data Found');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }
+    // else if (activeTab === 'invoices') {
+    //   getTotalDocs("CLIENT", "admin").then((data) => {
+    //     setTotalDocs(data);
+    //     setTotalPages(Math.ceil(data / limit))
+    //   }).catch((e) => {
+    //     console.log("error while getting total pages", e.message);
+    //   })
+    // }
+  }, [isReferesh])
 
   const getClientsData = () => {
-    get(`/admin/info/allClients`, 'admin')
+    get(`/admin/info/allClients?page=${page}&limit=${limit}`, 'admin')
       .then((response) => {
         if (response?.data?.status) {
           if (response?.data?.data?.length === 0) {
@@ -202,14 +410,6 @@ function AllClients() {
   const handleTabSelect = (selectedTab) => {
     setActiveTab(selectedTab);
   };
-
-  const handleRefresh = () => {
-    setLoading(true)
-    setMessage('')
-
-    getClientsData();
-
-  }
 
   useEffect(() => {
     if (currentUrl.pathname.includes("/invoices")) {
@@ -231,7 +431,8 @@ function AllClients() {
               Add Client
               <FaArrowRight size={12} className="ms-2" />
             </CButton>
-          </Col>) : (<Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-lg-0">
+          </Col>) :
+          (<Col lg={10} className="d-flex flex-wrap justify-content-start justify-content-md-end align-items-center gap-3 mt-3 mt-lg-0">
             <Button
               variant="dark"
               className="input-group-text cursor-pointer custom-icon-btn"
@@ -239,10 +440,23 @@ function AllClients() {
             >
               <FaSyncAlt />
             </Button>
-            <Button onClick={handleShow} className="input-group-text cursor-pointer custom-icon-btn">
+            <DateRangeFilter
+              // setData={setData}
+              role="admin"
+              setMessage={setMessage}
+              // setIsFiltering={setIsFiltering}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              // selectedColumns={selectedColumns}
+              // setSelectedColumns={setSelectedColumns}
+              setInvoicesData={true}
+              page={page}
+              limit={limit}
+            />
+            <Button onClick={() => setFilterShow(true)} className="input-group-text cursor-pointer custom-icon-btn">
               <FaFilter />
             </Button>
-            <Button onClick={handleClear} style={{ fontSize: '12px' }} className="custom-btn">
+            <Button onClick={handleRefresh} style={{ fontSize: '12px' }} className="custom-btn">
               Clear Filters
             </Button>
           </Col>)
@@ -251,6 +465,13 @@ function AllClients() {
 
       </Row>
       {/* Edited */}
+
+      {Object.values(searchQuery).some((v) => v) && (
+        <div className="filter-container">
+          <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
+        </div>
+      )}
+
       <Tabs activeKey={activeTab} onSelect={handleTabSelect} id="job-tabs" className="mb-3 custom-tabs">
         {/* Job Details */}
         {!currentUrl.pathname.includes("/invoices") &&
@@ -361,28 +582,29 @@ function AllClients() {
                 </Table>
               </div>
 
-              {data.length > 0 && <Row className="mb-3 justify-content-between">
-                <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
-                  Show Entries
-                  <Col md={2}>
-                    <Form.Select className="page-entries"
-                      value={limit}
-                      onChange={handleLimitChange}
-                    >
-                      <option value={10}>10</option>
-                      <option value={20}>20</option>
-                      <option value={30}>30</option>
-                    </Form.Select>
+              {clientData?.length > 0 &&
+                <Row className="mb-3 justify-content-between">
+                  <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
+                    Show Entries
+                    <Col md={2}>
+                      <Form.Select className="page-entries"
+                        value={limit}
+                        onChange={handleLimitChange}
+                      >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={30}>30</option>
+                      </Form.Select>
+                    </Col>
                   </Col>
-                </Col>
-                <Col className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
-                  <MyPagination
-                    totalPages={totalPages}
-                    currentPage={page}
-                    onPageChange={handlePageChange}
-                  />
-                </Col>
-              </Row>}
+                  <Col className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+                    <MyPagination
+                      totalPages={totalPages}
+                      currentPage={page}
+                      onPageChange={handlePageChange}
+                    />
+                  </Col>
+                </Row>}
             </>
           </Tab>
         }
@@ -537,34 +759,39 @@ function AllClients() {
         </Tab>
       </Tabs>
       <Row>
-        <Col md={12}>
+
+        {/* <Col md={12}>
           <div>
-            {/* <Row className="mb-3 justify-content-between">
-              <Col md={8} className="d-flex align-items-center gap-2 ">
-                Show
-                <Col md={2}>
-                  <Form.Select
-                    value={limit}
-                    onChange={handleLimitChange}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                  </Form.Select>
+            {activeTab === 'invoices' && data?.length > 0 &&
+              <Row className="mb-3 mt-3 justify-content-between">
+                <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
+                  Show Entries
+                  <Col md={2}>
+                    <Form.Select
+                      className="page-entries"
+                      value={limit}
+                      onChange={handleLimitChange}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                    </Form.Select>
+                  </Col>
+
+
                 </Col>
-                Entries
-
-              </Col>
-              <Col className="d-flex align-items-center justify-content-end">
-                <Button onClick={() => navigate('/client/add')} variant="primary">
-                  {' '}
-                  <IoMdAdd /> Add Client
-                </Button>
-              </Col>
-            </Row> */}
-
+                <Col className="d-flex align-items-center justify-content-lg-end mt-3 mt-lg-0">
+                  <MyPagination
+                    totalPages={totalPages}
+                    currentPage={page}
+                    onPageChange={handlePageChange}
+                  />
+                </Col>
+              </Row>
+            }
           </div>
-        </Col>
+        </Col> */}
+
         {/* Modal for showing details */}
         <Modal show={showModal} onHide={handleCloseModal} style={{ marginTop: '10vh' }} dialogClassName="custom-modal">
           <Modal.Header closeButton>
@@ -611,12 +838,10 @@ function AllClients() {
         </Modal>
       </Row >
       <FilterOffCanvas
-        show={showCanvas}
-        handleClose={handleCloseCanvas}
-        onApplyFilter={(selectedOption) =>
-          handleSearchClick(searchTerm, selectedOption)
-        }
-        role="admin"
+        show={filterShow}
+        handleClose={handleFilterClose}
+        onApplyFilter={(selectedOption) => handleSearchClick(selectedOption)}
+        role={'admin'}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
