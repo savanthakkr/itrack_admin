@@ -306,7 +306,13 @@ const Dashboard = () => {
 
 		for (let data of response) {
 			const obj = {};
-			
+
+			if (data?.adminId && data?.isTransferAccept) {
+				obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
+			} else {
+				obj.Client = data?.clientId?.companyName;
+			}
+
 			obj._id = data?._id;
 			obj.Client = data?.clientId?.companyName;
 			// obj['Ready Time'] = data?.pickUpDetails?.readyTime;

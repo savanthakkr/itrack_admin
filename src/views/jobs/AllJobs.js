@@ -67,8 +67,6 @@ const AllJobs = () => {
             const obj = {};
 
             if (data?.adminId && data?.isTransferAccept) {
-
-                console.log('data', data);
                 obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
             } else {
                 obj.Client = data?.clientId?.companyName;
