@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Row, Col, Form, Dropdown, DropdownButton } from 'react-bootstrap'
-import { getSeachFilterResult } from '../services/getSearchFilterResult'
+import { getSeachFilterResult, getSeachFilterResultInvoice } from '../services/getSearchFilterResult'
 import Select from 'react-select';
 import FilterOffCanvas from './Filter';
 import { BsCheck } from 'react-icons/bs';
@@ -20,7 +20,8 @@ export default function DateRangeFilter({
 	setSelectedColumns,
 	selectedColumns,
 	setJobsData,
-	accountantColumnOption
+	accountantColumnOption,
+	setInvoicesData
 }) {
 	// const [searchQuery, setSearchQuery] = useState({
 	//     AWB: "",
@@ -68,47 +69,76 @@ export default function DateRangeFilter({
 				})
 			);
 			if (page && limit) {
-				getSeachFilterResult(filteredQuery, role, page, limit).then((res) => {
-					// setData(res)
-					if (setJobsData) {
-						const responseData = setJobsData(res?.jobs);
+				if (setInvoicesData) {
+					getSeachFilterResultInvoice(filteredQuery, role, page, limit).then((res) => {
 						dispatch({
-							type: 'getJobData',
-							payload: responseData,
+							type: 'getInvoiceData',
+							payload: res?.invoices,
 						});
-					} else {
-						dispatch({
-							type: 'getJobData',
-							payload: res?.jobs,
-						});
-					}
 
-					dispatch({
-						type: 'setJobCount',
-						payload: res?.totalCount,
-					});
-				})
+						dispatch({
+							type: 'setInvoiceCount',
+							payload: res?.totalCount,
+						});
+					})
+				} else {
+					getSeachFilterResult(filteredQuery, role, page, limit).then((res) => {
+						// setData(res)
+						if (setJobsData) {
+							const responseData = setJobsData(res?.jobs);
+							dispatch({
+								type: 'getJobData',
+								payload: responseData,
+							});
+						} else {
+							dispatch({
+								type: 'getJobData',
+								payload: res?.jobs,
+							});
+						}
+
+						dispatch({
+							type: 'setJobCount',
+							payload: res?.totalCount,
+						});
+					})
+				}
+
 			} else {
-				getSeachFilterResult(filteredQuery, role).then((res) => {
-					// setData(res)
-					if (setJobsData) {
-						const responseData = setJobsData(res?.jobs);
+				if (setInvoicesData) {
+					getSeachFilterResultInvoice(filteredQuery, role).then((res) => {
 						dispatch({
-							type: 'getJobData',
-							payload: responseData,
+							type: 'getInvoiceData',
+							payload: res?.invoices,
 						});
-					} else {
-						dispatch({
-							type: 'getJobData',
-							payload: res?.jobs,
-						});
-					}
 
-					dispatch({
-						type: 'setJobCount',
-						payload: res?.totalCount,
-					});
-				})
+						dispatch({
+							type: 'setInvoiceCount',
+							payload: res?.totalCount,
+						});
+					})
+				} else {
+					getSeachFilterResult(filteredQuery, role).then((res) => {
+						// setData(res)
+						if (setJobsData) {
+							const responseData = setJobsData(res?.jobs);
+							dispatch({
+								type: 'getJobData',
+								payload: responseData,
+							});
+						} else {
+							dispatch({
+								type: 'getJobData',
+								payload: res?.jobs,
+							});
+						}
+
+						dispatch({
+							type: 'setJobCount',
+							payload: res?.totalCount,
+						});
+					})
+				}
 			}
 
 		} else {
@@ -120,47 +150,75 @@ export default function DateRangeFilter({
 			}
 
 			if (page && limit) {
-				getSeachFilterResult(filterQuery, role, page, limit).then((res) => {
-					// setData(res)
-					if (setJobsData) {
-						const responseData = setJobsData(res?.jobs);
+				if (setInvoicesData) {
+					getSeachFilterResultInvoice(filterQuery, role, page, limit).then((res) => {
 						dispatch({
-							type: 'getJobData',
-							payload: responseData,
+							type: 'getInvoiceData',
+							payload: res?.invoices,
 						});
-					} else {
-						dispatch({
-							type: 'getJobData',
-							payload: res?.jobs,
-						});
-					}
 
-					dispatch({
-						type: 'setJobCount',
-						payload: res?.totalCount,
-					});
-				})
+						dispatch({
+							type: 'setInvoiceCount',
+							payload: res?.totalCount,
+						});
+					})
+				} else {
+					getSeachFilterResult(filterQuery, role, page, limit).then((res) => {
+						// setData(res)
+						if (setJobsData) {
+							const responseData = setJobsData(res?.jobs);
+							dispatch({
+								type: 'getJobData',
+								payload: responseData,
+							});
+						} else {
+							dispatch({
+								type: 'getJobData',
+								payload: res?.jobs,
+							});
+						}
+
+						dispatch({
+							type: 'setJobCount',
+							payload: res?.totalCount,
+						});
+					})
+				}
 			} else {
-				getSeachFilterResult(filterQuery, role).then((res) => {
-					// setData(res)
-					if (setJobsData) {
-						const responseData = setJobsData(res?.jobs);
+				if (setInvoicesData) {
+					getSeachFilterResultInvoice(filteredQuery, role).then((res) => {
 						dispatch({
-							type: 'getJobData',
-							payload: responseData,
+							type: 'getInvoiceData',
+							payload: res?.invoices,
 						});
-					} else {
-						dispatch({
-							type: 'getJobData',
-							payload: res?.jobs,
-						});
-					}
 
-					dispatch({
-						type: 'setJobCount',
-						payload: res?.totalCount,
-					});
-				})
+						dispatch({
+							type: 'setInvoiceCount',
+							payload: res?.totalCount,
+						});
+					})
+				} else {
+					getSeachFilterResult(filterQuery, role).then((res) => {
+						// setData(res)
+						if (setJobsData) {
+							const responseData = setJobsData(res?.jobs);
+							dispatch({
+								type: 'getJobData',
+								payload: responseData,
+							});
+						} else {
+							dispatch({
+								type: 'getJobData',
+								payload: res?.jobs,
+							});
+						}
+
+						dispatch({
+							type: 'setJobCount',
+							payload: res?.totalCount,
+						});
+					})
+				}
 			}
 		}
 	}, [searchQuery.fromDate, searchQuery.toDate]);
@@ -234,7 +292,7 @@ export default function DateRangeFilter({
 						</div>
 					</>
 				}
-				{role == 'admin' &&
+				{!setInvoicesData && role == 'admin' &&
 					<div>
 						<Dropdown show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)} className="w-100 custom-dropdown">
 							<Dropdown.Toggle

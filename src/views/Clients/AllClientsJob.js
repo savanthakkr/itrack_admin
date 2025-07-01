@@ -26,6 +26,7 @@ import { get } from '../../lib/request'
 import Select, { components } from 'react-select';
 import { FaCheck } from 'react-icons/fa';
 import { BsThreeDotsVertical } from 'react-icons/bs'
+import MyPagination from '../../components/Pagination'
 
 function AllClientsJob() {
   const { id } = useParams()
@@ -33,9 +34,12 @@ function AllClientsJob() {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-  console.log(colorMode)
   const navigate = useNavigate()
   const [showModal, setShowModal] = useState(false)
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [jobsCount, setJobsCount] = useState(0);
 
   const handleShowModal = () => {
     setShowModal(true)
@@ -46,19 +50,30 @@ function AllClientsJob() {
   }
 
   useEffect(() => {
-    // Fetch all clients from the server
+    setLoading(true);
+    fetchJobData();
+  }, []);
 
-    setLoading(true)
-    get(`/admin/info/jobFilter?clientId=${id}`, 'admin').then((response) => {
+  const fetchJobData = () => {
+    get(`/admin/info/jobFilter?clientId=${id}&page=${page}&limit=${limit}`, 'admin').then((response) => {
       if (response.data.status) {
         if (response.data.data.length === 0) {
           setMessage('No data found')
         }
-        setClients(response.data.data)
+        setClients(response.data.data.jobs);
+        setJobsCount(response?.data?.data?.totalCount);
         setLoading(false)
       }
-    })
-  }, [])
+    });
+  }
+
+  useEffect(() => {
+    setTotalPages(Math.ceil(jobsCount / limit))
+  }, [limit, jobsCount]);
+
+  useEffect(() => {
+    fetchJobData();
+  }, [page, limit]);
 
   const [selectedColumns, setSelectedColumns] = useState([]);
 
@@ -79,8 +94,6 @@ function AllClientsJob() {
   ]
   const handleColumnSelect = (option) => {
     setSelectedColumns(option)
-    // If you want to filter data by selected column:
-    // setSearchQuery({ ...searchQuery, selectedColumn: option.value })
   }
 
   const customOption = (props) => {
@@ -94,6 +107,17 @@ function AllClientsJob() {
       </components.Option>
     );
   };
+
+  const handlePageChange = (page) => {
+    setPage(page)
+  }
+
+  const handleLimitChange = (e) => {
+    setLimit(e.target.value)
+    setTotalPages(Math.ceil(jobsCount / e.target.value));
+    setPage(1);
+  }
+
   return (
     <>
       <Row className="align-items-center">
@@ -173,64 +197,64 @@ function AllClientsJob() {
                       <Spinner animation="border" variant="primary" />
                     </tr>
                   ) : (
-                    clients &&
-                    clients.map((item, index) => {
-                      return (
-                        <tr key={index}>
-                          <td className="text-center">{index + 1}</td>
-                          <td className="text-center">{item?.uid}</td>
-                          <td className="text-center">{item?.serviceCodeId?.text}</td>
-                          <td className="text-center">
-                            {item?.clientId?.firstname} {item?.clientId?.lastname}
-                          </td>
-                          <td className="text-center">{item?.AWB}</td>
-                          <td className="text-center">
-                            {item?.pickUpDetails?.pickupLocationId?.customName}
-                          </td>
-                          <td className="text-center">
-                            {item?.dropOfDetails?.dropOfLocationId?.customName}
-                          </td>
-                          <td className="text-center">{item?.pickUpDetails?.readyTime}</td>
-                          <td className="text-center">{item?.dropOfDetails?.cutOffTime}</td>
+                    clients?.length > 0 ?
+                      clients?.map((item, index) => {
+                        return (
+                          <tr key={index}>
+                            <td className="text-center">{index + 1}</td>
+                            <td className="text-center">{item?.uid}</td>
+                            <td className="text-center">{item?.serviceCodeId?.text}</td>
+                            <td className="text-center">
+                              {item?.clientId?.firstname} {item?.clientId?.lastname}
+                            </td>
+                            <td className="text-center">{item?.AWB}</td>
+                            <td className="text-center">
+                              {item?.pickUpDetails?.pickupLocationId?.customName}
+                            </td>
+                            <td className="text-center">
+                              {item?.dropOfDetails?.dropOfLocationId?.customName}
+                            </td>
+                            <td className="text-center">{item?.pickUpDetails?.readyTime}</td>
+                            <td className="text-center">{item?.dropOfDetails?.cutOffTime}</td>
 
-                          <td className="text-center">
-                            <div
-                              className="px-1 py-1 rounded-5 text-center"
-                              style={{ color: '#1F9254', backgroundColor: '#EBF9F1' }}
-                            >
-                              {item?.currentStatus}
-                            </div>
-                          </td>
-                          <td className="text-center action-dropdown-menu">
-                            <div className="dropdown">
-                              <button
-                                className="btn btn-link p-0 border-0"
-                                type="button"
-
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
+                            <td className="text-center">
+                              <div
+                                className="px-1 py-1 rounded-5 text-center"
+                                style={{ color: '#1F9254', backgroundColor: '#EBF9F1' }}
                               >
-                                <BsThreeDotsVertical size={18} />
-                              </button>
-                              <ul className="dropdown-menu dropdown-menu-end">
-                                <li>
-                                  <button
-                                    className="dropdown-item" onClick={() => navigate(`/client/job/details/${item._id}`)}
-                                  >
-                                    View Details
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    className="dropdown-item" onClick={() => navigate('/client/edit/123')}
-                                  >
-                                    Edit Client
-                                  </button>
-                                </li>
-                              </ul>
-                            </div>
-                          </td>
-                          {/* <td className="text-center cursor-pointer">
+                                {item?.currentStatus}
+                              </div>
+                            </td>
+                            <td className="text-center action-dropdown-menu">
+                              <div className="dropdown">
+                                <button
+                                  className="btn btn-link p-0 border-0"
+                                  type="button"
+
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  <BsThreeDotsVertical size={18} />
+                                </button>
+                                <ul className="dropdown-menu dropdown-menu-end">
+                                  <li>
+                                    <button
+                                      className="dropdown-item" onClick={() => navigate(`/client/job/details/${item._id}`)}
+                                    >
+                                      View Details
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item" onClick={() => navigate('/client/edit/123')}
+                                    >
+                                      Edit Client
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+                            </td>
+                            {/* <td className="text-center cursor-pointer">
                             <FaEye
                               size={22}
                               color="#0984E3"
@@ -244,37 +268,39 @@ function AllClientsJob() {
                               color="#624DE3"
                             />
                           </td> */}
-                        </tr>
-                      )
-                    })
+                          </tr>
+                        )
+                      }) :
+                      <td colSpan={12} className="text-center text-danger">
+                        No data found.
+                      </td>
                   )}
                 </tbody>
               </Table>
             </div>
 
-            <Row className="mb-3 justify-content-between">
-              <Col md={6} className="d-flex align-items-center gap-2">
-                Show Entries
-                <Form.Select className="page-entries">
-                  <option>10</option>
-                  <option>20</option>
-                  <option>30</option>
-                </Form.Select>
-              </Col>
-              <Col md={6} className="d-flex align-items-center justify-content-end max-w-100 overflow-auto mt-3 mt-lg-0">
-                <Pagination className="my-pagination">
-                  <Pagination.First />
-                  <Pagination.Prev />
-                  <Pagination.Item>{1}</Pagination.Item>
-                  <Pagination.Item>{2}</Pagination.Item>
-                  <Pagination.Item>{3}</Pagination.Item>
-                  <Pagination.Ellipsis />
-                  <Pagination.Item>{10}</Pagination.Item>
-                  <Pagination.Next />
-                  <Pagination.Last />
-                </Pagination>
-              </Col>
-            </Row>
+            {clients?.length > 0 &&
+              <Row className="mb-3 mt-3 justify-content-between">
+                <Col md={6} className="d-flex align-items-center gap-2">
+                  Show Entries
+                  <Form.Select className="page-entries"
+                    value={limit}
+                    onChange={handleLimitChange}
+                  >
+                    <option>10</option>
+                    <option>20</option>
+                    <option>30</option>
+                  </Form.Select>
+                </Col>
+                <Col md={6} className="d-flex align-items-center justify-content-end mt-3 mt-lg-0">
+                  <MyPagination
+                    totalPages={totalPages}
+                    currentPage={page}
+                    onPageChange={handlePageChange}
+                  />
+                </Col>
+              </Row>
+            }
           </div>
         </Col>
         {/* Modal for showing details */}

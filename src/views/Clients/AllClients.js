@@ -31,6 +31,7 @@ import getStatusStyles from '../../services/getStatusColor'
 import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from '../../lib/getFormatedDate'
 import FilterOffCanvas from '../../components/Filter'
 import { getSeachFilterResultInvoice } from '../../services/getSearchFilterResult'
+import FilterTags from '../../components/FilterTags'
 
 function AllClients() {
   let currentUrl = useLocation();
@@ -55,12 +56,12 @@ function AllClients() {
   const handleShow = () => setShowCanvas(true);
   const [showCanvas, setShowCanvas] = useState(false)
   const dispatch = useDispatch();
-  const invoiceCount = useSelector((state) => state.jobsCount);
+  const invoiceCount = useSelector((state) => state.invoiceCount);
   const [filterShow, setFilterShow] = useState(false)
 
   const setSearchQuery = (query) => {
     dispatch({
-      type: 'updateSearchQuery2',
+      type: 'updateSearchQuery',
       payload: query
     })
   }
@@ -71,10 +72,11 @@ function AllClients() {
 
   const handleSearchClick = (selectedOption) => {
     setFilterShow(false);
+    setPage(1);
 
     let payload = { ...searchQuery };
 
-    getSeachFilterResultInvoice(payload, "admin", page, limit)
+    getSeachFilterResultInvoice(payload, "admin", 1, limit)
       .then((res) => {
         onSearch(res);
         // handleClose();
@@ -83,6 +85,8 @@ function AllClients() {
         console.error('Filter API Error:', err);
       });
   }
+
+  console.log('totalPages', totalPages)
 
   const onSearch = (newData) => {
     setMessage('')
@@ -181,6 +185,7 @@ function AllClients() {
 
   useEffect(() => {
     if (activeTab === 'invoices') {
+      console.log('invoiceCount');
       setTotalPages(Math.ceil(invoiceCount / limit))
     }
   }, [limit, invoiceCount]);
@@ -197,9 +202,9 @@ function AllClients() {
     setPage(page)
   }
 
-  useEffect(() => {
-    setPage(1);
-  }, [searchQuery]);
+  // useEffect(() => {
+  //   setPage(1);
+  // }, [searchQuery]);
 
   const handleLimitChange = (e) => {
     if (activeTab === 'invoices') {
@@ -209,7 +214,7 @@ function AllClients() {
     } else if (activeTab === 'allClients') {
       getTotalDocs("CLIENT", "admin").then((data) => {
         setTotalDocs(data);
-        setTotalPages(Math.ceil(data / limit))
+        setTotalPages(Math.ceil(data / e.target.value))
       }).catch((e) => {
         console.log("error while getting total pages", e.message);
       })
@@ -263,13 +268,13 @@ function AllClients() {
     filterObj[key] = '';
 
     dispatch({
-      type: 'updateSearchQuery2',
+      type: 'updateSearchQuery',
       payload: { [key]: '' },
     });
 
     if (key === 'clientName') {
       dispatch({
-        type: 'updateSearchQuery2',
+        type: 'updateSearchQuery',
         payload: { clientId: '' },
       });
       filterObj['clientId'] = '';
@@ -277,7 +282,7 @@ function AllClients() {
 
     if (key === 'driverName') {
       dispatch({
-        type: 'updateSearchQuery2',
+        type: 'updateSearchQuery',
         payload: { driverId: '' },
       });
       filterObj['driverId'] = '';
@@ -285,7 +290,7 @@ function AllClients() {
 
     if (key === 'currentStatus') {
       dispatch({
-        type: 'updateSearchQuery2',
+        type: 'updateSearchQuery',
         payload: { currentStatus: '' },
       });
       filterObj['currentStatus'] = '';
@@ -293,7 +298,7 @@ function AllClients() {
 
     if (key === 'serviceType') {
       dispatch({
-        type: 'updateSearchQuery2',
+        type: 'updateSearchQuery',
         payload: { serviceTypeId: '' },
       });
       filterObj['serviceTypeId'] = '';
@@ -301,7 +306,7 @@ function AllClients() {
 
     if (key === 'serviceCode') {
       dispatch({
-        type: 'updateSearchQuery2',
+        type: 'updateSearchQuery',
         payload: { serviceCodeId: '' },
       });
       filterObj['serviceCodeId'] = '';
@@ -441,7 +446,7 @@ function AllClients() {
             >
               <FaSyncAlt />
             </Button>
-            {/* <DateRangeFilter
+            <DateRangeFilter
               // setData={setData}
               role="admin"
               setMessage={setMessage}
@@ -453,7 +458,7 @@ function AllClients() {
               setInvoicesData={true}
               page={page}
               limit={limit}
-            /> */}
+            />
             <Button onClick={() => setFilterShow(true)} className="input-group-text cursor-pointer custom-icon-btn">
               <FaFilter />
             </Button>
@@ -761,9 +766,9 @@ function AllClients() {
       </Tabs>
       <Row>
 
-        {/* <Col md={12}>
+        <Col md={12}>
           <div>
-            {activeTab === 'invoices' && data?.length > 0 &&
+            {activeTab === 'invoices' && invoiceData?.length > 0 &&
               <Row className="mb-3 mt-3 justify-content-between">
                 <Col md={8} className="d-flex justify-content-center justify-content-lg-start align-items-center gap-2 ">
                   Show Entries
@@ -791,7 +796,7 @@ function AllClients() {
               </Row>
             }
           </div>
-        </Col> */}
+        </Col>
 
         {/* Modal for showing details */}
         <Modal show={showModal} onHide={handleCloseModal} style={{ marginTop: '10vh' }} dialogClassName="custom-modal">
@@ -845,6 +850,7 @@ function AllClients() {
         role={'admin'}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        invoice={true}
       />
 
     </>

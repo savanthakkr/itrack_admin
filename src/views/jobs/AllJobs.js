@@ -128,10 +128,11 @@ const AllJobs = () => {
 
     const handleSearchClick = (selectedOption) => {
         setFilterShow(false);
+        setPage(1);
 
         let payload = { ...searchQuery };
 
-        getSeachFilterResult(payload, "admin", page, limit)
+        getSeachFilterResult(payload, "admin", 1, limit)
             .then((res) => {
                 onSearch(res);
                 // handleClose();
@@ -266,10 +267,6 @@ const AllJobs = () => {
     const handlePageChange = (page) => {
         setPage(page)
     }
-
-    useEffect(() => {
-        setPage(1);
-    }, [searchQuery]);
 
     const handleLimitChange = (e) => {
         setLimit(e.target.value)
@@ -1156,7 +1153,7 @@ const AllJobs = () => {
             </Row>
 
             {activeTab === 'allJobs' && data.length > 0 &&
-                <Row className="mb-3 justify-content-between">
+                <Row className="mb-3 mt-3 justify-content-between">
                     <Col md={6} className="d-flex align-items-center gap-2 ">
                         Show Entries
                         <Col md={2}>
