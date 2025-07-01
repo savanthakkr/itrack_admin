@@ -510,6 +510,19 @@ function ClientInvoice() {
               </Form.Group>
             </Col>
           </Row>
+          <Row>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Total</Form.Label>
+                <Form.Control
+                  type="number"
+                  // placeholder="Enter your note here..."
+                  name="note"
+                  value={clientData?.total || 0}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
         </Form>
       </div>
       <Modal show={showAttachment} onHide={handleAttachmentClose} dialogClassName="custom-modal">
@@ -568,4 +581,4 @@ function ClientInvoice() {
   )
 }
 
-export default ClientInvoice;s
+export default ClientInvoice;

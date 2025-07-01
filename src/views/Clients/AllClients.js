@@ -43,7 +43,7 @@ function AllClients() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [isReferesh, setIsRefresh] = useState(false)
   // const [data, setData] = useState([])
-  const data = useSelector((state) => state.data);
+  const invoiceData = useSelector((state) => state.invoiceData);
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10)
@@ -108,6 +108,7 @@ function AllClients() {
     let filter = filterObj || searchQuery;
 
     if (Object.values(filter).every(value => value === null)) {
+
       get(`/admin/invoice/list?page=${page}&limit=${limit}`, 'admin')
         .then((response) => {
           // setData(response?.data?.data)
@@ -323,7 +324,7 @@ function AllClients() {
 
   // handle sort
   const handleSort = (field) => {
-    const sortedData = sortData(data, field)
+    const sortedData = sortData(invoiceData, field)
     setData(sortedData)
   }
 
@@ -440,7 +441,7 @@ function AllClients() {
             >
               <FaSyncAlt />
             </Button>
-            <DateRangeFilter
+            {/* <DateRangeFilter
               // setData={setData}
               role="admin"
               setMessage={setMessage}
@@ -452,7 +453,7 @@ function AllClients() {
               setInvoicesData={true}
               page={page}
               limit={limit}
-            />
+            /> */}
             <Button onClick={() => setFilterShow(true)} className="input-group-text cursor-pointer custom-icon-btn">
               <FaFilter />
             </Button>
@@ -665,8 +666,8 @@ function AllClients() {
                     <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                   </tr>
                 ) : (
-                  data?.length > 0 ?
-                    data?.map((item, index) => {
+                  invoiceData?.length > 0 ?
+                    invoiceData?.map((item, index) => {
                       const isSelected = item._id === selectedItem._id;
                       const status = item?.isHold ? 'Hold' : item?.currentStatus;
                       const styles = getStatusStyles(status);
