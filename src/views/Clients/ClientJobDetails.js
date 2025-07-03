@@ -41,6 +41,7 @@ export default function ClientJobDetails() {
   const [selectedItem, setSelectedItem] = useState(location.state?.selectedItem || {})
   const [isAdminReview, setIsAdminReview] = useState(false);
   const [activeTab, setActiveTab] = useState("jobDetails");
+  const role = useSelector((state) => state.role);
 
   // handle attachment modal
   const handleAttachmentClose = () => setShowAttachment(false)
@@ -253,30 +254,32 @@ export default function ClientJobDetails() {
             <Col md={4}>
               <h4 className="mb-0">{tabLabels[activeTab]}</h4>
             </Col>
-            <Col md={8} className="d-flex flex-wrap align-item-center justify-content-start justify-content-lg-end gap-2 py-3">
-              <EditJobAdmin job={job} setIsRefresh={setIsRefresh} isReferesh={isRefresh} />
-              <Button className="custom-border-btn" onClick={() => handleShow()}>
-                {' '}
-                Change Status{' '}
-              </Button>
-              {job?.VpapId == null ? <Button
-                className="custom-border-btn"
-                onClick={() => navigate(`/client/vpap/add/${id}`)}
-              >
-                {' '}
-                Add Vpap
-              </Button> : null}
-              <Button className="custom-border-btn"
-                onClick={() => navigate(`/location/${id}`)}
-              >
-                {' '}
-                Track Driver{' '}
-              </Button>
-              <Button className="text-white" variant="danger" onClick={handleCancleBooking}>
-                {' '}
-                Cancel Booking{' '}
-              </Button>
-            </Col>
+            {role !== 'Allocant' &&
+              <Col md={8} className="d-flex flex-wrap align-item-center justify-content-start justify-content-lg-end gap-2 py-3">
+                <EditJobAdmin job={job} setIsRefresh={setIsRefresh} isReferesh={isRefresh} />
+                <Button className="custom-border-btn" onClick={() => handleShow()}>
+                  {' '}
+                  Change Status{' '}
+                </Button>
+                {job?.VpapId == null ? <Button
+                  className="custom-border-btn"
+                  onClick={() => navigate(`/client/vpap/add/${id}`)}
+                >
+                  {' '}
+                  Add Vpap
+                </Button> : null}
+                <Button className="custom-border-btn"
+                  onClick={() => navigate(`/location/${id}`)}
+                >
+                  {' '}
+                  Track Driver{' '}
+                </Button>
+                <Button className="text-white" variant="danger" onClick={handleCancleBooking}>
+                  {' '}
+                  Cancel Booking{' '}
+                </Button>
+              </Col>
+            }
           </Row>
 
           {/* Edited */}

@@ -5,7 +5,7 @@ import { IoMdAdd } from 'react-icons/io'
 import { Button, Col, Container, Form, Spinner, Pagination, Row, Table, Modal } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { get, deleteReq, post } from '../../lib/request'
+import { get, deleteReq } from '../../lib/request'
 import sweetAlert from 'sweetalert2'
 import { getTotalDocs } from '../../services/getTotalDocs'
 import MyPagination from '../../components/Pagination'
@@ -13,21 +13,19 @@ import Moment from 'react-moment'
 import { CButton } from '@coreui/react'
 import { FaArrowRight } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
-import { useDispatch } from 'react-redux'
-const AllAdmin = () => {
+const AllAllocant = () => {
   const navigate = useNavigate()
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const [allAdmins, setAllAdmins] = useState([])
+  const [allAllocants, setAllAllocants] = useState([])
   const [loading, setLoading] = useState(false)
   const [isReferesh, setIsRefresh] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10)
   const [totalDocs, setTotalDocs] = useState(0)
-  const [selectedItem, setSelectedItem] = useState(null);
-  const dispatch = useDispatch();
+  const [selectedItem, setSelectedItem] = useState(null)
 
   // Pagination
   const handlePageChange = (page) => {
@@ -45,7 +43,7 @@ const AllAdmin = () => {
   const handleDelete = (Id) => {
     sweetAlert
       .fire({
-        title: 'Are you sure you want to delete this admin?',
+        title: 'Are you sure you want to delete this allocant?',
         text: 'Once deleted you can’t revert this action',
         imageUrl: 'src/assets/images/delete_modal_icon.png',
         imageWidth: 60,
@@ -57,17 +55,17 @@ const AllAdmin = () => {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`super-admin/admin?ID=${Id}`, "admin").then((data) => {
+          deleteReq(`admin/allocant?ID=${Id}`, "admin").then((data) => {
             sweetAlert.fire({
               icon: 'success',
-              title: 'Admin Deleted Successfully!',
+              title: 'Allocant Deleted Successfully!',
             });
             setIsRefresh(!isReferesh)
           }).catch((e) => {
             console.log("error while deleting driver", e)
           })
         } else if (result.dismiss === sweetAlert.DismissReason.cancel) {
-          sweetAlert.fire('Cancelled', 'Admin is safe :)', 'error');
+          sweetAlert.fire('Cancelled', 'Allocant is safe :)', 'error');
         }
 
       })
@@ -79,69 +77,38 @@ const AllAdmin = () => {
   }
 
 
-  // fetch All Admins
+  // fetch All Allocants
   useEffect(() => {
     setLoading(true)
-    get(`super-admin/admin?page=${page}&limit=${limit}`, "admin")
+    get(`admin/allocant?page=${page}&limit=${limit}`, "admin")
       .then((response) => {
         if (response.data.status) {
-          setAllAdmins(response.data.data)
+          setAllAllocants(response.data.data)
           setLoading(false)
         }
       })
 
-  }, [isReferesh, page, limit]);
+  }, [isReferesh, page, limit])
 
-  const handleLoginAsAdmin = async (adminId) => {
-    try {
-      const res = await get(`/super-admin/impersonate/${adminId}`, 'admin');
-      const token = res.data.data.token;
-
-      if (token) {
-        // Save current superadmin token if present
-        // const currentToken = localStorage.getItem('admintoken');
-
-        // if (currentToken) {
-        //   sessionStorage.setItem('superadmin_token', currentToken);
-        // }
-
-        localStorage.setItem('admintoken', res.data.data.token)
-        localStorage.setItem('email', res.data.data.email)
-        localStorage.setItem('role', res.data.data.role)
-        localStorage.setItem('firstname', res.data.data.firstname)
-        localStorage.setItem('lastname', res.data.data.lastname)
-        dispatch({
-          type: 'setRole',
-          payload: res.data.data.role,
-        });
-        dispatch({
-          type: 'setUserInfo',
-          payload: {
-            firstName: res.data.data.firstname,
-            lastName: res.data.data.lastname,
-            email: res.data.data.email,
-          },
-        });
-
-        navigate('/dashboard');
-      } else {
-        alert('Invalid impersonation token.');
-      }
-    } catch (err) {
-      console.error('Failed to impersonate admin:', err);
-      alert('Failed to login as admin');
-    }
-  };
+  // get total pages
+  // useEffect(() => {
+  //   getTotalDocs("DRIVER", "admin").then((data) => {
+  //     setTotalDocs(data);
+  //     setTotalPages(Math.ceil(data / limit))
+  //   }).catch((e) => {
+  //     console.log("error while getting total pages", e.message);
+  //   })
+  // }, [isReferesh])
 
   return (
     <>
       <Row className="align-items-center">
         <Col>
-          <h4 className="mb-0">All Admin</h4>
+          <h4 className="mb-0">All Allocant</h4>
         </Col>
         <Col className="text-end">
-          <CButton className="custom-btn" onClick={() => navigate('/admin/add')} >
-            Add Admin
+          <CButton className="custom-btn" onClick={() => navigate('/allocant/add')} >
+            Add Allocant
             <FaArrowRight size={12} className="ms-2" />
           </CButton>
         </Col>
@@ -165,7 +132,7 @@ const AllAdmin = () => {
               <Col className="d-flex align-items-center justify-content-end">
                 <Button onClick={() => navigate('/driver/add')} variant="primary">
                   {' '}
-                  <IoMdAdd /> Add Admin
+                  <IoMdAdd /> add Allocant
                 </Button>
               </Col>
             </Row> */}
@@ -189,7 +156,7 @@ const AllAdmin = () => {
                     </td>
                   </tr>
                 )}
-                {allAdmins.length > 0 ? allAdmins.map((item, index) => (
+                {allAllocants.length > 0 ? allAllocants.map((item, index) => (
                   <tr key={index}>
                     {/* <td className="text-start px-4">{index + 1}</td> */}
                     <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
@@ -212,7 +179,7 @@ const AllAdmin = () => {
                         <ul className="dropdown-menu dropdown-menu-end">
                           <li>
                             <button
-                              className="dropdown-item" onClick={() => navigate(`/admin/edit/${item._id}`)}
+                              className="dropdown-item" onClick={() => navigate(`/allocant/edit/${item._id}`)}
                             >
                               View/Edit Details
                             </button>
@@ -228,14 +195,7 @@ const AllAdmin = () => {
                             <button
                               className="dropdown-item" onClick={() => handleDelete(item._id)}
                             >
-                              Delete Admin
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => handleLoginAsAdmin(item._id)}
-                            >
-                              Login as Admin
+                              Delete Allocant
                             </button>
                           </li>
                         </ul>
@@ -342,4 +302,4 @@ const AllAdmin = () => {
   )
 }
 
-export default AllAdmin
+export default AllAllocant;

@@ -510,6 +510,8 @@ const AccountantAllJobs = () => {
         return formatted;
     };
 
+    console.log('checkedItems', checkedItems);
+
     return (
         <>
             <Row className="d-flex pb-3 align-items-center justify-content-between">
@@ -547,6 +549,11 @@ const AccountantAllJobs = () => {
                     </Button>
                 </Col>
             </Row>
+            {checkedItems.length > 0 &&
+                <Button onClick={handleSubmitCheckedItems} style={{ fontSize: '12px' }} className="custom-btn mb-3">
+                    Quick Edit
+                </Button>
+            }
             <Row>
                 <Col md={12}>
                     <div className="client-rates-table">
@@ -644,9 +651,9 @@ const AccountantAllJobs = () => {
                                                     // For all other editable columns
                                                     return (
                                                         <>
-                                                            <td key={col} style={tdStyle}>
-                                                                {editableFields.includes(col) && isChecked ? (
-                                                                    col === 'Service Code' || col === 'Service Type' ? (
+                                                            {editableFields.includes(col) && isChecked ? (
+                                                                <td key={col} style={tdStyle}>
+                                                                    {col === 'Service Code' || col === 'Service Type' ? (
                                                                         <Form.Select
                                                                             size="sm"
                                                                             value={
@@ -688,11 +695,13 @@ const AccountantAllJobs = () => {
                                                                             onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
                                                                             onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
                                                                         />
-                                                                    )
-                                                                ) : (
-                                                                    displayValue ?? "-"
-                                                                )}
-                                                            </td>
+                                                                    )}
+                                                                </td>
+                                                            ) : (
+                                                                <td onClick={() => handleView(item)} key={col} style={tdStyle}>
+                                                                    {displayValue ?? "-"}
+                                                                </td>
+                                                            )}
                                                         </>
                                                     );
                                                 })}

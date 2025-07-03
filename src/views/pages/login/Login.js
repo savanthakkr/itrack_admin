@@ -62,6 +62,8 @@ const Login = () => {
           navigate('/admin/all');
         } else if (res.data.data.role === 'Accountant') {
           navigate('/accountant/job/all');
+        } else if (res.data.data.role === "Allocant") {
+          navigate('/dashboard');
         }
       } else if (res.status === 400) {
         setError('Invalid username or password')

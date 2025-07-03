@@ -53,6 +53,7 @@ const Dashboard = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'Cutoff Time', 'AWB', 'Pieces', 'Service Type', 'Service Code', 'Pickup From', 'Deliver To', 'Driver', 'Notes', 'Status', 'Transfer Status']);
 	const [showAssignClient, setShowAssignClient] = useState(false);
+	const role = useSelector((state) => state.role);
 
 	const handleApplyFilter = () => {
 		// Filter logic here
@@ -559,7 +560,6 @@ const Dashboard = () => {
 					</Button>
 				</Col>
 			</Row>
-
 			<FilterOffCanvas
 				show={showCanvas}
 				handleClose={handleCloseCanvas}
@@ -772,15 +772,17 @@ const Dashboard = () => {
 																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
 																	</button>
 																</li>
-																<li>
-																	<button
-																		className="dropdown-item"
-																		onClick={() => navigate(`/location/${item._id}`)}
-																	>
-																		Package Location
-																	</button>
-																</li>
-																{item?.Status === 'Pending' &&
+																{role !== "Allocant" &&
+																	<li>
+																		<button
+																			className="dropdown-item"
+																			onClick={() => navigate(`/location/${item._id}`)}
+																		>
+																			Package Location
+																		</button>
+																	</li>
+																}
+																{role !== 'Allocant' && item?.Status === 'Pending' &&
 																	<li>
 																		<button
 																			className="dropdown-item"
@@ -1026,15 +1028,17 @@ const Dashboard = () => {
 																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
 																	</button>
 																</li>
-																<li>
-																	<button
-																		className="dropdown-item"
-																		onClick={() => navigate(`/location/${item._id}`)}
-																	>
-																		Package Location
-																	</button>
-																</li>
-																{item?.Status === 'Pending' && item?.isTransfer === false &&
+																{role !== "Allocant" &&
+																	<li>
+																		<button
+																			className="dropdown-item"
+																			onClick={() => navigate(`/location/${item._id}`)}
+																		>
+																			Package Location
+																		</button>
+																	</li>
+																}
+																{role !== 'Allocant' && item?.Status === 'Pending' && item?.isTransfer === false &&
 																	<li>
 																		<button
 																			className="dropdown-item"

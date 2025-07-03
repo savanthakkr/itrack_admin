@@ -30,6 +30,7 @@ import Swal from 'sweetalert2'
 const AllJobs = () => {
     const dispatch = useDispatch()
     const searchQuery = useSelector((state) => state.searchQuery2)
+    const role = useSelector((state) => state.role);
     const jobsCount = useSelector((state) => state.jobsCount)
     const navigate = useNavigate()
     const [page, setPage] = useState(1)
@@ -809,15 +810,17 @@ const AllJobs = () => {
                                                                                 {item?.driverId ? 'Change Driver' : 'Assign Driver'}
                                                                             </button>
                                                                         </li>
-                                                                        <li>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => navigate(`/location/${item._id}`)}
-                                                                            >
-                                                                                Package Location
-                                                                            </button>
-                                                                        </li>
-                                                                        {item?.Status === 'Pending' && item?.isTransfer === false &&
+                                                                        {role !== 'Allocant' &&
+                                                                            <li>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => navigate(`/location/${item._id}`)}
+                                                                                >
+                                                                                    Package Location
+                                                                                </button>
+                                                                            </li>
+                                                                        }
+                                                                        {role !== 'Allocant' && item?.Status === 'Pending' && item?.isTransfer === false &&
                                                                             <li>
                                                                                 <button
                                                                                     className="dropdown-item"

@@ -6,9 +6,9 @@ import { post, get, postWihoutMediaData, deleteReq, deleteReqWithoutMedia, updat
 import sweetAlert2 from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
 import { Tab, Tabs, Table } from 'react-bootstrap';
-import Select from 'react-select';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import Swal from 'sweetalert2';
+import Select, { components } from 'react-select';
 
 function AddClients() {
   const navigate = useNavigate()
@@ -48,12 +48,10 @@ function AddClients() {
   const [selectedUnit, setSelectedUnit] = useState(null);
 
   const [rate, setRate] = useState('');
-  const [rates, setRates] = useState([
-    { _id: '1', code: 'PMC', rate: '$55.00', item: 'Per Unit' },
-    { _id: '2', code: 'AKE', rate: '$45.00', item: 'Per Unit' },
-    { _id: '3', code: 'HH14', rate: '$70.00', item: 'Per Hour' },
-    { _id: '4', code: 'HH22', rate: '$90.00', item: 'Per Hour' },
-  ]);
+  const [rates, setRates] = useState([]);
+
+  const [clientRateOptions, setClientRateOptions] = useState([]);
+  const [selectedClientRate, setSelectedClientRate] = useState([]);
 
   const unitOptions = [
     { value: 'per_hour', label: 'Per Hour' },
@@ -88,7 +86,6 @@ function AddClients() {
 
   // Deleting the client rate
   const handleDelete = (Id) => {
-    console.log('Id', Id);
     sweetAlert2
       .fire({
         title: 'Are you sure you want to delete this client rate?',
@@ -103,7 +100,6 @@ function AddClients() {
       }).then((result) => {
         if (result.isConfirmed) {
           deleteReqWithoutMedia(`/admin/client/rate?id=${Id}`, "admin").then((data) => {
-            console.log('data', data);
             if (data.status) {
               sweetAlert2.fire({ icon: 'success', title: data.data.message })
             } else {
@@ -150,9 +146,11 @@ function AddClients() {
     } else {
       event.preventDefault()
       setLoading(true)
+      clientData.rateDetails = selectedClientRate;
+
       post('/admin/client', clientData, "admin")
         .then((res) => {
-          console.log("res", res)
+
           if (res.data.status) {
             setLoading(false)
             sweetAlert2.fire({
@@ -168,7 +166,6 @@ function AddClients() {
               title: res.data.message,
             })
           } else {
-            console.log(res)
             sweetAlert2.fire({
               icon: 'error',
               title: 'An error occured',
@@ -205,7 +202,14 @@ function AddClients() {
   const getClientRateData = async () => {
     get('/admin/client/rate', 'admin')
       .then((response) => {
-        setRates(response.data.data)
+        setRates(response.data.data);
+
+        const newOptions = response?.data?.data?.map((item) => ({
+          label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
+          value: item._id,
+        }));
+
+        setClientRateOptions(newOptions);
       })
       .catch((error) => {
         console.error(error)
@@ -285,7 +289,6 @@ function AddClients() {
           .then((response) => {
             // setLoading5(false)
             if (response.data.status) {
-              console.log('response', response);
               // get client rate
               getClientRateData();
               setShowModal(false);
@@ -349,6 +352,22 @@ function AddClients() {
     });
     setServiceOptionForRate(service);
   }, [serviceCode]);
+
+  const handleColumnSelect = (option) => {
+    setSelectedClientRate(option)
+  }
+
+  const customOption = (props) => {
+    const { isSelected, label } = props;
+    return (
+      <components.Option {...props}>
+        <div className="d-flex justify-content-between align-items-center">
+          <span>{label}</span>
+          {isSelected && <FaCheck className="text-primary" />}
+        </div>
+      </components.Option>
+    );
+  };
 
   return (
     <>
@@ -477,6 +496,23 @@ function AddClients() {
                       Please upload a valid image.
                     </Form.Control.Feedback>
                   </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col className="mt-3">
+                  <Select
+                    className="ms-lg-auto custom-select"
+                    classNamePrefix="custom-select"
+                    isMulti
+                    options={clientRateOptions}
+                    value={selectedClientRate}
+                    onChange={handleColumnSelect}
+                    placeholder="Select Rates"
+                    isSearchable
+                    closeMenuOnSelect={false}
+                    components={{ Option: customOption }}
+                  />
                 </Col>
               </Row>
 

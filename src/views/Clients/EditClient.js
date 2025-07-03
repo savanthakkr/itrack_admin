@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { get, updateReq, updateImage } from '../../lib/request'
 import Swal from "sweetalert2"
 import { CButton } from '@coreui/react'
+import Select, { components } from 'react-select';
 
 function EditClient() {
     let imgSrc = process.env.Image_Src
@@ -29,6 +30,8 @@ function EditClient() {
     const formRef = useRef();
     const [validated, setValidated] = useState(false);
     const [errorMessages, setErrorMessages] = useState('');
+    const [clientRateOptions, setClientRateOptions] = useState([]);
+    const [selectedClientRate, setSelectedClientRate] = useState([]);
 
     const { id } = useParams();
 
@@ -37,20 +40,37 @@ function EditClient() {
         const { name, value } = e.target
         setClientData({ ...clientData, [name]: value })
     }
+
+    const getClientRateData = async () => {
+        get('/admin/client/rate', 'admin')
+            .then((response) => {
+
+                const newOptions = response?.data?.data?.map((item) => ({
+                    label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
+                    value: item._id,
+                }));
+
+                setClientRateOptions(newOptions);
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
+    useEffect(() => {
+        getClientRateData();
+    }, [])
+
     //handle update function
-
-    console.log('clientData', clientData);
-
     const handleSubmit = (event) => {
         event.preventDefault();
         event.stopPropagation();
 
         const form = event.currentTarget;
-
+        clientData.rateDetails = selectedClientRate;
         if (form.checkValidity()) {
             updateReq(`/admin/client?ID=${id}`, clientData, "admin")
                 .then((data) => {
-                    console.log("Update successful", data);
                     setIsRefresh(!isReferesh);
                     Swal.fire({
                         icon: 'success',
@@ -89,7 +109,6 @@ function EditClient() {
 
     // handle logo change 
     const handleLogoChange = () => {
-        console.log('handleLogoChange');
         setImageLoading(true)
         updateImage(`/admin/client/logo?ID=${id}`, { logo: imageinput }, "admin").then((data) => {
             if (data.data.status) {
@@ -105,9 +124,9 @@ function EditClient() {
             }
         })
     }
+
     // handle password change
     const handlePasswordChange = () => {
-        console.log('handlePasswordChange');
         const payload = {
             old_password: clientData.password,
             new_password: newPassword
@@ -128,7 +147,6 @@ function EditClient() {
 
     // handle permission to assign driver
     const handleChangePermission = (e, scope) => {
-        console.log('handleChangePermission');
         const payload = {
             permission_type: scope,
             bool_value: e.target.checked
@@ -149,7 +167,6 @@ function EditClient() {
 
     useEffect(() => {
         setLoading(true)
-        console.log('isrefresh useeffect');
 
         get(`/admin/client?ID=${id}`, "admin").then((data) => {
 
@@ -163,13 +180,27 @@ function EditClient() {
                 logoKey: data.data.data.logoKey,
                 password: data.data.data.password,
                 isDriverPermission: data.data.data.isDriverPermission,
-                isTrackPermission: data.data.data.isTrackPermission
+                isTrackPermission: data.data.data.isTrackPermission,
+                rateDetails: data.data.data.rateDetails
             })
+
             setLoading(false)
         }).catch((e) => {
             console.log("error while getting", e.message);
         })
     }, [isReferesh]);
+
+    useEffect(() => {
+        const selectedRates = [];
+        if (clientData?.rateDetails?.length > 0) {
+            clientData?.rateDetails?.map((option) => {
+                const match = clientRateOptions.find((item) => item.value === option.rateId);
+
+                selectedRates.push(match);
+            });
+            setSelectedClientRate(selectedRates);
+        }
+    }, [clientData, clientRateOptions]);
 
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
@@ -180,7 +211,23 @@ function EditClient() {
         }
         setClientData({ ...clientData, email: email })
     }
-    
+
+    const handleColumnSelect = (option) => {
+        setSelectedClientRate(option)
+    }
+
+    const customOption = (props) => {
+        const { isSelected, label } = props;
+        return (
+            <components.Option {...props}>
+                <div className="d-flex justify-content-between align-items-center">
+                    <span>{label}</span>
+                    {isSelected && <FaCheck className="text-primary" />}
+                </div>
+            </components.Option>
+        );
+    };
+
     return (
         <>
             <Row className="align-items-center">
@@ -285,6 +332,22 @@ function EditClient() {
                                             Please provide a username.
                                         </Form.Control.Feedback>
                                     </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col className="mt-3">
+                                    <Select
+                                        className="ms-lg-auto custom-select"
+                                        classNamePrefix="custom-select"
+                                        isMulti
+                                        options={clientRateOptions}
+                                        value={selectedClientRate}
+                                        onChange={handleColumnSelect}
+                                        placeholder="Select Rates"
+                                        isSearchable
+                                        closeMenuOnSelect={false}
+                                        components={{ Option: customOption }}
+                                    />
                                 </Col>
                             </Row>
                             <Row>

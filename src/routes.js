@@ -2,6 +2,7 @@ import React from 'react'
 import EditAdmin from './views/Admin/EditAdmin.js'
 import EditAccountant from './views/Accountant/EditAccountant.js'
 import AccountantAllJobs from './views/jobs/AccountantAllJobs.js'
+import EditAllocant from './views/Allocant/EditAllocant.js'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -57,6 +58,8 @@ const AddAdmin = React.lazy(() => import('./views/Admin/AddAdmin.js'))
 const AllAdmin = React.lazy(() => import('./views/Admin/AllAdmin.js'))
 const AddAccountant = React.lazy(() => import('./views/Accountant/AddAccountant.js'))
 const AllAccountant = React.lazy(() => import('./views/Accountant/AllAccountant.js'))
+const AddAllocant = React.lazy(() => import('./views/Allocant/AddAllocant.js'))
+const AllAllocant = React.lazy(() => import('./views/Allocant/AllAllocant.js'))
 const EditClients = React.lazy(() => import('./views/Clients/EditClient.js'))
 const AddDrivers = React.lazy(() => import('./views/drivers/AddDrivers.js'))
 
@@ -77,6 +80,7 @@ const AllPickupLocation = React.lazy(() => import('./views/PickUPLocation/AllPic
 const AllDropLocation = React.lazy(() => import('./views/DropLocation/AllDropLocation.js'));
 const Report = React.lazy(() => import('./views/reports/report.js'));
 const AddVpap = React.lazy(() => import('./views/Clients/AddVpap.js'));
+const ImpersonateLogin = React.lazy(() => import('./views/Admin/ImpersonateLogin.js'));
 const routes = [
   // working routes current
 
@@ -87,8 +91,10 @@ const routes = [
   { path: '/client/all', name: 'All Client', element: AllClients },
   { path: '/invoices', name: 'All Client', element: AllClients },
   { path: '/admin/all', name: 'All Client', element: AllAdmin },
-  { path: '/accountant/all', name: 'All Client', element: AllAccountant },
-  { path: '/accountant/add', name: 'Add Client', element: AddAccountant },
+  { path: '/accountant/all', name: 'All Accountant', element: AllAccountant },
+  { path: '/accountant/add', name: 'Add Allocant', element: AddAccountant },
+  { path: '/allocant/all', name: 'All Allocant', element: AllAllocant },
+  { path: '/allocant/add', name: 'Add Allocant', element: AddAllocant },
   { path: '/client/:id/jobs', name: 'All Client Jobs', element: AllClientsJob },
   { path: '/client/job/add/:id', name: 'Add Client Job', element: AddClientJOb },
   { path: '/client/edit/:id', name: 'Edit Client', element: EditClients },
@@ -98,6 +104,7 @@ const routes = [
   { path: '/driver/edit/:id', name: 'Edit Driver', element: EditDriver },
   { path: '/admin/edit/:id', name: 'Edit Admin', element: EditAdmin },
   { path: '/accountant/edit/:id', name: 'Edit Accountant', element: EditAccountant },
+  { path: '/allocant/edit/:id', name: 'Edit Allocant', element: EditAllocant },
   { path: '/job/add', name: 'Add Booking', element: AddJobs },
   { path: '/location/:id', name: 'Location', element: LocationMap },
   { path: '/job/all', name: 'All Booking', element: AllJobs },
@@ -110,6 +117,7 @@ const routes = [
   { path: '/location/drop', name: 'Drop Location', element: AllDropLocation },
   { path: '/reports/stats', name: 'Report', element: Report },
   { path: '/client/vpap/add/:id', name: 'Add VPAP', element: AddVpap },
+  // { path: '/impersonate-login', name: 'Impersonate Login', element: ImpersonateLogin },
 
   //  theme routes old
 
