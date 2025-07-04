@@ -24,7 +24,9 @@ import FilterTags from '../../components/FilterTags'
 import { getSeachFilterResult } from '../../services/getSearchFilterResult'
 import moment from 'moment'
 import AssignClientModal from '../../components/Modals/AssignClient'
-
+import { FaFileExcel } from 'react-icons/fa';
+import { saveAs } from 'file-saver';
+import XLSX from 'xlsx';
 
 const Dashboard = () => {
 	const currentDate = getCurrentDate()
@@ -148,6 +150,37 @@ const Dashboard = () => {
 			window.removeEventListener('keydown', handleEsc);
 		};
 	}, [navigate]);
+
+	const handleDownloadExcel = () => {
+		// Step 1: Add index + selected column data
+		const exportData = data.map((row, index) => {
+			const rowData = Object.fromEntries(
+				selectedColumns.map(col => [col, row[col]])
+			);
+			return { '#': index + 1, ...rowData }; // prepend index
+		});
+
+		const ws = XLSX.utils.json_to_sheet(exportData);
+
+		// Step 2: Set dynamic column widths (include index column)
+		const allColumns = ['#', ...selectedColumns];
+		const colWidths = allColumns.map(col => {
+			const headerLength = col.length;
+			const maxDataLength = exportData.reduce(
+				(max, row) => Math.max(max, row[col] ? row[col].toString().length : 0),
+				0
+			);
+			return { wch: Math.max(headerLength, maxDataLength) + 2 };
+		});
+		ws['!cols'] = colWidths;
+
+		// Step 3: Create workbook and export
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'FilteredData');
+
+		const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+		saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'booking_data.xlsx');
+	};
 
 	const handleSearchClick = () => {
 		setShowCanvas(false);
@@ -524,12 +557,12 @@ const Dashboard = () => {
 			<Row className="d-flex pb-3 align-items-center justify-content-between">
 				<Col md={2} className="m-0">
 					{/* <SearchBar
-            onSearch={onSearch}
-            role="admin"
-            handleClear={handleClear}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          /> */}
+			onSearch={onSearch}
+			role="admin"
+			handleClear={handleClear}
+			searchQuery={searchQuery}
+			setSearchQuery={setSearchQuery}
+		  /> */}
 					<h3>Dashboard</h3>
 				</Col>
 
@@ -560,6 +593,15 @@ const Dashboard = () => {
 					</Button>
 				</Col>
 			</Row>
+			<div className="d-flex justify-content-end">
+				<Button
+					onClick={handleDownloadExcel}
+					className="d-flex align-items-center justify-content-center  custom-icon-btn"
+					style={{ width: '40px', height: '40px' }}
+				>
+					<FaFileExcel />
+				</Button>
+			</div>
 			<FilterOffCanvas
 				show={showCanvas}
 				handleClose={handleCloseCanvas}
@@ -617,9 +659,9 @@ const Dashboard = () => {
 												Deliver To
 											</th> */}
 											{/* <th className="text-center">
-                    <LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
-                    Job ID
-                  </th> */}
+					<LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
+					Job ID
+				  </th> */}
 											{/* < th className="text-center" onClick={() => handleSort('note')} >
 												Notes
 											</th>
@@ -720,8 +762,8 @@ const Dashboard = () => {
 																{item?.dropOfDetails?.dropOfLocationId?.customName}
 															</td> */}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.uid}
-                        </td> */}
+						  {item?.uid}
+						</td> */}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 																{item?.note}
 															</td>
@@ -736,15 +778,15 @@ const Dashboard = () => {
 														</>
 													))}
 													{/* <td className="text-center" style={tdStyle}>
-                          {!item?.driverId ? (
-                            <FaTruckMoving onClick={() => handleShowAssign(item)} />
-                          ) : (
-                            <FaExchangeAlt onClick={() => handelChangeDriver(item)} />
-                          )}
-                        </td>
-                        <td className="text-center" style={tdStyle}>
-                          <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
-                        </td> */}
+						  {!item?.driverId ? (
+							<FaTruckMoving onClick={() => handleShowAssign(item)} />
+						  ) : (
+							<FaExchangeAlt onClick={() => handelChangeDriver(item)} />
+						  )}
+						</td>
+						<td className="text-center" style={tdStyle}>
+						  <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
+						</td> */}
 													<td className="text-center action-dropdown-menu" style={{
 														...tdStyle,
 														...(item.blurJob
@@ -808,27 +850,27 @@ const Dashboard = () => {
 				</Tab>
 
 				{/* <Row className="mb-3 justify-content-between">
-              <Col md={8} className="d-flex align-items-center gap-2 ">
-                Show Entries
-                <Col md={2}>
-                  <Form.Select
-                    value={limit}
-                    onChange={handleLimitChange}
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                  </Form.Select>
-                </Col>
-              </Col>
-              <Col className="d-flex align-items-center justify-content-end">
-              <MyPagination
-                totalPages={totalPages}
-                currentPage={page}
-                onPageChange={handlePageChange}
-              />
-              </Col>
-            </Row> */}
+			  <Col md={8} className="d-flex align-items-center gap-2 ">
+				Show Entries
+				<Col md={2}>
+				  <Form.Select
+					value={limit}
+					onChange={handleLimitChange}
+				  >
+					<option value={10}>10</option>
+					<option value={20}>20</option>
+					<option value={30}>30</option>
+				  </Form.Select>
+				</Col>
+			  </Col>
+			  <Col className="d-flex align-items-center justify-content-end">
+			  <MyPagination
+				totalPages={totalPages}
+				currentPage={page}
+				onPageChange={handlePageChange}
+			  />
+			  </Col>
+			</Row> */}
 
 
 				{/* All Jobs Tab */}
@@ -867,9 +909,9 @@ const Dashboard = () => {
 												Deliver To
 											</th> */}
 											{/* <th className="text-center">
-                    <LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
-                    Job ID
-                  </th> */}
+					<LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
+					Job ID
+				  </th> */}
 											{/* <th className="text-center" onClick={() => handleSort('note')}>
 												Notes
 											</th>
@@ -976,8 +1018,8 @@ const Dashboard = () => {
 														{item?.dropOfDetails?.dropOfLocationId?.customName}
 													</td> */}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
-                          {item?.uid}
-                        </td> */}
+						  {item?.uid}
+						</td> */}
 															{/* <td onClick={() => handleView(item)} style={tdStyle}>
 														{item?.note}
 													</td>
@@ -992,15 +1034,15 @@ const Dashboard = () => {
 														</>
 													))}
 													{/* <td className="text-center" style={tdStyle}>
-                          {!item?.driverId ? (
-                            <FaTruckMoving onClick={() => handleShowAssign(item)} />
-                          ) : (
-                            <FaExchangeAlt onClick={() => handelChangeDriver(item)} />
-                          )}
-                        </td>
-                        <td className="text-center" style={tdStyle}>
-                          <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
-                        </td> */}
+						  {!item?.driverId ? (
+							<FaTruckMoving onClick={() => handleShowAssign(item)} />
+						  ) : (
+							<FaExchangeAlt onClick={() => handelChangeDriver(item)} />
+						  )}
+						</td>
+						<td className="text-center" style={tdStyle}>
+						  <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
+						</td> */}
 													<td className="text-center action-dropdown-menu" style={{
 														...tdStyle,
 														...(item.blurJob

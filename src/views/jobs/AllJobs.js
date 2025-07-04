@@ -26,6 +26,9 @@ import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
 import AssignClientModal from '../../components/Modals/AssignClient'
 import Swal from 'sweetalert2'
+import { FaFileExcel } from 'react-icons/fa';
+import { saveAs } from 'file-saver';
+import XLSX from 'xlsx';
 
 const AllJobs = () => {
     const dispatch = useDispatch()
@@ -485,6 +488,37 @@ const AllJobs = () => {
         });
     };
 
+    const handleDownloadExcel = () => {
+        // Step 1: Add index + selected column data
+        const exportData = data.map((row, index) => {
+            const rowData = Object.fromEntries(
+                selectedColumns.map(col => [col, row[col]])
+            );
+            return { '#': index + 1, ...rowData }; // prepend index
+        });
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+
+        // Step 2: Set dynamic column widths (include index column)
+        const allColumns = ['#', ...selectedColumns];
+        const colWidths = allColumns.map(col => {
+            const headerLength = col.length;
+            const maxDataLength = exportData.reduce(
+                (max, row) => Math.max(max, row[col] ? row[col].toString().length : 0),
+                0
+            );
+            return { wch: Math.max(headerLength, maxDataLength) + 2 };
+        });
+        ws['!cols'] = colWidths;
+
+        // Step 3: Create workbook and export
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'FilteredData');
+
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'booking_data.xlsx');
+    };
+
     return (
         <>
             <Row className="d-flex pb-3 align-items-center justify-content-between">
@@ -523,6 +557,15 @@ const AllJobs = () => {
                     </Col>
                 }
             </Row>
+            <div className="d-flex justify-content-end">
+                <Button
+                    onClick={handleDownloadExcel}
+                    className="d-flex align-items-center justify-content-center  custom-icon-btn"
+                    style={{ width: '40px', height: '40px' }}
+                >
+                    <FaFileExcel />
+                </Button>
+            </div>
             <Row>
                 <Col md={12}>
                     <div className="client-rates-table">
