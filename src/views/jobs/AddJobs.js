@@ -513,11 +513,7 @@ function AddJobs() {
     function fetchPickupLocations() {
         get('/admin/locations/pickup', 'admin')
             .then((response) => {
-                setPickupLocations(response.data.data)
-                console.log(pickupLocations);
-                console.log("pickupLocations");
-
-
+                setPickupLocations(response.data.data);
                 setLoading3(false)
             })
             .catch((error) => {
@@ -573,8 +569,6 @@ function AddJobs() {
         // get all clients
         getAllClients()
     }, []);
-
-    console.log('formData', formData);
 
     return (
         <>
