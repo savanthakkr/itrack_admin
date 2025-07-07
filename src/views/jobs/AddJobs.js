@@ -9,9 +9,11 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CButton } from '@coreui/react'
+import { useSelector } from 'react-redux'
 
 function AddJobs() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const role = useSelector((state) => state.role);
     const [readyTime, setReadyTime] = useState(new Date());
     const [loading, setLoading] = useState(false)
     const [loading2, setLoading2] = useState(false)
@@ -42,6 +44,8 @@ function AddJobs() {
         note: '',
         isVpap: 'false',
         adminNote: '',
+        manualPrice: false,
+        rate: '',
     })
     const [dropDownData, setDropDownData] = useState({
         serviceType: {
@@ -248,7 +252,7 @@ function AddJobs() {
             },
         });
         formData.weight = selectedOption.value;
-        formData.rates = selectedOption.rate;
+        formData.rateRange = selectedOption.rate;
     };
     // handle change
     const handleChange = (e) => {
@@ -390,9 +394,14 @@ function AddJobs() {
         payload.append('isVpap', formData.isVpap)
         payload.append('clientId', dropDownData.selectedClient._id)
         payload.append('adminNote', formData.adminNote)
+        payload.append('manualPrice', formData.manualPrice)
 
-        if(formData.rates) {
-          payload.append('rates', formData.rates)  
+        if (formData.manualPrice && role === 'Accountant') {
+            payload.append('rate', formData.rate)
+        }
+
+        if (formData.rateRange) {
+            payload.append('rateRange', formData.rateRange)
         }
 
         formData.attachments.forEach((file) => {
@@ -425,6 +434,12 @@ function AddJobs() {
                 alert('Failed to add job') // You can replace this with a more styled notification
             })
     }
+
+    useEffect(() => {
+        if (formData.manualPrice === false) {
+            setFormData({ ...formData, rate: '' })
+        }
+    }, [formData.manualPrice]);
 
     // Function to highlight empty fields
     const highlightEmptyFields = () => {
@@ -557,7 +572,9 @@ function AddJobs() {
 
         // get all clients
         getAllClients()
-    }, [])
+    }, []);
+
+    console.log('formData', formData);
 
     return (
         <>
@@ -1005,6 +1022,36 @@ function AddJobs() {
                             </Col>
                         </Row>
                     </Col>
+                </Row>
+                <Row>
+                    <Col md={6} className="mt-3">
+                        <Form.Group controlId="clientAssignDriverCheckbox">
+                            <Form.Check
+                                type="checkbox"
+                                label="Add manual price"
+                                name="manualPrice"
+                                checked={formData?.manualPrice}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, manualPrice: e.target.checked })
+                                }
+                            />
+                        </Form.Group>
+                    </Col>
+                    {formData?.manualPrice && role === 'Accountant' &&
+                        <Col md={6} className="mt-3">
+                            <Form.Group>
+                                <Form.Label>Rate</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="rate"
+                                    placeholder="Rate"
+                                    maxLength={30}
+                                    onChange={(e) => handleChange(e)}
+                                    value={formData?.rate}
+                                />
+                            </Form.Group>
+                        </Col>
+                    }
                 </Row>
 
                 {/* <Row>

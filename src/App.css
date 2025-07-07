@@ -16,3 +16,46 @@ input[type="number"] {
   cursor: none;
   opacity: 0.6;
 }
+
+
+.permission-chips .selected-badge {
+  background-color: #0074A8 !important;
+  color: #fff !important;
+}
+
+.permission-chips .secondary-badge {
+  background-color: transparent !important;
+  color: #575757 !important;
+  border: 1px solid #a1a1a1 !important;
+}
+
+.permission-chip-group {
+  gap: 12px;
+  /* optional extra vertical spacing when wrapping */
+}
+
+.permission-chip {
+  padding: 8px 16px;
+  min-height: 40px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  background-color: #d5d5d5;
+  color: #000;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  /* allow chips to grow */
+  max-width: 110px;
+  /* control max width */
+  margin: 4px 0;
+  /* vertical spacing for wrap */
+}
+
+.permission-chip.selected {
+  background-color: #5856D5;
+  color: #fff;
+}
