@@ -86,8 +86,6 @@ function AllClients() {
       });
   }
 
-  console.log('totalPages', totalPages)
-
   const onSearch = (newData) => {
     setMessage('')
     if (newData.length === 0) {
@@ -180,8 +178,29 @@ function AllClients() {
       getClientsData();
     } else if (activeTab === 'invoices') {
       fetchInvoiceData();
+      setSearchQuery({
+        AWB: "",
+        clientId: "",
+        driverId: "",
+        fromDate: "",
+        toDate: "",
+        currentStatus: "",
+        serviceCode: "",
+        serviceType: '',
+        serviceCodeId: '',
+        serviceTypeId: '',
+        jobId: "",
+        clientName: "",
+        driverName: "",
+        transferJob: false,
+        companyName: ""
+      });
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.removeItem('clientIdForRate');
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'invoices') {
@@ -425,6 +444,12 @@ function AllClients() {
     }
   }, [currentUrl]);
 
+  const handleViewClientRates = (clientId) => {
+    localStorage.setItem("clientIdForRate", clientId);
+    localStorage.setItem("goToClientRateTab", "true");
+    navigate("/client/add");
+  };
+
   return (
     <>
       <Row className="align-items-center">
@@ -544,6 +569,14 @@ function AllClients() {
                                       className="dropdown-item" onClick={() => handleDelete(client?._id)}
                                     >
                                       Delete Client
+                                    </button>
+                                  </li>
+                                  <li>
+                                    <button
+                                      className="dropdown-item"
+                                      onClick={() => handleViewClientRates(client?._id)}
+                                    >
+                                      View Client Rates
                                     </button>
                                   </li>
                                 </ul>

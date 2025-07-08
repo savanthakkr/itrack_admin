@@ -30,8 +30,8 @@ function EditClient() {
     const formRef = useRef();
     const [validated, setValidated] = useState(false);
     const [errorMessages, setErrorMessages] = useState('');
-    const [clientRateOptions, setClientRateOptions] = useState([]);
-    const [selectedClientRate, setSelectedClientRate] = useState([]);
+    // const [clientRateOptions, setClientRateOptions] = useState([]);
+    // const [selectedClientRate, setSelectedClientRate] = useState([]);
 
     const { id } = useParams();
 
@@ -41,25 +41,25 @@ function EditClient() {
         setClientData({ ...clientData, [name]: value })
     }
 
-    const getClientRateData = async () => {
-        get('/admin/client/rate', 'admin')
-            .then((response) => {
+    // const getClientRateData = async () => {
+    //     get('/admin/client/rate', 'admin')
+    //         .then((response) => {
 
-                const newOptions = response?.data?.data?.map((item) => ({
-                    label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
-                    value: item._id,
-                }));
+    //             const newOptions = response?.data?.data?.map((item) => ({
+    //                 label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
+    //                 value: item._id,
+    //             }));
 
-                setClientRateOptions(newOptions);
-            })
-            .catch((error) => {
-                console.error(error)
-            })
-    }
+    //             setClientRateOptions(newOptions);
+    //         })
+    //         .catch((error) => {
+    //             console.error(error)
+    //         })
+    // }
 
-    useEffect(() => {
-        getClientRateData();
-    }, [])
+    // useEffect(() => {
+    //     getClientRateData();
+    // }, [])
 
     //handle update function
     const handleSubmit = (event) => {
@@ -67,7 +67,7 @@ function EditClient() {
         event.stopPropagation();
 
         const form = event.currentTarget;
-        clientData.rateDetails = selectedClientRate;
+        // clientData.rateDetails = selectedClientRate;
         if (form.checkValidity()) {
             updateReq(`/admin/client?ID=${id}`, clientData, "admin")
                 .then((data) => {
@@ -190,17 +190,17 @@ function EditClient() {
         })
     }, [isReferesh]);
 
-    useEffect(() => {
-        const selectedRates = [];
-        if (clientData?.rateDetails?.length > 0) {
-            clientData?.rateDetails?.map((option) => {
-                const match = clientRateOptions.find((item) => item.value === option.rateId);
+    // useEffect(() => {
+    //     const selectedRates = [];
+    //     if (clientData?.rateDetails?.length > 0) {
+    //         clientData?.rateDetails?.map((option) => {
+    //             const match = clientRateOptions.find((item) => item.value === option.rateId);
 
-                selectedRates.push(match);
-            });
-            setSelectedClientRate(selectedRates);
-        }
-    }, [clientData, clientRateOptions]);
+    //             selectedRates.push(match);
+    //         });
+    //         setSelectedClientRate(selectedRates);
+    //     }
+    // }, [clientData, clientRateOptions]);
 
     const validateEmail = (email) => {
         const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
@@ -212,9 +212,9 @@ function EditClient() {
         setClientData({ ...clientData, email: email })
     }
 
-    const handleColumnSelect = (option) => {
-        setSelectedClientRate(option)
-    }
+    // const handleColumnSelect = (option) => {
+    //     setSelectedClientRate(option)
+    // }
 
     const customOption = (props) => {
         const { isSelected, label } = props;
@@ -334,7 +334,7 @@ function EditClient() {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            <Row>
+                            {/* <Row>
                                 <Col className="mt-3">
                                     <Select
                                         className="ms-lg-auto custom-select"
@@ -349,7 +349,7 @@ function EditClient() {
                                         components={{ Option: customOption }}
                                     />
                                 </Col>
-                            </Row>
+                            </Row> */}
                             <Row>
                                 <Col md={6} className="mt-3">
                                     <Form.Group>

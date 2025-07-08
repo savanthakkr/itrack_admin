@@ -32,7 +32,7 @@ import XLSX from 'xlsx';
 
 const AllJobs = () => {
     const dispatch = useDispatch()
-    const searchQuery = useSelector((state) => state.searchQuery2)
+    const searchQuery = useSelector((state) => state.searchQuery)
     const role = useSelector((state) => state.role);
     const jobsCount = useSelector((state) => state.jobsCount)
     const navigate = useNavigate()
@@ -59,7 +59,7 @@ const AllJobs = () => {
 
     const setSearchQuery = (query) => {
         dispatch({
-            type: 'updateSearchQuery2',
+            type: 'updateSearchQuery',
             payload: query
         })
     }
@@ -253,6 +253,23 @@ const AllJobs = () => {
     useEffect(() => {
         if (activeTab === 'allJobs') {
             fetchData();
+            setSearchQuery({
+                AWB: "",
+                clientId: "",
+                driverId: "",
+                fromDate: "",
+                toDate: "",
+                currentStatus: "",
+                serviceCode: "",
+                serviceType: '',
+                serviceCodeId: '',
+                serviceTypeId: '',
+                jobId: "",
+                clientName: "",
+                driverName: "",
+                transferJob: false,
+                companyName: ""
+            });
         } else if (activeTab === 'jobRequest') {
             getJobTransferRequests();
         }
@@ -333,7 +350,8 @@ const AllJobs = () => {
             jobId: "",
             clientName: "",
             driverName: "",
-            transferJob: false
+            transferJob: false,
+            companyName: ""
         }
         setSearchQuery({
             AWB: "",
@@ -349,7 +367,8 @@ const AllJobs = () => {
             jobId: "",
             clientName: "",
             driverName: "",
-            transferJob: false
+            transferJob: false,
+            companyName: ""
         });
         fetchData(filter);
     }
@@ -364,7 +383,7 @@ const AllJobs = () => {
         filterObj[key] = '';
 
         dispatch({
-            type: 'updateSearchQuery2',
+            type: 'updateSearchQuery',
             payload: { [key]: '' },
         });
 
@@ -375,15 +394,17 @@ const AllJobs = () => {
 
         if (key === 'clientName') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { clientId: '' },
             });
             filterObj['clientId'] = '';
+            filterObj['companyName'] = '';
+            filterObj['clientName'] = '';
         }
 
         if (key === 'driverName') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { driverId: '' },
             });
             filterObj['driverId'] = '';
@@ -391,7 +412,7 @@ const AllJobs = () => {
 
         if (key === 'currentStatus') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { currentStatus: '' },
             });
             filterObj['currentStatus'] = '';
@@ -399,7 +420,7 @@ const AllJobs = () => {
 
         if (key === 'serviceType') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { serviceTypeId: '' },
             });
             filterObj['serviceTypeId'] = '';
@@ -407,7 +428,7 @@ const AllJobs = () => {
 
         if (key === 'serviceCode') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { serviceCodeId: '' },
             });
             filterObj['serviceCodeId'] = '';
@@ -415,7 +436,7 @@ const AllJobs = () => {
 
         if (key === 'transferJob') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { transferJob: false },
             });
             filterObj['transferJob'] = false;
@@ -853,16 +874,14 @@ const AllJobs = () => {
                                                                                 {item?.driverId ? 'Change Driver' : 'Assign Driver'}
                                                                             </button>
                                                                         </li>
-                                                                        {role !== 'Allocant' &&
-                                                                            <li>
-                                                                                <button
-                                                                                    className="dropdown-item"
-                                                                                    onClick={() => navigate(`/location/${item._id}`)}
-                                                                                >
-                                                                                    Package Location
-                                                                                </button>
-                                                                            </li>
-                                                                        }
+                                                                        <li>
+                                                                            <button
+                                                                                className="dropdown-item"
+                                                                                onClick={() => navigate(`/location/${item._id}`)}
+                                                                            >
+                                                                                Package Location
+                                                                            </button>
+                                                                        </li>
                                                                         {role !== 'Allocant' && item?.Status === 'Pending' && item?.isTransfer === false &&
                                                                             <li>
                                                                                 <button

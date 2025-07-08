@@ -6,6 +6,8 @@ import { get } from '../../lib/request.js'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment-timezone';
 import { getFormattedDAndT } from '../../lib/getFormatedDate.js';
+import { saveAs } from 'file-saver';
+import XLSX from 'xlsx';
 
 function ClientInvoice() {
   const navigate = useNavigate()
@@ -120,6 +122,70 @@ function ClientInvoice() {
       })
   }, []);
 
+  const handleDownloadExcel = () => {
+
+    const rowData = ['Allocate To', 'Dispatch ID', 'Client', 'AWB', 'Customer Job Number', 'Ready Time and Date', 'Pickup Location', 'Drop Off Location', 'Arrival Time', 'Delivered Time', 'Service Code', 'Service Type', 'Pieces', 'Weight', 'Reference No', 'Invoiced', 'Rates', 'Invoice Number', 'Pickup Waiting Time', 'Fuel Surcharge', 'Pick Up Waiting Rate', 'Delivery Waiting Time', 'Admin Note', 'Delivery Waiting Rate', 'Note', 'Total'];
+
+    // Step 1: Add index + selected column data
+    const exportData = [{
+      '#': 1,
+      'Allocate To': clientData?.allocateTo ? clientData?.allocateTo?.firstname + " " + clientData?.allocateTo?.lastname : "",
+      'Dispatch ID': clientData?.dispatchId?.uid || '-',
+      'Client': clientData?.clientId?.companyName || '-',
+      'AWB': clientData?.AWB || '-',
+      'Customer Job Number': clientData?.custRefNumber || '-',
+      'Ready Time and Date': getFormattedDAndT(clientData?.pickUpDetails?.readyTime) || '-',
+      'Pickup Location': clientData?.pickUpDetails?.pickupLocationId?.customName || '-',
+      'Drop Off Location': clientData?.dropOfDetails?.dropOfLocationId?.customName || '-',
+      'Arrival Time': getFormattedDAndT(clientData?.dropOfDetails?.arrivalTime) || '-',
+      'Delivered Time': getFormattedDAndT(clientData?.dropOfDetails?.deliveredTime) || '-',
+      'Service Code': clientData?.serviceCodeId?.text || '-',
+      'Service Type': clientData?.serviceTypeId?.text || '-',
+      'Pieces': clientData?.pieces || '-',
+      'Weight': clientData?.weight || '-',
+      'Reference No': clientData?.custRefNumber || '-',
+      'Invoiced': clientData?.invoiced ? 'Yes' : 'No',
+      'Rates': clientData?.rates || '-',
+      'Invoice Number': clientData?.invoiceNumber || '-',
+      'Pickup Waiting Time': clientData?.pickUpDetails?.pickUpWaitingTime || '-',
+      'Fuel Surcharge': clientData?.fuel_charge || '-',
+      'Pick Up Waiting Rate': clientData?.pickUpDetails?.pickUpWaitingRate || '-',
+      'Delivery Waiting Time': clientData?.dropOfDetails?.deliveryWaitingTime || '-',
+      'Admin Note': clientData?.adminNote || '-',
+      'Delivery Waiting Rate': clientData?.dropOfDetails?.deliveryWaitingRate || '-',
+      'Note': clientData?.note || '-',
+      'Total': clientData?.total || '-',
+    }];
+
+    // Step 3: Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Step 4: Dynamic column widths including index
+    const allColumns = ['#', ...rowData];
+    const colWidths = allColumns.map(col => {
+      const headerLength = col.length;
+      const maxDataLength = exportData.reduce(
+        (max, row) => Math.max(max, row[col]?.toString().length || 0),
+        0
+      );
+      return { wch: Math.max(headerLength, maxDataLength) + 2 };
+    });
+    ws['!cols'] = colWidths;
+
+    // Step 5: Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoice Record');
+
+    // Step 6: Create timestamped filename
+    const now = new Date();
+    const formattedDate = now.toLocaleString('sv-SE').replace(/[: ]/g, '-'); // YYYY-MM-DDTHH-MM-SS
+    const filename = `invoice_${formattedDate}.xlsx`;
+
+    // Step 7: Export file
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveAs(new Blob([wbout], { type: 'application/octet-stream' }), filename);
+  };
+
   return (
     <>
       <Row className="align-items-center">
@@ -127,7 +193,7 @@ function ClientInvoice() {
           <h4 className="mb-0">Invoice</h4>
         </Col>
         <Col className="text-end">
-          <CButton className="custom-btn">
+          <CButton className="custom-btn" onClick={handleDownloadExcel}>
             Download Invoice
           </CButton>
         </Col>

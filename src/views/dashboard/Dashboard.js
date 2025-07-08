@@ -84,9 +84,11 @@ const Dashboard = () => {
 		if (key === 'clientName') {
 			dispatch({
 				type: 'updateSearchQuery',
-				payload: { clientId: '' },
+				payload: { clientId: '', clientName: '', companyName: '' },
 			});
 			filterObj['clientId'] = '';
+			filterObj['companyName'] = '';
+			filterObj['clientName'] = '';
 		}
 
 		if (key === 'driverName') {
@@ -206,30 +208,28 @@ const Dashboard = () => {
 
 	useEffect(() => {
 
+		dispatch({
+			type: 'updateSearchQuery',
+			payload: {
+				AWB: "",
+				clientId: "",
+				driverId: "",
+				fromDate: "",
+				toDate: "",
+				currentStatus: "",
+				serviceCode: "",
+				serviceType: '',
+				serviceCodeId: '',
+				serviceTypeId: '',
+				jobId: "",
+				clientName: "",
+				driverName: "",
+				transferJob: false
+			},
+		});
+
 		// handleTabSelect("todaysJob");
 		setActiveTab("todaysJob");
-
-		// const hasFilters =
-		// 	searchQuery.currentStatus ||
-		// 	searchQuery.clientId ||
-		// 	searchQuery.driverId ||
-		// 	searchQuery.fromDate ||
-		// 	searchQuery.toDate ||
-		// 	searchQuery.jobId ||
-		// 	searchQuery.clientName ||
-		// 	searchQuery.driverName ||
-		// 	searchQuery.serviceCode ||
-		// 	searchQuery.serviceType;
-
-		// if (hasFilters && searchTerm.trim()) {
-		// 	handleSearchClick(searchTerm, searchQuery);
-		// }
-
-		// // Retrieve the selected item from local storage if it exists
-		// const storedSelectedItem = sessionStorage.getItem('selectedItem')
-		// if (storedSelectedItem) {
-		// 	setSelectedItem(JSON.parse(storedSelectedItem))
-		// }
 
 	}, []);
 
@@ -257,7 +257,8 @@ const Dashboard = () => {
 			serviceCode: '',
 			serviceTypeId: '',
 			serviceCodeId: '',
-			transferJob: false
+			transferJob: false,
+			companyName: ''
 		});
 
 		// if (key === 'allJobs') {
@@ -443,7 +444,8 @@ const Dashboard = () => {
 			serviceCode: '',
 			serviceTypeId: '',
 			serviceCodeId: '',
-			transferJob: false
+			transferJob: false,
+			companyName: ''
 		});
 
 		// setActiveTab(activeTab);
@@ -463,25 +465,25 @@ const Dashboard = () => {
 
 		if (!tagRemove) {
 			handleClear();
-			dispatch({
-				type: 'updateSearchQuery',
-				payload: {
-					AWB: "",
-					clientId: "",
-					driverId: "",
-					fromDate: "",
-					toDate: "",
-					currentStatus: "",
-					serviceCode: "",
-					serviceType: '',
-					serviceCodeId: '',
-					serviceTypeId: '',
-					jobId: "",
-					clientName: "",
-					driverName: "",
-					transferJob: false
-				},
-			});
+			// dispatch({
+			// 	type: 'updateSearchQuery',
+			// 	payload: {
+			// 		AWB: "",
+			// 		clientId: "",
+			// 		driverId: "",
+			// 		fromDate: "",
+			// 		toDate: "",
+			// 		currentStatus: "",
+			// 		serviceCode: "",
+			// 		serviceType: '',
+			// 		serviceCodeId: '',
+			// 		serviceTypeId: '',
+			// 		jobId: "",
+			// 		clientName: "",
+			// 		driverName: "",
+			// 		transferJob: false
+			// 	},
+			// });
 		} else {
 
 			let filter = filterObj || searchQuery;
@@ -501,29 +503,29 @@ const Dashboard = () => {
 
 			const query = queryParams.join('&');
 
-			if (activeTab === 'todaysJob') {
-				handleTodayJobs();
-			} else {
-				get(`/admin/info/jobFilter?${query}`, 'admin')
-					.then((response) => {
-						if (response?.data?.status) {
-							if (response?.data?.data?.length === 0) {
-								setMessage('No data found')
-							}
-							// setData(response?.data?.data)
-							const responseData = setJobsData(response?.data?.data?.jobs);
-							dispatch({
-								type: 'getJobData',
-								payload: responseData,
-							});
-							setLoading(false)
+			// if (activeTab === 'todaysJob') {
+			// 	handleTodayJobs();
+			// } else {
+			get(`/admin/info/jobFilter?${query}`, 'admin')
+				.then((response) => {
+					if (response?.data?.status) {
+						if (response?.data?.data?.length === 0) {
+							setMessage('No data found')
 						}
-					})
-					.catch((error) => {
-						console.error(error)
+						// setData(response?.data?.data)
+						const responseData = setJobsData(response?.data?.data?.jobs);
+						dispatch({
+							type: 'getJobData',
+							payload: responseData,
+						});
 						setLoading(false)
-					})
-			}
+					}
+				})
+				.catch((error) => {
+					console.error(error)
+					setLoading(false)
+				})
+			// }
 		}
 	}
 

@@ -10,8 +10,8 @@ const FilterTags = ({ searchQuery, onRemoveFilter }) => {
     if (searchQuery.serviceCode) {
         tags.push({ key: 'serviceCode', label: `Service Code: ${searchQuery.serviceCode}` });
     }
-    if (searchQuery.clientName) {
-        tags.push({ key: 'clientName', label: `Client: ${searchQuery.clientName}` });
+    if (searchQuery.clientId) {
+        tags.push({ key: 'clientName', label: `Client: ${searchQuery.companyName}` });
     }
     if (searchQuery.serviceType) {
         tags.push({ key: 'serviceType', label: `Service Type: ${searchQuery.serviceType}` });

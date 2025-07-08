@@ -50,8 +50,10 @@ function AddClients() {
   const [rate, setRate] = useState('');
   const [rates, setRates] = useState([]);
 
-  const [clientRateOptions, setClientRateOptions] = useState([]);
-  const [selectedClientRate, setSelectedClientRate] = useState([]);
+  // const [clientRateOptions, setClientRateOptions] = useState([]);
+  // const [selectedClientRate, setSelectedClientRate] = useState([]);
+
+  const [isClientCreated, setIsClientCreated] = useState(false);
 
   const unitOptions = [
     { value: 'per_hour', label: 'Per Hour' },
@@ -99,7 +101,7 @@ function AddClients() {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReqWithoutMedia(`/admin/client/rate?id=${Id}`, "admin").then((data) => {
+          deleteReqWithoutMedia(`/admin/clientRate/delete?id=${localStorage.getItem('clientIdForRate')}&rateDetailId=${Id}`, "admin").then((data) => {
             if (data.status) {
               sweetAlert2.fire({ icon: 'success', title: data.data.message })
             } else {
@@ -117,6 +119,7 @@ function AddClients() {
   }
 
   const handleTabSelect = (key) => {
+    if (key === "clientRates" && !isClientCreated) return; // block if not allowed
     setActiveTab(key);
   };
 
@@ -146,18 +149,26 @@ function AddClients() {
     } else {
       event.preventDefault()
       setLoading(true)
-      clientData.rateDetails = selectedClientRate;
+      // clientData.rateDetails = selectedClientRate;
 
       post('/admin/client', clientData, "admin")
         .then((res) => {
-
+          console.log('res', res);
           if (res.data.status) {
             setLoading(false)
             sweetAlert2.fire({
               icon: 'success',
               title: 'Client added successfully',
             }).then(() => {
-              navigate('/client/all')
+              const clientId = res.data.data._id;
+
+              // Store in localStorage
+              localStorage.setItem("clientIdForRate", clientId);
+
+              // Move to rates tab and enable it
+              setIsClientCreated(true);
+              setActiveTab("clientRates");
+              // navigate('/client/all')
             })
           } else if (res.status === 400) {
             setLoading(false)
@@ -200,38 +211,59 @@ function AddClients() {
   });
 
   const getClientRateData = async () => {
-    get('/admin/client/rate', 'admin')
+    const clientId = localStorage.getItem('clientIdForRate');
+    get(`/admin/clientRate/list?id=${clientId}`, 'admin')
       .then((response) => {
-        setRates(response.data.data);
+        setRates(response?.data?.data?.rateDetails);
 
-        const newOptions = response?.data?.data?.map((item) => ({
-          label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
-          value: item._id,
-        }));
+        // const newOptions = response?.data?.data?.map((item) => ({
+        //   label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
+        //   value: item._id,
+        // }));
 
-        setClientRateOptions(newOptions);
+        // setClientRateOptions(newOptions);
       })
       .catch((error) => {
         console.error(error)
       })
   }
 
+  // useEffect(() => {
+  //   setLoading(true)
+
+  //   // get service code
+  //   get('/admin/service/code', 'admin')
+  //     .then((response) => {
+  //       setServiceCode(response.data.data)
+  //     })
+  //     .catch((error) => {
+  //       console.error(error)
+  //     })
+
+  //   // get client rate
+  //   // getClientRateData();
+
+  // }, []);
+
   useEffect(() => {
-    setLoading(true)
+    if (activeTab === 'clientRates') {
+      getClientRateData();
 
-    // get service code
-    get('/admin/service/code', 'admin')
-      .then((response) => {
-        setServiceCode(response.data.data)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-
-    // get client rate
-    getClientRateData();
-
-  }, [])
+      get('/admin/service/code', 'admin')
+        .then((response) => {
+          setServiceCode(response.data.data)
+        })
+        .catch((error) => {
+          console.error(error)
+        });
+    } else {
+      const shouldGoToRateTab = localStorage.getItem("goToClientRateTab") === "true";
+      if (!shouldGoToRateTab) {
+        localStorage.removeItem('clientIdForRate');
+        setIsClientCreated(false);
+      }
+    }
+  }, [activeTab]);
 
   const validateClientRateForm = () => {
     const errors = {}
@@ -247,12 +279,16 @@ function AddClients() {
   const handleClientRateSubmit = async (e) => {
     e.preventDefault();
     const errors = validateClientRateForm();
-
+    const clientId = localStorage.getItem('clientIdForRate');
     if (Object.keys(errors).length === 0) {
       // Submit form
       // create job
       if (showModal2) {
-        updateReq(`/admin/client/rate?id=${selectedClientId}`, clientRateData, 'admin')
+        const payload = {
+          ...clientRateData,
+          rateDetailId: selectedClientId
+        }
+        updateReq(`/admin/clientRate/update?id=${clientId}`, payload, 'admin')
           .then((response) => {
             // setLoading5(false)
             if (response.data.status) {
@@ -285,7 +321,8 @@ function AddClients() {
             });
           })
       } else if (showModal) {
-        postWihoutMediaData('/admin/client/rate', clientRateData, 'admin')
+
+        updateReq(`/admin/clientRate/add?id=${clientId}`, clientRateData, 'admin')
           .then((response) => {
             // setLoading5(false)
             if (response.data.status) {
@@ -353,9 +390,9 @@ function AddClients() {
     setServiceOptionForRate(service);
   }, [serviceCode]);
 
-  const handleColumnSelect = (option) => {
-    setSelectedClientRate(option)
-  }
+  // const handleColumnSelect = (option) => {
+  //   setSelectedClientRate(option)
+  // }
 
   const customOption = (props) => {
     const { isSelected, label } = props;
@@ -368,6 +405,22 @@ function AddClients() {
       </components.Option>
     );
   };
+
+  useEffect(() => {
+    const clientId = localStorage.getItem("selectedClientId");
+    const shouldGoToRateTab = localStorage.getItem("goToClientRateTab") === "true";
+
+    if (clientId) {
+      // setClientId(clientId); // if needed in your logic
+
+      setIsClientCreated(true); // unlock rate tab
+    }
+
+    if (shouldGoToRateTab) {
+      setActiveTab("clientRates");
+      localStorage.removeItem("goToClientRateTab"); // clear after use
+    }
+  }, []);
 
   return (
     <>
@@ -499,7 +552,7 @@ function AddClients() {
                 </Col>
               </Row>
 
-              <Row>
+              {/* <Row>
                 <Col className="mt-3">
                   <Select
                     className="ms-lg-auto custom-select"
@@ -514,7 +567,7 @@ function AddClients() {
                     components={{ Option: customOption }}
                   />
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Col md={3} className="mt-3">
@@ -559,7 +612,7 @@ function AddClients() {
         </Tab>
 
         {/* Client Rates Tab */}
-        <Tab eventKey="clientRates" title="Client Rates" className="client-rates-table">
+        <Tab eventKey="clientRates" title="Client Rates" className="client-rates-table" disabled={!isClientCreated}>
           <Table hover responsive className="custom-table">
             <thead className="table-light">
               <tr>
@@ -570,7 +623,7 @@ function AddClients() {
               </tr>
             </thead>
             <tbody>
-              {rates.length > 0 ? rates.map((item) => (
+              {rates?.length > 0 ? rates?.map((item) => (
                 <tr key={item._id}>
                   <td className="text-start">{item?.serviceCodeId?.text}</td>
                   <td className="text-start">{item.rate}</td>

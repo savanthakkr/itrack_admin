@@ -190,9 +190,10 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                                     {allClients.map((client, index) => (
                                         <Dropdown.Item
                                             key={index}
-                                            onClick={() => setSearchQuery({ ...searchQuery, clientId: client._id, clientName: client.firstname })}
+                                            onClick={() => setSearchQuery({ ...searchQuery, clientId: client._id, clientName: client.firstname, companyName: client.companyName })}
                                         >
-                                            {client.firstname} {client.lastname}
+                                            {/* {client.firstname} {client.lastname} */}
+                                            {client.companyName}
                                         </Dropdown.Item>
                                     ))}
                                 </Dropdown.Menu>

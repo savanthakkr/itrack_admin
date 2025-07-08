@@ -6,6 +6,7 @@ import FilterOffCanvas from './Filter';
 import { get } from '../lib/request';
 import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
+import { getFormattedDAndT } from '../lib/getFormatedDate';
 
 const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,9 +33,10 @@ const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
           if (res.data.status) {
             console.log('res.data.data', res.data.data);
             // onSearch(res.data.data);
+            const responseData = setJobsData(res.data.data);
             dispatch({
               type: 'getJobData',
-              payload: res.data.data,
+              payload: responseData,
             });
           } else {
             console.warn('No search results found');
@@ -55,7 +57,6 @@ const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
   };
 
   const handleSearchClick = (searchTerm, selectedOption) => {
-    console.log('clicked');
     getSeachFilterResult(searchQuery, role)
       .then((res) => {
         onSearch(res);
@@ -81,6 +82,44 @@ const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
       handleSearchClick(searchTerm, searchQuery);
     }
   }, []);
+
+  const setJobsData = (response) => {
+    const finalArr = [];
+
+    for (let data of response) {
+      const obj = {};
+
+      if (data?.adminId && data?.isTransferAccept) {
+        obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
+      } else {
+        obj.Client = data?.clientId?.companyName;
+      }
+
+      obj._id = data?._id;
+      obj.Client = data?.clientId?.companyName;
+      // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
+      obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+      // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
+      obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+      obj.AWB = data?.AWB;
+      obj.Pieces = data?.pieces;
+      obj['Service Type'] = data?.serviceTypeId?.text;
+      obj['Service Code'] = data?.serviceCodeId?.text;
+      obj['Pickup From'] = data?.pickUpDetails?.pickupLocationId?.customName;
+      obj['Deliver To'] = data?.dropOfDetails?.dropOfLocationId?.customName;
+      obj.Driver = data?.driverId ? `${data?.driverId?.firstname}-${data?.driverId?.lastname}` : '';
+      obj.Notes = data?.note;
+      obj.Status = data?.isHold ? 'Hold' : data?.currentStatus;
+      obj.isTransfer = data?.isTransfer;
+      obj.blurJob = data?.blurJob;
+      obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
+      obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : "";
+
+      finalArr.push(obj);
+    }
+
+    return finalArr;
+  }
 
   return (
     <Form className="ms-auto d-block">

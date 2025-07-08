@@ -51,11 +51,11 @@ const AllJobs = () => {
   const [filterShow, setFilterShow] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [showCanvas, setShowCanvas] = useState(false);
-  const searchQuery = useSelector((state) => state.searchQuery2);
+  const searchQuery = useSelector((state) => state.searchQuery);
   const jobsCount = useSelector((state) => state.jobsCount)
   const setSearchQuery = (query) => {
     dispatch({
-      type: 'updateSearchQuery2',
+      type: 'updateSearchQuery',
       payload: query,
     })
   }

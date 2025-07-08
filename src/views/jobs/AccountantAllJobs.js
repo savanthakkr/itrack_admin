@@ -32,7 +32,7 @@ import XLSX from 'xlsx';
 
 const AccountantAllJobs = () => {
     const dispatch = useDispatch()
-    const searchQuery = useSelector((state) => state.searchQuery2)
+    const searchQuery = useSelector((state) => state.searchQuery)
     const jobsCount = useSelector((state) => state.jobsCount)
     const navigate = useNavigate()
     const [page, setPage] = useState(1)
@@ -53,7 +53,7 @@ const AccountantAllJobs = () => {
     const [filterShow, setFilterShow] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltering, setIsFiltering] = useState(false);
-    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
+    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
     const [checkedItems, setCheckedItems] = useState([]);
     const [serviceCodes, setServiceCodes] = useState([]);
     const [serviceTypes, setServiceTypes] = useState([]);
@@ -61,7 +61,7 @@ const AccountantAllJobs = () => {
 
     const setSearchQuery = (query) => {
         dispatch({
-            type: 'updateSearchQuery2',
+            type: 'updateSearchQuery',
             payload: query
         })
     }
@@ -71,6 +71,12 @@ const AccountantAllJobs = () => {
 
         for (let data of response) {
             const obj = {};
+
+            if (data?.adminId && data?.isTransferAccept) {
+                obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
+            } else {
+                obj.Client = data?.clientId?.companyName;
+            }
 
             obj._id = data?._id;
             obj.Client = data?.clientId?.companyName;
@@ -90,6 +96,7 @@ const AccountantAllJobs = () => {
             obj.isTransfer = data?.isTransfer;
             obj.isTransferAccept = data?.isTransferAccept;
             obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '';
+            obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : '';
             obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime) : "";
             obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "";
             obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
@@ -104,6 +111,7 @@ const AccountantAllJobs = () => {
             obj['serviceCodeId'] = data?.serviceCodeId ? data?.serviceCodeId?._id : "";
             obj['Pickup Waiting Time Charges'] = data?.invoiceDetail?.pickUpDetails?.pickUpWaitingRate || 0;
             obj['Delivery Wait Time Charges'] = data?.invoiceDetail?.dropOfDetails?.deliveryWaitingRate || 0;
+            obj.blurJob = data?.blurJob;
             finalArr.push(obj);
         }
 
@@ -292,7 +300,7 @@ const AccountantAllJobs = () => {
         setPage(1);
         setLimit(10);
         setMessage('');
-        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes']);
+        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
 
         const filter = {
             AWB: "",
@@ -334,21 +342,23 @@ const AccountantAllJobs = () => {
         filterObj[key] = '';
 
         dispatch({
-            type: 'updateSearchQuery2',
+            type: 'updateSearchQuery',
             payload: { [key]: '' },
         });
 
         if (key === 'clientName') {
             dispatch({
-                type: 'updateSearchQuery2',
-                payload: { clientId: '' },
+                type: 'updateSearchQuery',
+                payload: { clientId: '', clientName: '', companyName: '' },
             });
             filterObj['clientId'] = '';
+            filterObj['companyName'] = '';
+            filterObj['clientName'] = '';
         }
 
         if (key === 'driverName') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { driverId: '' },
             });
             filterObj['driverId'] = '';
@@ -356,7 +366,7 @@ const AccountantAllJobs = () => {
 
         if (key === 'currentStatus') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { currentStatus: '' },
             });
             filterObj['currentStatus'] = '';
@@ -364,7 +374,7 @@ const AccountantAllJobs = () => {
 
         if (key === 'serviceType') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { serviceTypeId: '' },
             });
             filterObj['serviceTypeId'] = '';
@@ -372,7 +382,7 @@ const AccountantAllJobs = () => {
 
         if (key === 'serviceCode') {
             dispatch({
-                type: 'updateSearchQuery2',
+                type: 'updateSearchQuery',
                 payload: { serviceCodeId: '' },
             });
             filterObj['serviceCodeId'] = '';
@@ -591,8 +601,8 @@ const AccountantAllJobs = () => {
                 </Button>
             </div>
             {checkedItems.length > 0 &&
-                <Button onClick={handleSubmitCheckedItems} style={{ fontSize: '12px' }} className="custom-btn mb-3">
-                    Quick Edit
+                <Button onClick={handleSubmitCheckedItems} style={{ fontSize: '12px', backgroundColor: '#10a610' }} className="custom-btn mb-3">
+                    Save
                 </Button>
             }
             <Row>
@@ -639,14 +649,17 @@ const AccountantAllJobs = () => {
                                             fontSize: 14,
                                             textAlign: 'left',
                                         };
+                                        const transferStatus = item['Transfer Status'];
+                                        const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
                                         return (
                                             <tr key={index} className="cursor-pointer">
-                                                <td className="text-center" style={{
-                                                    ...tdStyle,
-                                                    // ...(item.isTransferAccept
-                                                    //     ? { pointerEvents: 'none' }
-                                                    //     : {}),
-                                                }}>
+                                                <td className={item.blurJob ? 'blurred-row' : ''}
+                                                    style={{
+                                                        ...tdStyle,
+                                                        ...(item.isTransferAccept
+                                                            ? { pointerEvents: 'none' }
+                                                            : {}),
+                                                    }}>
                                                     <Form.Check
                                                         type="checkbox"
                                                         name="isDriverPermission"
@@ -684,6 +697,20 @@ const AccountantAllJobs = () => {
                                                             >
                                                                 <div className="px-1 py-1 rounded-5 text-center" style={styles}>
                                                                     {status}
+                                                                </div>
+                                                            </td>
+                                                        );
+                                                    }
+                                                    if (col === 'Transfer Status') {
+                                                        return (
+                                                            <td onClick={() => handleView(item)} style={{
+                                                                ...tdStyle,
+                                                                ...(item.blurJob
+                                                                    ? { pointerEvents: 'none' }
+                                                                    : {}),
+                                                            }}>
+                                                                <div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+                                                                    {transferStatus || "-"}
                                                                 </div>
                                                             </td>
                                                         );
@@ -739,7 +766,14 @@ const AccountantAllJobs = () => {
                                                                     )}
                                                                 </td>
                                                             ) : (
-                                                                <td onClick={() => handleView(item)} key={col} style={tdStyle}>
+                                                                <td onClick={() => handleView(item)} key={col}
+                                                                    className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
+                                                                    style={{
+                                                                        ...tdStyle,
+                                                                        ...(item.blurJob && col === 'Transfer To'
+                                                                            ? { pointerEvents: 'none' }
+                                                                            : {}),
+                                                                    }}>
                                                                     {displayValue ?? "-"}
                                                                 </td>
                                                             )}
