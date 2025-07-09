@@ -78,8 +78,6 @@ export default function ClientJobDetails() {
   };
   useEffect(() => {
     setLoading(true)
-    console.log(searchQuery.toDate);
-    console.log(searchQuery.fromDate);
     setMessage('')
     if (
       searchQuery.currentStatus ||
@@ -195,36 +193,32 @@ export default function ClientJobDetails() {
       })
   }
 
+  const fetchJobDetails = () => {
+    get(`/admin/job?id=${id}`, 'admin').then((res) => {
+      if (res.data.status) {
+        setJob(res.data.data);
+        setStatus(res.data.data.currentStatus);
+        setLoading(false);
+      }
+    }).catch((error) => {
+      console.error("Error fetching job details:", error);
+      setLoading(false);
+    });
+  };
+
   useEffect(() => {
     setLoading(true);
-
-    const fetchJobDetails = () => {
-      get(`/admin/job?id=${id}`, 'admin').then((res) => {
-        if (res.data.status) {
-          setJob(res.data.data);
-          setStatus(res.data.data.currentStatus);
-          console.log(res.data.data.currentStatus);
-          console.log("job details");
-          setLoading(false);
-        }
-      }).catch((error) => {
-        console.error("Error fetching job details:", error);
-        setLoading(false);
-      });
-    };
-
-
-
-
 
     // Initial data fetch
     fetchJobDetails();
 
     // Polling every 10 seconds
-    const interval = setInterval(fetchJobDetails, 10000);
+    // const interval = setInterval(fetchJobDetails, 10000);
 
     // Clear interval on component unmount
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
+
+    fetchJobDetails();
   }, [id]);
 
 
@@ -254,9 +248,9 @@ export default function ClientJobDetails() {
             <Col md={4}>
               <h4 className="mb-0">{tabLabels[activeTab]}</h4>
             </Col>
-            {role !== 'Allocant' &&
+            {role !== 'Allocator' &&
               <Col md={8} className="d-flex flex-wrap align-item-center justify-content-start justify-content-lg-end gap-2 py-3">
-                <EditJobAdmin job={job} setIsRefresh={setIsRefresh} isReferesh={isRefresh} />
+                <EditJobAdmin job={job} setIsRefresh={setIsRefresh} isReferesh={isRefresh} fetchJobDetails={fetchJobDetails} />
                 <Button className="custom-border-btn" onClick={() => handleShow()}>
                   {' '}
                   Change Status{' '}

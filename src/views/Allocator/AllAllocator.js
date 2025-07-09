@@ -13,12 +13,12 @@ import Moment from 'react-moment'
 import { CButton } from '@coreui/react'
 import { FaArrowRight } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
-const AllAllocant = () => {
+const AllAllocator = () => {
   const navigate = useNavigate()
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const [allAllocants, setAllAllocants] = useState([])
+  const [allAllocators, setAllAllocators] = useState([])
   const [loading, setLoading] = useState(false)
   const [isReferesh, setIsRefresh] = useState(false)
   const [page, setPage] = useState(1)
@@ -43,7 +43,7 @@ const AllAllocant = () => {
   const handleDelete = (Id) => {
     sweetAlert
       .fire({
-        title: 'Are you sure you want to delete this allocant?',
+        title: 'Are you sure you want to delete this allocator?',
         text: 'Once deleted you can’t revert this action',
         imageUrl: 'src/assets/images/delete_modal_icon.png',
         imageWidth: 60,
@@ -55,17 +55,17 @@ const AllAllocant = () => {
         cancelButtonText: 'No, Keep it',
       }).then((result) => {
         if (result.isConfirmed) {
-          deleteReq(`admin/allocant?ID=${Id}`, "admin").then((data) => {
+          deleteReq(`admin/allocator?ID=${Id}`, "admin").then((data) => {
             sweetAlert.fire({
               icon: 'success',
-              title: 'Allocant Deleted Successfully!',
+              title: 'Allocator Deleted Successfully!',
             });
             setIsRefresh(!isReferesh)
           }).catch((e) => {
             console.log("error while deleting driver", e)
           })
         } else if (result.dismiss === sweetAlert.DismissReason.cancel) {
-          sweetAlert.fire('Cancelled', 'Allocant is safe :)', 'error');
+          sweetAlert.fire('Cancelled', 'Allocator is safe :)', 'error');
         }
 
       })
@@ -77,13 +77,13 @@ const AllAllocant = () => {
   }
 
 
-  // fetch All Allocants
+  // fetch All Allocators
   useEffect(() => {
     setLoading(true)
-    get(`admin/allocant?page=${page}&limit=${limit}`, "admin")
+    get(`admin/allocator?page=${page}&limit=${limit}`, "admin")
       .then((response) => {
         if (response.data.status) {
-          setAllAllocants(response.data.data)
+          setAllAllocators(response.data.data)
           setLoading(false)
         }
       })
@@ -104,11 +104,11 @@ const AllAllocant = () => {
     <>
       <Row className="align-items-center">
         <Col>
-          <h4 className="mb-0">All Allocant</h4>
+          <h4 className="mb-0">All Allocator</h4>
         </Col>
         <Col className="text-end">
-          <CButton className="custom-btn" onClick={() => navigate('/allocant/add')} >
-            Add Allocant
+          <CButton className="custom-btn" onClick={() => navigate('/allocator/add')} >
+            Add Allocator
             <FaArrowRight size={12} className="ms-2" />
           </CButton>
         </Col>
@@ -132,7 +132,7 @@ const AllAllocant = () => {
               <Col className="d-flex align-items-center justify-content-end">
                 <Button onClick={() => navigate('/driver/add')} variant="primary">
                   {' '}
-                  <IoMdAdd /> add Allocant
+                  <IoMdAdd /> add Allocator
                 </Button>
               </Col>
             </Row> */}
@@ -156,7 +156,7 @@ const AllAllocant = () => {
                     </td>
                   </tr>
                 )}
-                {allAllocants.length > 0 ? allAllocants.map((item, index) => (
+                {allAllocators.length > 0 ? allAllocators.map((item, index) => (
                   <tr key={index}>
                     {/* <td className="text-start px-4">{index + 1}</td> */}
                     <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
@@ -179,7 +179,7 @@ const AllAllocant = () => {
                         <ul className="dropdown-menu dropdown-menu-end">
                           <li>
                             <button
-                              className="dropdown-item" onClick={() => navigate(`/allocant/edit/${item._id}`)}
+                              className="dropdown-item" onClick={() => navigate(`/allocator/edit/${item._id}`)}
                             >
                               View/Edit Details
                             </button>
@@ -195,7 +195,7 @@ const AllAllocant = () => {
                             <button
                               className="dropdown-item" onClick={() => handleDelete(item._id)}
                             >
-                              Delete Allocant
+                              Delete Allocator
                             </button>
                           </li>
                         </ul>
@@ -302,4 +302,4 @@ const AllAllocant = () => {
   )
 }
 
-export default AllAllocant;
+export default AllAllocator;

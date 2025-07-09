@@ -5,7 +5,7 @@ import { get, updateImage, updateReq } from '../../lib/request';
 import Swal from 'sweetalert2';
 import { CButton } from '@coreui/react';
 
-function EditAllocant() {
+function EditAllocator() {
     let imgSrc = process.env.Image_Src
 
     const { id } = useParams();
@@ -15,7 +15,7 @@ function EditAllocant() {
     const [newImage, setNewImage] = useState(null)
     const [showImage, setShowImage] = useState(false)
     const [newPassword, setNewPassword] = useState('')
-    const [allocantData, setAllocantData] = useState({
+    const [allocatorData, setAllocatorData] = useState({
         firstname: '',
         lastname: '',
         email: '',
@@ -32,7 +32,7 @@ function EditAllocant() {
     // handle change state
     const handleChange = (e) => {
         const { name, value } = e.target
-        setAllocantData({ ...allocantData, [name]: value })
+        setAllocatorData({ ...allocatorData, [name]: value })
     }
     // handle password reset
     const handleShow = () => setShow(true);
@@ -40,10 +40,10 @@ function EditAllocant() {
 
     const handlePasswordReset = () => {
         const payload = {
-            old_password: allocantData.password,
+            old_password: allocatorData.password,
             new_password: newPassword
         }
-        updateReq(`/admin/allocant/password-change?ID=${id}`, payload, "admin").then((data) => {
+        updateReq(`/admin/allocator/password-change?ID=${id}`, payload, "admin").then((data) => {
             if (data.data.status) {
                 setIsRefresh(!isReferesh);
                 Swal.fire({
@@ -61,7 +61,7 @@ function EditAllocant() {
     const handleImageClose = () => setShowImage(false);
 
     const handleImageUpdate = () => {
-        updateImage(`/admin/allocant/image-update?ID=${id}`, { image: newImage }, "admin").then((data) => {
+        updateImage(`/admin/allocator/image-update?ID=${id}`, { image: newImage }, "admin").then((data) => {
             if (data.data.status) {
                 setIsRefresh(!isReferesh);
                 Swal.fire({
@@ -81,7 +81,7 @@ function EditAllocant() {
 
         if (form.checkValidity()) {
             setLoading(true)
-            updateReq(`/admin/allocant?ID=${id}`, allocantData, "admin").then((data) => {
+            updateReq(`/admin/allocator?ID=${id}`, allocatorData, "admin").then((data) => {
                 if (data.data.status) {
                     setIsRefresh(!isReferesh);
                     Swal.fire({
@@ -104,9 +104,9 @@ function EditAllocant() {
 
     // getting the driver data
     useEffect(() => {
-        get(`/admin/allocant/view?ID=${id}`, "admin")
+        get(`/admin/allocator/view?ID=${id}`, "admin")
             .then((data) => {
-                setAllocantData(data.data.data)
+                setAllocatorData(data.data.data)
             })
             .catch((error) => {
                 console.error("Error fetching driver:", error);
@@ -120,14 +120,14 @@ function EditAllocant() {
         } else {
             setErrorMessages('')
         }
-        setAllocantData({ ...allocantData, email: email })
+        setAllocatorData({ ...allocatorData, email: email })
     }
 
     return (
         <>
             <Row className="align-items-center">
                 <Col>
-                    <h4 className="mb-0">Edit Allocant Details</h4>
+                    <h4 className="mb-0">Edit Allocator Details</h4>
                 </Col>
                 <Col className="text-end">
                     {
@@ -147,7 +147,7 @@ function EditAllocant() {
                                 <Form.Label>First Name</Form.Label>
                                 <Form.Control type="text" placeholder="Enter First Name"
                                     name='firstname' onChange={(e) => handleChange(e)}
-                                    value={allocantData?.firstname}
+                                    value={allocatorData?.firstname}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -160,7 +160,7 @@ function EditAllocant() {
                                 <Form.Label>Last Name</Form.Label>
                                 <Form.Control type="text" placeholder="Enter Last Name"
                                     name='lastname' onChange={(e) => handleChange(e)}
-                                    value={allocantData?.lastname}
+                                    value={allocatorData?.lastname}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -175,7 +175,7 @@ function EditAllocant() {
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control type="email" placeholder="Enter Email Address."
                                     name='email' onChange={(e) => validateEmail(e.target.value)}
-                                    value={allocantData?.email}
+                                    value={allocatorData?.email}
                                     isInvalid={!!errorMessages}
                                     required
                                 />
@@ -189,7 +189,7 @@ function EditAllocant() {
                                 <Form.Label>Phone</Form.Label>
                                 <Form.Control type="text" placeholder="Enter Phone"
                                     name='phone' onChange={(e) => handleChange(e)}
-                                    value={allocantData?.phone}
+                                    value={allocatorData?.phone}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -204,7 +204,7 @@ function EditAllocant() {
                                 <Form.Label>Username</Form.Label>
                                 <Form.Control type="text" placeholder="Enter username"
                                     name='username' onChange={(e) => handleChange(e)}
-                                    value={allocantData?.username}
+                                    value={allocatorData?.username}
                                     required
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -272,7 +272,7 @@ function EditAllocant() {
                 <Modal.Body>
                     {/* // show old password */}
                     <div className='m-3'>
-                        <b>Old Password:</b> {allocantData?.password}
+                        <b>Old Password:</b> {allocatorData?.password}
                     </div>
                     <Form.Group className='m-3'>
                         <Form.Label>New Password</Form.Label>
@@ -298,11 +298,11 @@ function EditAllocant() {
 
             <Modal show={showImage} onHide={handleImageClose} dialogClassName="custom-modal">
                 <Modal.Header closeButton>
-                    <Modal.Title>Allocant Image</Modal.Title>
+                    <Modal.Title>Allocator Image</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className='text-center'>
-                        <Image src={`${imgSrc}${allocantData?.imageKey}`} rounded height={150} width={150} />
+                        <Image src={`${imgSrc}${allocatorData?.imageKey}`} rounded height={150} width={150} />
                     </div>
                     {/* change logo */}
                     <Form.Group className="mt-3">
@@ -334,4 +334,4 @@ function EditAllocant() {
     )
 }
 
-export default EditAllocant;
+export default EditAllocator;

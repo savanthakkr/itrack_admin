@@ -3,6 +3,8 @@ import { Modal, Form, Row, Col, Dropdown, Spinner, Button } from 'react-bootstra
 import { get, updateReq } from '../../lib/request'
 import sweetAlert from 'sweetalert2'
 import { FaRegEdit } from 'react-icons/fa'
+import Select from 'react-select';
+import { drop } from 'lodash'
 
 function formatDateForInput(date) {
   if (!date) return ''
@@ -13,34 +15,45 @@ function formatDateForInput(date) {
   return `${datePart}T${formattedTime}`
 }
 
-export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
+export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDetails }) {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const [pickupLocations, setPickupLocations] = useState([])
   const [dropLocations, setDropLocations] = useState([])
 
-  const [editFormData, setEditFormData] = useState({
-    AWB: job.AWB,
-    pieces: job.pieces,
-    weight: job.weight,
-    serviceTypeId: job.serviceTypeId?._id,
-    custRefNumber: job?.custRefNumber,
-    serviceCodeId: job.serviceCodeId?._id,
-    readyTime: formatDateForInput(job?.pickUpDetails?.readyTime),
-    cutOffTime: formatDateForInput(job?.dropOfDetails?.cutOffTime),
-    note: job.note,
-    adminNote: job.adminNote,
-    pickupLocationId: job.pickUpDetails?.pickupLocationId?._id,
-    dropOfLocationId: job.dropOfDetails?.dropOfLocationId?._id,
-    rates: job?.rates,
-    fuel_charge: job?.fuel_charge,
-    is_invoices: job?.is_invoices,
-    invoice_number: job?.invoice_number,
-    wait_time_charge: job?.wait_time_charge,
-    isVpap: job?.isVpap,
-    // driverNote: job?.driverNote,
-  })
+  const [editFormData, setEditFormData] = useState({});
+
+  useEffect(() => {
+    if (Object.keys(job).length !== 0) {
+      setEditFormData(
+        {
+          AWB: job.AWB,
+          pieces: job.pieces,
+          weight: job.weight,
+          serviceTypeId: job.serviceTypeId?._id,
+          custRefNumber: job?.custRefNumber,
+          serviceCodeId: job.serviceCodeId?._id,
+          readyTime: formatDateForInput(job?.pickUpDetails?.readyTime),
+          cutOffTime: formatDateForInput(job?.dropOfDetails?.cutOffTime),
+          note: job.note,
+          adminNote: job.adminNote,
+          pickupLocationId: job.pickUpDetails?.pickupLocationId?._id,
+          dropOfLocationId: job.dropOfDetails?.dropOfLocationId?._id,
+          rates: job?.rates,
+          fuel_charge: job?.fuel_charge,
+          is_invoices: job?.is_invoices,
+          invoice_number: job?.invoice_number,
+          wait_time_charge: job?.wait_time_charge,
+          isVpap: job?.isVpap,
+          manualPrice: job?.manualPrice,
+          // driverNote: job?.driverNote,
+        }
+      )
+    }
+  }, [job]);
+
+
 
   const [serviceTypes, setServiceTypes] = useState([])
   const [serviceCode, setServiceCode] = useState([])
@@ -53,11 +66,57 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
       text: job.serviceCodeId?.text,
       _id: job.serviceCodeId?._id,
     },
+    weight: {
+      value: '',
+      label: ''
+    }
   })
   const [loading, setLoading] = useState(false)
   const [loading2, setLoading2] = useState(false)
   const [loading3, setLoading3] = useState(true)
   const [loading4, setLoading4] = useState(true)
+
+  useEffect(() => {
+    if (dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === 'loose') {
+      const selectedWeight = weightOptions.find((item) => item.value === job?.weight);
+
+      setDropDownData({
+        ...dropDownData,
+        weight: {
+          label: selectedWeight.label,
+          value: selectedWeight.value,
+          rate: selectedWeight.rate
+        },
+      });
+    }
+  }, []);
+
+  const handleServiceCodeChange = (selectedOption) => {
+    const isLoose = selectedOption?.text?.toLowerCase()?.trim() === "loose";
+    const wasLoose = dropDownData.serviceCode?.text?.toLowerCase()?.trim() === "loose";
+
+    setDropDownData({
+      ...dropDownData,
+      serviceCode: { text: selectedOption.text, _id: selectedOption._id },
+    });
+
+    if (isLoose) {
+      // Going to "loose" → reset weight
+      setEditFormData(prev => ({
+        ...prev,
+        weight: null,
+      }));
+    } else if (wasLoose) {
+      // Only reset weight/rates if switching away from "loose"
+      const { rateRange, ...rest } = editFormData;
+
+      setEditFormData({
+        ...rest,
+        weight: '',
+        rates: '',
+      });
+    }
+  };
 
   // handle change
   const handleEditChange = (e) => {
@@ -69,6 +128,107 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
 
     setEditFormData({ ...editFormData, [name]: value })
   }
+
+  const weightOptions = [
+    {
+      value: '0-50',
+      label: '0-50',
+      rate: 32.80
+    },
+    {
+      value: '51-499',
+      label: '51-499',
+      rate: 37.42
+    },
+    {
+      value: '500-999',
+      label: '500-999',
+      rate: 46.53
+    },
+    {
+      value: '1000-1999',
+      label: '1000-1999',
+      rate: 56.01
+    },
+    {
+      value: '2000-2999',
+      label: '2000-2999',
+      rate: 65.11
+    },
+    {
+      value: '3000-3999',
+      label: '3000-3999',
+      rate: 76.72
+    },
+    {
+      value: '4000-4999',
+      label: '4000-4999',
+      rate: 88.44
+    },
+    {
+      value: '5000-5999',
+      label: '5000-5999',
+      rate: 99.66
+    },
+    {
+      value: '6000-6999',
+      label: '6000-6999',
+      rate: 111.63
+    },
+    {
+      value: '7000-7999',
+      label: '7000-7999',
+      rate: 123.23
+    },
+    {
+      value: '8000-8999',
+      label: '8000-8999',
+      rate: 139.44
+    },
+    {
+      value: '9000-9999',
+      label: '9000-9999',
+      rate: 187.09
+    },
+    {
+      value: '10,000-10,999',
+      label: '10,000-10,999',
+      rate: 212.05
+    },
+    {
+      value: '11,000-11,999',
+      label: '11,000-11,999',
+      rate: 237.00
+    },
+    {
+      value: '12,000-12,999',
+      label: '12,000-12,999',
+      rate: 261.94
+    },
+    {
+      value: '13,000-13,999',
+      label: '13,000-13,999',
+      rate: 286.88
+    }
+  ];
+
+  const handleWeightChange = (selectedOption) => {
+    setDropDownData({
+      ...dropDownData,
+      weight: {
+        label: selectedOption.label,
+        value: selectedOption.value,
+        rate: selectedOption.rate
+      },
+    });
+
+    setEditFormData({
+      ...editFormData,
+      weight: selectedOption.value,
+      rates: selectedOption.rate,
+      rateRange: selectedOption.rate,
+    });
+  };
 
   // handle save
   const handleSave = () => {
@@ -91,8 +251,38 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
       invoice_number: editFormData.invoice_number,
       wait_time_charge: editFormData.wait_time_charge,
       isVpap: editFormData.isVpap === 'true' ? true : false,
+      manualPrice: editFormData?.manualPrice
       // driverNote: editFormData.driverNote,
     }
+
+    const optionalFields = [
+      'adminNote',
+      'rates',
+      'fuel_charge',
+      'wait_time_charge',
+      'invoice_number',
+      'is_invoices'
+    ];
+
+    const requiredFields = Object.keys(data).filter(key => !optionalFields.includes(key));
+
+    const isValid = requiredFields.every(
+      (field) => data[field] !== '' && data[field] !== null && data[field] !== undefined
+    );
+
+    if (dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === 'loose') {
+      data.rateRange = editFormData.rateRange;
+    }
+
+    if (!isValid) {
+      sweetAlert.fire({
+        title: 'Error',
+        text: 'All required fields must be filled.',
+        icon: 'error',
+      });
+      return
+    }
+
     updateReq(`/v2/admin/job?job_id=${job._id}`, data, 'admin')
       .then((response) => {
         if (response.data.status) {
@@ -103,6 +293,7 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
           })
           setIsRefresh(!isReferesh)
           handleClose()
+          fetchJobDetails();
         }
       })
       .catch((error) => {
@@ -162,7 +353,7 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
 
     fetchDropLocations()
     fetchPickupLocations()
-  }, [])
+  }, []);
 
   return (
     <>
@@ -199,20 +390,111 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
                   onChange={handleEditChange}
                 />
               </Form.Group>
-              <Form.Group as={Col} controlId="formGridEmail">
-                <Form.Label>Weight</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Weight"
-                  value={editFormData.weight}
-                  name="weight"
-                  onChange={handleEditChange}
-                />
+
+              <Form.Group as={Col} controlId="formGridPassword">
+                <Form.Label>Service Code</Form.Label>
+                <Dropdown data-bs-theme="primary">
+                  <Dropdown.Toggle
+                    id="dropdown-button-dark-example1"
+                    variant="secondary"
+                    className="w-100"
+                  >
+                    {dropDownData.serviceCode.text}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="w-100">
+                    {loading2 ? (
+                      <Spinner animation="border" variant="primary" />
+                    ) : (
+                      serviceCode?.map((serviceCode) => (
+                        <Dropdown.Item
+                          key={serviceCode._id}
+                          // onClick={() => {
+                          //   const isLoose = serviceCode?.text?.toLowerCase()?.trim() === "loose";
+
+                          //   setDropDownData({
+                          //     ...dropDownData,
+                          //     serviceCode: { text: serviceCode.text, _id: serviceCode._id },
+                          //   });
+
+                          //   setEditFormData(prev => ({
+                          //     ...prev,
+                          //     weight: isLoose ? null : job.weight, // null if Loose, else keep existing
+                          //   }));
+                          // }}
+                          onClick={() => handleServiceCodeChange(serviceCode)}
+                        >
+                          {serviceCode.text}
+                        </Dropdown.Item>
+                      ))
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
               </Form.Group>
+
+
             </Row>
 
             <Row className="mb-3">
-              <Form.Group as={Col} controlId="formGridPassword">
+              {dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === 'loose' ?
+                <Form.Group as={Col} controlId="formGridEmail">
+                  <Form.Label>Weight</Form.Label>
+                  {/* <Select
+                    className="w-100 custom-select"
+                    classNamePrefix="custom-select"
+                    options={weightOptions}
+                    value={
+                      dropDownData.weight.value
+                        ? {
+                          value: dropDownData.weight.value,
+                          label: dropDownData.weight.label,
+                          rate: dropDownData.weight.rate
+                        }
+                        : null
+                    }
+                    onChange={handleWeightChange}
+                    placeholder="Select Weight Range"
+                    isSearchable
+                  /> */}
+                  <Dropdown data-bs-theme="primary">
+                    <Dropdown.Toggle
+                      id="dropdown-button-dark-example1"
+                      variant="secondary"
+                      className="w-100"
+                    >
+                      {dropDownData.weight.label}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="w-100">
+                      {loading2 ? (
+                        <Spinner animation="border" variant="primary" />
+                      ) : (
+                        weightOptions?.map((weight) => (
+                          <Dropdown.Item
+                            key={weight._id}
+                            onClick={() => handleWeightChange(weight)}
+                          >
+                            {weight.label}
+                          </Dropdown.Item>
+                        ))
+                      )}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </Form.Group>
+                :
+                <Form.Group as={Col} controlId="formGridEmail">
+                  <Form.Label>Weight</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="weight"
+                    placeholder="Number"
+                    maxLength={20}
+                    onChange={handleEditChange}
+                    value={editFormData?.weight}
+                  />
+                </Form.Group>
+
+              }
+
+              < Form.Group as={Col} controlId="formGridPassword">
                 <Form.Label>Service Type</Form.Label>
                 <Dropdown data-bs-theme="primary">
                   <Dropdown.Toggle
@@ -253,38 +535,6 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
                   name="custRefNumber"
                   onChange={handleEditChange}
                 />
-              </Form.Group>
-
-              <Form.Group as={Col} controlId="formGridPassword">
-                <Form.Label>Service Code</Form.Label>
-                <Dropdown data-bs-theme="primary">
-                  <Dropdown.Toggle
-                    id="dropdown-button-dark-example1"
-                    variant="secondary"
-                    className="w-100"
-                  >
-                    {dropDownData.serviceCode.text}
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="w-100">
-                    {loading2 ? (
-                      <Spinner animation="border" variant="primary" />
-                    ) : (
-                      serviceCode?.map((serviceCode) => (
-                        <Dropdown.Item
-                          key={serviceCode._id}
-                          onClick={() =>
-                            setDropDownData({
-                              ...dropDownData,
-                              serviceCode: { text: serviceCode.text, _id: serviceCode._id },
-                            })
-                          }
-                        >
-                          {serviceCode.text}
-                        </Dropdown.Item>
-                      ))
-                    )}
-                  </Dropdown.Menu>
-                </Dropdown>
               </Form.Group>
             </Row>
 
@@ -379,8 +629,8 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
                       {editFormData?.isVpap ? 'Yes' : 'No'}
                     </option>
                     {editFormData?.isVpap ? <option value={false}>No</option> : <option value={true}>Yes</option>}
-                    
-                    
+
+
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -424,7 +674,7 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
                 <Form.Control
                   type="number"
                   placeholder="Rates"
-                  value={editFormData.rates}
+                  value={editFormData?.rates}
                   name="rates"
                   onChange={handleEditChange}
                 />
@@ -472,6 +722,19 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
                 />
               </Form.Group>
             </Row>
+            <Row className="mb-3">
+              <Form.Group controlId="clientAssignDriverCheckbox">
+                <Form.Check
+                  type="checkbox"
+                  label="Add manual price"
+                  name="manualPrice"
+                  checked={editFormData?.manualPrice}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, manualPrice: e.target.checked })
+                  }
+                />
+              </Form.Group>
+            </Row>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -482,7 +745,7 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh }) {
             Close
           </button>
         </Modal.Footer>
-      </Modal>
+      </Modal >
     </>
   )
 }

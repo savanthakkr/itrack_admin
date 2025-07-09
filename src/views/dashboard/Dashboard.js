@@ -816,7 +816,7 @@ const Dashboard = () => {
 																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
 																	</button>
 																</li>
-																{role !== "Allocant" &&
+																{role !== "Allocator" &&
 																	<li>
 																		<button
 																			className="dropdown-item"
@@ -826,7 +826,7 @@ const Dashboard = () => {
 																		</button>
 																	</li>
 																}
-																{role !== 'Allocant' && item?.Status === 'Pending' &&
+																{role !== 'Allocator' && item?.Status === 'Pending' &&
 																	<li>
 																		<button
 																			className="dropdown-item"
@@ -1072,7 +1072,7 @@ const Dashboard = () => {
 																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
 																	</button>
 																</li>
-																{role !== "Allocant" &&
+																{role !== "Allocator" &&
 																	<li>
 																		<button
 																			className="dropdown-item"
@@ -1082,7 +1082,7 @@ const Dashboard = () => {
 																		</button>
 																	</li>
 																}
-																{role !== 'Allocant' && item?.Status === 'Pending' && item?.isTransfer === false &&
+																{role !== 'Allocator' && item?.Status === 'Pending' && item?.isTransfer === false &&
 																	<li>
 																		<button
 																			className="dropdown-item"

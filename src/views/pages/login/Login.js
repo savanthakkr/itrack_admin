@@ -62,7 +62,7 @@ const Login = () => {
           navigate('/admin/all');
         } else if (res.data.data.role === 'Accountant') {
           navigate('/accountant/job/all');
-        } else if (res.data.data.role === "Allocant") {
+        } else if (res.data.data.role === "Allocator") {
           navigate('/dashboard');
         }
       } else if (res.status === 400) {

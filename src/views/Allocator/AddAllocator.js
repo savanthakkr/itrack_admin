@@ -5,11 +5,11 @@ import sweetAlert from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
 import { CButton } from '@coreui/react'
 
-function AddAllocant() {
+function AddAllocator() {
   const formRef = useRef(); 
   const navigate = useNavigate()
   const [validated, setValidated] = useState(false)
-  const [allocantData, setAllocantData] = useState({
+  const [allocatorData, setAllocatorData] = useState({
     firstname: '',
     lastname: '',
     email: '',
@@ -24,17 +24,17 @@ function AddAllocant() {
   // handle change
   const handleChange = (e) => {
     const { name, value } = e.target
-    setAllocantData({ ...allocantData, [name]: value })
+    setAllocatorData({ ...allocatorData, [name]: value })
   }
 
   // handle file change
   const handleFileChange = (e) => {
     const { name, files } = e.target
-    setAllocantData({ ...allocantData, [name]: files[0] })
+    setAllocatorData({ ...allocatorData, [name]: files[0] })
   }
 
-  // handle Add Allocant
-  const handleAllocantAdd = async (event) => {
+  // handle Add Allocator
+  const handleAllocatorAdd = async (event) => {
     const form = event.currentTarget
     if (form.checkValidity() === false) {
       event.preventDefault()
@@ -51,14 +51,14 @@ function AddAllocant() {
       //   setLoading(false)
       //   return
       // }
-      post('/admin/allocant', allocantData, "admin").then((res) => {
+      post('/admin/allocator', allocatorData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)
           sweetAlert.fire({
             icon: 'success',
-            title: 'Allocant Added Successfully!',
+            title: 'Allocator Added Successfully!',
           }).then(() => {
-            navigate("/allocant/all")
+            navigate("/allocator/all")
           })
         } else if (res.status === 400) {
           sweetAlert.fire({
@@ -69,12 +69,12 @@ function AddAllocant() {
           setLoading(false)
         }
       }).catch((error) => {
-        console.error("Error adding allocant:", error)
+        console.error("Error adding allocator:", error)
         setLoading(false)
         sweetAlert.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Failed to Add allocant',
+          text: 'Failed to Add allocator',
         })
       })
     }
@@ -101,16 +101,16 @@ function AddAllocant() {
     <>
         <Row className="align-items-center">
           <Col>
-            <h4 className="mb-0">Add Allocant</h4>
+            <h4 className="mb-0">Add Allocator</h4>
           </Col>
           <Col className="text-end">
             <CButton className="custom-btn" onClick={() => formRef.current?.requestSubmit()}>
-              Add Allocant
+              Add Allocator
             </CButton>
           </Col>
         </Row>
         <div className="shadow bg-white px-3 py-3 mt-3 custom-form">
-          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAllocantAdd}>
+          <Form ref={formRef} noValidate validated={validated} onSubmit={handleAllocatorAdd}>
             <Row>
               <Col md={6}>
                 <Form.Group>
@@ -120,7 +120,7 @@ function AddAllocant() {
                     placeholder="Enter First Name"
                     name='firstname'
                     onChange={handleChange}
-                    value={allocantData.firstname}
+                    value={allocatorData.firstname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -136,7 +136,7 @@ function AddAllocant() {
                     placeholder="Enter Last Name"
                     name='lastname'
                     onChange={handleChange}
-                    value={allocantData.lastname}
+                    value={allocatorData.lastname}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -154,7 +154,7 @@ function AddAllocant() {
                     placeholder="Enter Email Address"
                     name='email'
                     onChange={handleChange}
-                    value={allocantData.email}
+                    value={allocatorData.email}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -170,7 +170,7 @@ function AddAllocant() {
                     placeholder="Enter Phone"
                     name='phone'
                     onChange={handleChange}
-                    value={allocantData.phone}
+                    value={allocatorData.phone}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
@@ -179,41 +179,7 @@ function AddAllocant() {
                 </Form.Group>
               </Col>
             </Row>
-            {/* <Row>
-            <Col md={6} className="mt-3">
-              <Form.Group>
-                <Form.Label>Username</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Enter username"
-                  name='username' 
-                  onChange={handleChange} 
-                  value={accountantData.username}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a username.
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row> */}
             <Row>
-              {/* <Col md={6} className="mt-3">
-              <Form.Group>
-                <Form.Label>Password</Form.Label>
-                <Form.Control 
-                  type="password" 
-                  placeholder="Enter Password"
-                  name='password' 
-                  onChange={handleChange} 
-                  value={accountantData.password}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a password.
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col> */}
               <Col md={6} className="mt-3">
                 <Form.Group>
                   <Form.Label>Image (Optional)</Form.Label>
@@ -225,24 +191,10 @@ function AddAllocant() {
                 </Form.Group>
               </Col>
             </Row>
-            {/* <Row>
-              <Col md={3} className="mt-5">
-                {loading ? <Spinner animation="border" variant="success" /> :
-                  <Button
-                    className="border-0"
-                    style={{ backgroundColor: '#5856D5' }}
-                    size="small"
-                    type="submit"
-                  >
-                    Add Accountant
-                  </Button>
-                }
-              </Col>
-            </Row> */}
           </Form>
         </div>
     </>
   )
 }
 
-export default AddAllocant
+export default AddAllocator

@@ -38,7 +38,7 @@ const getNavItems = (role) => {
       name: 'Dashboard',
       to: '/dashboard',
       icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Allocant' ? 'true' : 'false'
+      display: role === 'Admin' || role === 'Allocator' ? 'true' : 'false'
       // badge: {
       //   color: 'info',
       //   text: 'NEW',
@@ -91,19 +91,19 @@ const getNavItems = (role) => {
       name: 'Bookings',
       to: '/base',
       icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
-      display: role === 'Admin' || role === 'Accountant' || role === 'Allocant' ? 'true' : 'false',
+      display: role === 'Admin' || role === 'Accountant' || role === 'Allocator' ? 'true' : 'false',
       items: [
         {
           component: CNavItem,
           name: 'New Booking',
           to: '/job/add',
-          display: role === 'Admin' || role === 'Accountant' || role === 'Allocant' ? 'true' : 'false'
+          display: role === 'Admin' || role === 'Accountant' || role === 'Allocator' ? 'true' : 'false'
         },
         {
           component: CNavItem,
           name: 'All Bookings',
           to: '/job/all',
-          display: role === 'Admin' || role === 'Allocant' ? 'true' : 'false'
+          display: role === 'Admin' || role === 'Allocator' ? 'true' : 'false'
         },
         {
           component: CNavItem,
@@ -185,21 +185,21 @@ const getNavItems = (role) => {
     },
     {
       component: CNavGroup,
-      name: 'Allocant',
+      name: 'Allocator',
       to: '/base',
       icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
       display: role === 'Admin' ? 'true' : 'false',
       items: [
         {
           component: CNavItem,
-          name: 'Add Allocant',
-          to: '/allocant/add',
+          name: 'Add Allocator',
+          to: '/allocator/add',
           display: role === 'Admin' ? 'true' : 'false'
         },
         {
           component: CNavItem,
-          name: 'All Allocant',
-          to: '/allocant/all',
+          name: 'All Allocator',
+          to: '/allocator/all',
           display: role === 'Admin' ? 'true' : 'false'
         },
       ],

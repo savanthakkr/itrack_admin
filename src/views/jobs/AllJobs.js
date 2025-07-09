@@ -882,7 +882,7 @@ const AllJobs = () => {
                                                                                 Package Location
                                                                             </button>
                                                                         </li>
-                                                                        {role !== 'Allocant' && item?.Status === 'Pending' && item?.isTransfer === false &&
+                                                                        {role !== 'Allocator' && item?.Status === 'Pending' && item?.isTransfer === false &&
                                                                             <li>
                                                                                 <button
                                                                                     className="dropdown-item"
