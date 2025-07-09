@@ -34,7 +34,7 @@ export default function ViewDriverUploads({ captures, Rname, RSign }) {
                       <Col md={4} key={index}>
                         <Card className="p-2 text-center">
                           <img
-                            src={`${imgSrc}${capture}`}
+                            src={`${imgSrc}${capture.indexOf('/') > -1 ? capture.substr(1) : capture}`}
                             alt="Capture"
                             className=" mx-auto d-block rounded-2"
                             width={120}
@@ -43,7 +43,7 @@ export default function ViewDriverUploads({ captures, Rname, RSign }) {
                           <Button
                             variant="primary"
                             className="rounded-2 text-white fs-6 m-2"
-                            onClick={() => handleDownload(`${imgSrc}${capture}`)}
+                            onClick={() => handleDownload(`${imgSrc}${capture.indexOf('/') > -1 ? capture.substr(1) : capture}`)}
                           >
                             Download
                           </Button>
@@ -62,7 +62,7 @@ export default function ViewDriverUploads({ captures, Rname, RSign }) {
                         <Col md={6} className="d-flex">
                           <p>Recipient Signature: </p>
                           <img
-                            src={`${imgSrc}${RSign}`}
+                            src={`${imgSrc}${RSign.indexOf('/') > -1 ? RSign.substr(1) : RSign}`}
                             alt="sign"
                             className="img-fluid mx-auto d-block"
                             width={100}

@@ -111,6 +111,12 @@ const getNavItems = (role) => {
           to: '/accountant/job/all',
           display: role === 'Accountant' ? 'true' : 'false'
         },
+        {
+          component: CNavItem,
+          name: 'All Invoices',
+          to: '/invoices',
+          display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+        },
       ],
     },
     {
@@ -210,13 +216,6 @@ const getNavItems = (role) => {
       to: '/reports/stats',
       icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
       display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false',
-    },
-    {
-      component: CNavItem,
-      name: 'Invoices ',
-      to: '/invoices',
-      icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
-      display: role === 'Accountant' ? 'true' : 'false',
     },
 
     // {

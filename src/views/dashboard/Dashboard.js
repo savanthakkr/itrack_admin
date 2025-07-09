@@ -624,7 +624,7 @@ const Dashboard = () => {
 			<Tabs activeKey={activeTab} onSelect={handleTabSelect} defaultActiveKey="todaysJob" id="todays-job" className="mb-3 custom-tabs">
 				{/* Today's Job Tab */}
 				<Tab eventKey="todaysJob" title="Today's Jobs" className="client-rates-table">
-					<div className="table-responsive">
+					{/* <div className="table-responsive"> */}
 						<Table responsive hover bordered>
 							<thead>
 								<tr style={{ fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
@@ -848,7 +848,7 @@ const Dashboard = () => {
 								)}
 							</tbody>
 						</Table>
-					</div>
+					{/* </div> */}
 				</Tab>
 
 				{/* <Row className="mb-3 justify-content-between">
