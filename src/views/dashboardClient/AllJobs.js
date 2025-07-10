@@ -565,14 +565,8 @@ const AllJobs = () => {
           <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
         </div>
       )}
-
-      {/* <Row>
-        <Col md={12}> */}
-      <Tabs activeKey={activeTab} onSelect={handleTabSelect} defaultActiveKey="allJobs" id="todays-job" className="mb-3 custom-tabs">
-        {/* Today's Job Tab */}
-        <Tab eventKey="allJobs" title="All Jobs" className="client-rates-table">
-          <div className="client-rates-table">
-            {/* <Row className="mb-3 justify-content-between">
+      <div className="client-rates-table">
+        {/* <Row className="mb-3 justify-content-between">
               <Col md={4} className="d-flex align-items-center gap-3">
                 show:
                 <Form.Select value={limit} onChange={handleLimitChange}>
@@ -620,198 +614,198 @@ const AllJobs = () => {
               </Col>
             </Row> */}
 
-            <Table className="custom-table" bordered responsive hover>
-              <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                <tr>
-                  <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
-                    Client
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
-                    Ready Time
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
-                    Cuttoff Time
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('AWB')}>
-                    AWB
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('pieces')}>
-                    Pieces
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
-                    Service Type
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
-                    Service Code
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
-                    Pickup From
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
-                    Deliver To
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('uid')}>
-                    Job Id
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('driverId.firstname')}>
-                    Driver
-                  </th>
-                  <th className="text-center" style={{ width: 'auto', minWidth: '150px' }} onClick={() => handleSort('currentStatus')}>
-                    Status
-                  </th>
-                  <th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody style={{ fontSize: 13 }}>
-                {data?.length === 0 ? (
-                  <tr>
-                    <td colSpan={14} className="text-center text-danger">
-                      No jobs found
+        <Table className="custom-table" bordered responsive hover>
+          <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+            <tr>
+              <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+                Client
+              </th>
+              <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
+                Ready Time
+              </th>
+              <th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
+                Cuttoff Time
+              </th>
+              <th className="text-center" onClick={() => handleSort('AWB')}>
+                AWB
+              </th>
+              <th className="text-center" onClick={() => handleSort('pieces')}>
+                Pieces
+              </th>
+              <th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
+                Service Type
+              </th>
+              <th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
+                Service Code
+              </th>
+              <th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
+                Pickup From
+              </th>
+              <th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
+                Deliver To
+              </th>
+              <th className="text-center" onClick={() => handleSort('uid')}>
+                Job Id
+              </th>
+              <th className="text-center" onClick={() => handleSort('driverId.firstname')}>
+                Driver
+              </th>
+              <th className="text-center" style={{ width: 'auto', minWidth: '150px' }} onClick={() => handleSort('currentStatus')}>
+                Status
+              </th>
+              <th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody style={{ fontSize: 13 }}>
+            {data?.length === 0 ? (
+              <tr>
+                <td colSpan={14} className="text-center text-danger">
+                  No jobs found
+                </td>
+              </tr>
+            ) : (
+              data?.map((item, index) => {
+                const isSelected = item._id === selectedJob?._id
+                const status = item?.isHold ? 'Hold' : item?.currentStatus
+                const styles = getStatusStyles(status)
+                return (
+                  <tr key={index} className="cursor-pointer">
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.clientId?.companyName}
                     </td>
-                  </tr>
-                ) : (
-                  data?.map((item, index) => {
-                    const isSelected = item._id === selectedJob?._id
-                    const status = item?.isHold ? 'Hold' : item?.currentStatus
-                    const styles = getStatusStyles(status)
-                    return (
-                      <tr key={index} className="cursor-pointer">
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.clientId?.companyName}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.AWB}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.pieces}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.serviceTypeId?.text}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.serviceCodeId?.text}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.pickUpDetails?.pickupLocationId?.customName}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.dropOfDetails?.dropOfLocationId?.customName}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.uid}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {' '}
-                          {item?.driverId
-                            ? `${item?.driverId?.firstname}-${item?.driverId?.lastname}`
-                            : ''}{' '}
-                        </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.AWB}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.pieces}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.serviceTypeId?.text}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.serviceCodeId?.text}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.pickUpDetails?.pickupLocationId?.customName}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.dropOfDetails?.dropOfLocationId?.customName}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {item?.uid}
+                    </td>
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      {' '}
+                      {item?.driverId
+                        ? `${item?.driverId?.firstname}-${item?.driverId?.lastname}`
+                        : ''}{' '}
+                    </td>
 
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    <td
+                      onClick={() => handleView(item)}
+                      className="text-center"
+                      style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                    >
+                      <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                        {status}
+                      </div>
+                    </td>
+                    <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
+                      <div className="dropdown">
+                        <button
+                          className="btn btn-link p-0 border-0"
+                          type="button"
+                          id={`dropdownMenuButton-${item._id}`}
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
                         >
-                          <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                            {status}
-                          </div>
-                        </td>
-                        <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
-                          <div className="dropdown">
+                          <BsThreeDotsVertical size={18} />
+                        </button>
+                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                          <li>
                             <button
-                              className="btn btn-link p-0 border-0"
-                              type="button"
-                              id={`dropdownMenuButton-${item._id}`}
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
+                              className="dropdown-item"
+                              onClick={() => handleEdit(item)}
                             >
-                              <BsThreeDotsVertical size={18} />
+                              Edit Job
                             </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => handleEdit(item)}
-                                >
-                                  Edit Job
-                                </button>
-                              </li>
-                              {assignPermission === 'true' && !item?.driverId && (
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => handleShowAssign(item)}
-                                  >
-                                    Change Driver
-                                  </button>
-                                </li>
-                              )}
-                              {trackPermission === 'true' && (
-                                <li>
-                                  <button
-                                    className="dropdown-item"
-                                    onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
-                                  >
-                                    Package Location
-                                  </button>
-                                </li>
-                              )}
-                            </ul>
-                          </div>
-                        </td>
-                        {/* <td
+                          </li>
+                          {assignPermission === 'true' && !item?.driverId && (
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleShowAssign(item)}
+                              >
+                                Change Driver
+                              </button>
+                            </li>
+                          )}
+                          {trackPermission === 'true' && (
+                            <li>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
+                              >
+                                Package Location
+                              </button>
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </td>
+                    {/* <td
                           className="text-center cursor-pointer "
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
@@ -853,247 +847,13 @@ const AllJobs = () => {
                         ) : (
                           ''
                         )} */}
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </Table>
-          </div>
-        </Tab>
-
-        <Tab eventKey="jobRequest" title="Job Transfer Requests" className="client-rates-table">
-          <div className="table-responsive">
-            <Table className="custom-table" bordered responsive hover>
-              <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-                <tr>
-                  {/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
-                        Client
-                      </th> */}
-                  <th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
-                    Ready Time
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('dropOfDetails.cutOffTime')}>
-                    Cuttoff Time
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('AWB')}>
-                    AWB
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('pieces')}>
-                    Pieces
-                  </th>
-                  {/* <th className="text-center" onClick={() => handleSort('serviceTypeId.text')}>
-                        Service Type
-                      </th> */}
-                  {/* <th className="text-center" onClick={() => handleSort('serviceCodeId.text')}>
-                        Service Code
-                      </th> */}
-                  <th className="text-center" onClick={() => handleSort('pickUpDetails.pickupLocationId.customName')}>
-                    Pickup From
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
-                    Deliver To
-                  </th>
-                  <th className="text-center" onClick={() => handleSort('uid')}>
-                    Job Id
-                  </th>
-                  {/* <th className="text-center" onClick={() => handleSort('driverId.firstname')}>
-                        Driver
-                      </th> */}
-                  <th className="text-center" style={{ width: 'auto', minWidth: '150px' }} onClick={() => handleSort('currentStatus')}>
-                    Status
-                  </th>
-                  <th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody style={{ fontSize: 13 }}>
-                {data?.length === 0 ? (
-                  <tr>
-                    <td colSpan={14} className="text-center text-danger">
-                      No job transfer request found
-                    </td>
                   </tr>
-                ) : (
-                  data?.map((item, index) => {
-                    const isSelected = item._id === selectedJob?._id
-                    const status = item?.isHold ? 'Hold' : item?.currentStatus
-                    const styles = getStatusStyles(status)
-                    return (
-                      <tr key={index} className="cursor-pointer">
-                        {/* <td
-                              onClick={() => handleView(item)}
-                              className="text-center"
-                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                            >
-                              {item?.clientId?.companyName}
-                            </td> */}
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                        </td>
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                        </td>
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.AWB}
-                        </td>
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.pieces}
-                        </td>
-                        {/* <td
-                              onClick={() => handleView(item)}
-                              className="text-center"
-                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                            >
-                              {item?.serviceTypeId?.text}
-                            </td> */}
-                        {/* <td
-                              onClick={() => handleView(item)}
-                              className="text-center"
-                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                            >
-                              {item?.serviceCodeId?.text}
-                            </td> */}
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.pickUpDetails?.pickupLocationId?.customName}
-                        </td>
-                        <td
-                          onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.dropOfDetails?.dropOfLocationId?.customName}
-                        </td>
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.uid}
-                        </td>
-                        {/* <td
-                              onClick={() => handleView(item)}
-                              className="text-center"
-                              style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                            >
-                              {' '}
-                              {item?.driverId
-                                ? `${item?.driverId?.firstname}-${item?.driverId?.lastname}`
-                                : ''}{' '}
-                            </td> */}
-
-                        <td
-                          // onClick={() => handleView(item)}
-                          className="text-center"
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                            {status}
-                          </div>
-                        </td>
-                        <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
-                          <div className="dropdown">
-                            <button
-                              className="btn btn-link p-0 border-0"
-                              type="button"
-                              id={`dropdownMenuButton-${item._id}`}
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                            >
-                              <BsThreeDotsVertical size={18} />
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => handleJobAccept(item)}
-                                >
-                                  Accept Job
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => handleJobDecline(item)}
-                                >
-                                  Decline Job
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        </td>
-                        {/* <td
-                          className="text-center cursor-pointer "
-                          style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                        >
-                          {item?.currentStatus === 'Pending' ? (
-                            <FaRegEdit className="text-primary" onClick={() => handleEdit(item)} />
-                          ) : (
-                            ''
-                          )}
-                        </td>
-                        <td className="text-center cursor-pointer">
-
-                                                        <FaEye className="text-success" onClick={() => handleView(item)} />
-                                                    </td>
-                        {assignPermission === 'true' ? (
-                          <td
-                            className="text-center cursor-pointer"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            {!item?.driverId ? (
-                              <FaTruckMoving onClick={() => handleShowAssign(item)} />
-                            ) : (
-                              ''
-                            )}
-                          </td>
-                        ) : (
-                          ''
-                        )}
-
-                        {trackPermission === 'true' ? (
-                          <td
-                            className="text-center cursor-pointer"
-                            style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                          >
-                            <FaMapMarkedAlt
-                              className="text-primary"
-                              onClick={() => navigate(`/client/dashboard/location/${item._id}`)}
-                            />
-                          </td>
-                        ) : (
-                          ''
-                        )} */}
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </Table>
-          </div>
-        </Tab>
-      </Tabs >
+                )
+              })
+            )}
+          </tbody>
+        </Table>
+      </div>
       {/* </Col>
       </Row> */}
 

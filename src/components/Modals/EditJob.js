@@ -24,7 +24,7 @@ export default function EditJob({ show, handleClose, job, setIsRefresh, isRefere
         status: job.status,
         note: job.note
     });
-    console.log("edit job data", editFormData)
+    
     const [serviceTypes, setServiceTypes] = useState([]);
     const [serviceCode, setServiceCode] = useState([]);
     const [dropDownData, setDropDownData] = useState({

@@ -151,15 +151,15 @@ const AllDrivers = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading && (
+                {/* {loading && (
                   <tr>
                     <td colSpan={10} className="text-center">
                       <Spinner animation="border" />
                     </td>
                   </tr>
-                )}
-                {allDrivers.length > 0 ?
-                  allDrivers.map((item, index) => (
+                )} */}
+                {allDrivers?.length > 0 ?
+                  allDrivers?.map((item, index) => (
                     <tr key={index}>
                       {/* <td className="text-start px-4">{index + 1}</td> */}
                       <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>

@@ -403,7 +403,7 @@ const AccountantAllJobs = () => {
     ];
 
     const editableFields = [
-        'Ready Time', 'AWB', 'Customer Job Number', 'Service Type', 'Service Code', 'Pieces', 'Weight', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Notes', 'Base Rate', 'Fuel Surcharge'
+        'Ready Time', 'AWB', 'Customer Job Number', 'Service Type', 'Service Code', 'Pieces', 'Weight', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number'
     ]
 
     const handleCheckBoxChange = (e, item) => {

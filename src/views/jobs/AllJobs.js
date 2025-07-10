@@ -1212,7 +1212,7 @@ const AllJobs = () => {
                                     </Table>
                                 </div>
                             </Tab>
-                        </Tabs >
+                        </Tabs>
                     </div>
                 </Col>
             </Row>

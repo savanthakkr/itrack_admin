@@ -257,6 +257,16 @@ function AddClients() {
           console.error(error)
         });
     } else {
+      setClientData({
+        firstname: '',
+        lastname: '',
+        email: '',
+        phone: '',
+        companyName: '',
+        isDriverPermission: false,
+        isTrackPermission: false,
+        logo: null,
+      })
       const shouldGoToRateTab = localStorage.getItem("goToClientRateTab") === "true";
       if (!shouldGoToRateTab) {
         localStorage.removeItem('clientIdForRate');

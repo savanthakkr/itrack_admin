@@ -99,7 +99,7 @@ const AssignClientModal = ({ show, setShow, jobId, setIsRefresh, isReferesh, rol
                                 onClick={() => setSelectedClient(client)}
                                 className="d-flex justify-content-between align-items-center"
                             >
-                                <span>{client.firstname} {client.lastname}</span>
+                                <span>{client?.companyName}</span>
                                 {/* <BsCircleFill color={client.online ? 'green' : 'red'} size={10} /> */}
                             </Dropdown.Item>
                         ))}
