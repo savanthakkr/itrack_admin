@@ -8,7 +8,7 @@ import sweetAlert from 'sweetalert2';
 export default function AddDropLocation({ isReferesh, setIsRefresh, setIsAddSection }) {
     const [dropLocation, setDropLocation] = useState('');
     const [note, setNote] = useState('');
-    const [isPickupAddress, setIsPickupAddress] = useState('');
+    const [isPickupAddress, setIsPickupAddress] = useState(false);
     const [location, setLocation] = useState({
         latitude: 0,
         longitude: 0,

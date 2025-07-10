@@ -21,6 +21,8 @@ export const AppSidebarNav = ({ items }) => {
       localStorage.removeItem('email')
       localStorage.removeItem('firstname')
       localStorage.removeItem('lastname')
+      localStorage.removeItem('logoKey')
+      localStorage.removeItem('user')
 
       navigate('/')
     } else {
@@ -30,6 +32,8 @@ export const AppSidebarNav = ({ items }) => {
       localStorage.removeItem('email')
       localStorage.removeItem('firstname')
       localStorage.removeItem('lastname')
+      localStorage.removeItem('logoKey')
+      localStorage.removeItem('user')
       navigate('/')
     }
 

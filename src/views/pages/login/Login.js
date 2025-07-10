@@ -38,12 +38,15 @@ const Login = () => {
       return
     }
     post('/admin/login', { username, password }).then((res) => {
+      console.log('res.data.data', res.data.data);
       if (res.status === 200) {
         localStorage.setItem('admintoken', res.data.token)
         localStorage.setItem('email', res.data.data.email)
         localStorage.setItem('role', res.data.data.role)
         localStorage.setItem('firstname', res.data.data.firstname)
         localStorage.setItem('lastname', res.data.data.lastname)
+        localStorage.setItem('logoKey', res.data.data.imageKey)
+        localStorage.setItem('user', res.data.data._id)
         dispatch({
           type: 'setRole',
           payload: res.data.data.role,
@@ -54,6 +57,8 @@ const Login = () => {
             firstName: res.data.data.firstname,
             lastName: res.data.data.lastname,
             email: res.data.data.email,
+            logoKey: res.data.data.imageKey,
+            user: res.data.data._id
           },
         });
         if (res.data.data.role === 'Admin') {

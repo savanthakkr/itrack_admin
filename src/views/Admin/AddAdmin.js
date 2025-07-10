@@ -32,6 +32,7 @@ function AddAdmin() {
   // handle file change
   const handleFileChange = (e) => {
     const { name, files } = e.target
+    console.log('files', files);
     setAdminData({ ...adminData, [name]: files[0] })
   }
 
@@ -53,7 +54,17 @@ function AddAdmin() {
       //   setLoading(false)
       //   return
       // }
-      post('/super-admin/admin', adminData, "admin").then((res) => {
+      const formData = new FormData();
+      formData.append('logo', adminData.logo);
+      formData.append('firstname', adminData.firstname);
+      formData.append('lastname', adminData.lastname);
+      formData.append('email', adminData.email);
+      formData.append('phone', adminData.phone);
+      formData.append('username', adminData.username);
+      formData.append('password', adminData.password);
+      formData.append('companyName', adminData.companyName);
+
+      post('/super-admin/admin', formData, "admin").then((res) => {
         if (res.status === 200) {
           setLoading(false)
           sweetAlert.fire({

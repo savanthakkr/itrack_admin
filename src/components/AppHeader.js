@@ -39,6 +39,7 @@ const AppHeader = () => {
   let imgSrc = process.env.Image_Src
   const headerRef = useRef()
   const searchQuery = useSelector((state) => state.searchQuery)
+  const role = useSelector((state) => state.role);
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const [logoUrl, setLogoUrl] = useState(logo)
   const [showLogoModal, setShowLogoModal] = useState(false)
@@ -53,7 +54,14 @@ const AppHeader = () => {
   };
   useEffect(() => {
     setColorMode('light')
-    const token = localStorage.getItem('jdAirTrans-client-token');
+
+    let token;
+
+    if (role === 'Client') {
+      token = localStorage.getItem('jdAirTrans-client-token');
+    } else {
+      token = localStorage.getItem('admintoken');
+    }
 
     if (token) {
       setLogoUrl(imgSrc + localStorage.getItem('logoKey'))
@@ -65,13 +73,12 @@ const AppHeader = () => {
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const handleLogout = () => {
     let currentPathname = window.location.href
-    console.log('currentPathname', currentPathname)
     if (currentPathname.includes('/client/dashboard')) {
       localStorage.removeItem('jdAirTrans-client-token')
       localStorage.removeItem('clientDriverAssign')
       localStorage.removeItem('clientTrackPermission')
       sessionStorage.removeItem('selectedItem')
-      
+
       navigate('/')
     } else {
       localStorage.removeItem('admintoken')
@@ -87,9 +94,9 @@ const AppHeader = () => {
       get('/client/profile', 'client').then((data) => {
         if (data.data.status) {
           setData(data.data.data)
-          setLogoUrl(imgSrc + data.data.data.logoKey)
+          // setLogoUrl(imgSrc + data.data.data.logoKey)
           setLoading(false);
-          localStorage.setItem('logoKey', data.data.data.logoKey)
+          // localStorage.setItem('logoKey', data.data.data.logoKey)
         }
       })
     }
@@ -113,7 +120,7 @@ const AppHeader = () => {
 
   const handleClear = () => {
     setMessage('')
-    setIsReferesh(!isReferesh)
+    // setIsReferesh(!isReferesh)
     setSearchQuery({
       AWB: '',
       clientId: '',
@@ -136,7 +143,7 @@ const AppHeader = () => {
     })
   }
 
-
+  console.log('logoUrl', logoUrl);
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef} style={{ height: '60px', zIndex: 1030 }}>
       <CContainer className="px-4 d-flex justify-content-between align-items-center"

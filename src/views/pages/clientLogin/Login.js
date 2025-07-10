@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CButton,
@@ -19,6 +19,7 @@ import { Spinner } from 'react-bootstrap'
 import Navbar from '../../../components/landing/Navbar.js'
 import Footer from '../../../components/landing/Footer.js'
 import axios from '../../../lib/axiosInstance.js'
+import { useDispatch } from 'react-redux'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -27,6 +28,7 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [fault, setFault] = useState({ isErr: false, msg: '' })
   const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch();
 
   async function handleLogin({ username, password }) {
     setLoading(true)
@@ -34,7 +36,6 @@ const Login = () => {
       const res = await axios.put('/client/login', { username, password })
       const { status, message, data } = res?.data
       if (status) {
-        console.log('client data', data?.data);
         localStorage.setItem('jdAirTrans-client-token', data.token)
         localStorage.setItem('clientDriverAssign', data.data.isDriverPermission)
         localStorage.setItem('clientTrackPermission', data.data.isTrackPermission)
@@ -43,6 +44,22 @@ const Login = () => {
         localStorage.setItem('role', 'Client')
         localStorage.setItem('firstname', data.data.firstname)
         localStorage.setItem('lastname', data.data.lastname)
+        localStorage.setItem('user', data.data._id)
+
+        dispatch({
+          type: 'setRole',
+          payload: 'Client',
+        });
+        dispatch({
+          type: 'setUserInfo',
+          payload: {
+            firstName: data.data.firstname,
+            lastName: data.data.lastname,
+            email: data.data.email,
+            logoKey: data.data.logoKey,
+            user: data.data._id
+          },
+        });
 
         navigate('/client/dashboards')
       } else {

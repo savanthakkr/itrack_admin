@@ -94,7 +94,7 @@ function AllDropLocation() {
     <>
       <Row className="align-items-center">
         <Col>
-          <h4 className="mb-0">Service Code</h4>
+          <h4 className="mb-0">Drop Off Location</h4>
         </Col>
         <Col className="text-end">
           <CButton className="custom-btn" onClick={handleAddDropLocation}>

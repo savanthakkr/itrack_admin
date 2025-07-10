@@ -75,8 +75,8 @@ function AddJobs() {
     })
 
     const clientOptions = clients
-        .sort((a, b) => a.companyName.localeCompare(b.companyName))
-        .map((client) => ({
+        ?.sort((a, b) => a?.companyName.localeCompare(b?.companyName))
+        ?.map((client) => ({
             value: client._id,
             label: client.companyName,
         }));
@@ -501,7 +501,7 @@ function AddJobs() {
     const getAllClients = () => {
         get('/admin/info/allClients', 'admin')
             .then((res) => {
-                setClients(res.data.data)
+                setClients(res?.data?.data)
             })
             .catch((error) => {
                 console.error('Error getting all clients:', error)

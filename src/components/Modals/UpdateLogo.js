@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Form, Image, Alert } from 'react-bootstrap';
 import { updateImage, updateReq } from '../../lib/request';
 import Swal from 'sweetalert2';
+import { useSelector } from 'react-redux';
 
 const UpdateLogoModal = ({ show, setShow, currentLogoUrl, onSave, setRefresh, refresh }) => {
     let imgSrc = process.env.Image_Src;
@@ -11,6 +12,8 @@ const UpdateLogoModal = ({ show, setShow, currentLogoUrl, onSave, setRefresh, re
     const fileInputRef = useRef();
     const maxSize = 5 * 1024 * 1024; // 5MB
     const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+    const userId = useSelector((state) => state.loggedInUser.user)
+    const role = useSelector((state) => state.role);
 
     useEffect(() => {
         if (localStorage.getItem('logoKey')) {
@@ -76,22 +79,51 @@ const UpdateLogoModal = ({ show, setShow, currentLogoUrl, onSave, setRefresh, re
     // Save selected file
     const handleSave = () => {
         if (!selectedFile) return;
-        onSave(selectedFile);
+
         // setError('');
         // setShow(false);
         let formData = new FormData();
         formData.append('logo', selectedFile);
-        updateImage('/client/logo', formData, 'client').then((data) => {
-            if (data.data.status) {
-                setRefresh(!refresh)
-                setShow(false)
-                setSelectedFile(null);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Logo Updated Successfully!',
-                })
-            }
-        })
+        if (role === 'Client') {
+            updateImage(`/client/logo`, formData, 'client').then((data) => {
+                console.log('data', data.data);
+                if (data.data.status) {
+                    setRefresh(!refresh)
+                    setShow(false)
+                    setSelectedFile(null);
+                    onSave(selectedFile);
+                    localStorage.setItem('logoKey', data?.data?.data?.logoKey);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logo Updated Successfully!',
+                    })
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something went worng.',
+                    })
+                }
+            })
+        } else {
+            updateImage(`/super-admin/admin/image-update?ID=${userId.toString()}`, formData, 'admin').then((data) => {
+                if (data.data.status) {
+                    setRefresh(!refresh)
+                    setShow(false)
+                    setSelectedFile(null);
+                    onSave(selectedFile);
+                    localStorage.setItem('logoKey', data?.data?.data?.imageKey);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logo Updated Successfully!',
+                    })
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something went worng.',
+                    })
+                }
+            })
+        }
     };
 
     // Open file dialog

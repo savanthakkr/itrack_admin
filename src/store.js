@@ -46,7 +46,9 @@ const initialState = {
   loggedInUser: {
     firstName: localStorage.getItem('firstname'),
     lastName: localStorage.getItem('lastname'),
-    email: localStorage.getItem('email')
+    email: localStorage.getItem('email'),
+    logoKey: localStorage.getItem('logo'),
+    user: localStorage.getItem('user')
   }
 };
 
