@@ -70,12 +70,13 @@ const AllJobs = () => {
         for (let data of response) {
             const obj = {};
 
-            if (data?.adminId && data?.isTransferAccept) {
-                obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
-            } else {
-                obj.Client = data?.clientId?.companyName;
-            }
-
+            // if (data?.adminId && data?.isTransferAccept) {
+            //     obj.Client = data?.adminId ? data?.adminId?.firstname + " " + data?.adminId?.lastname : '-';
+            // } else {
+            //     obj.Client = data?.clientId?.companyName;
+            // }
+            
+            obj.Client = data?.clientId?.companyName;
             obj._id = data?._id;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
             obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";

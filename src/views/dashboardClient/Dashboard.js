@@ -24,6 +24,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterOffCanvas from '../../components/Filter'
 import FilterTags from '../../components/FilterTags'
 import { getSeachFilterResult } from '../../services/getSearchFilterResult'
+import moment from 'moment'
 
 const Dashboard = () => {
   let trackPermission = localStorage.getItem('clientTrackPermission')
@@ -303,26 +304,28 @@ const Dashboard = () => {
     setMessage('');
     let queryParams = [];
 
+    console.log('not to remove tag')
     if (!tagRemove) {
       handleClear();
-      dispatch({
-        type: 'updateSearchQuery',
-        payload: {
-          AWB: "",
-          clientId: "",
-          driverId: "",
-          fromDate: "",
-          toDate: "",
-          currentStatus: "",
-          serviceCode: "",
-          serviceType: '',
-          serviceCodeId: '',
-          serviceTypeId: '',
-          jobId: "",
-          clientName: "",
-          driverName: ""
-        },
-      });
+      // dispatch({
+      // 	type: 'updateSearchQuery',
+      // 	payload: {
+      // 		AWB: "",
+      // 		clientId: "",
+      // 		driverId: "",
+      // 		fromDate: "",
+      // 		toDate: "",
+      // 		currentStatus: "",
+      // 		serviceCode: "",
+      // 		serviceType: '',
+      // 		serviceCodeId: '',
+      // 		serviceTypeId: '',
+      // 		jobId: "",
+      // 		clientName: "",
+      // 		driverName: "",
+      // 		transferJob: false
+      // 	},
+      // });
     } else {
 
       let filter = filterObj || searchQuery;
@@ -338,31 +341,33 @@ const Dashboard = () => {
       if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
       if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
       if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
+      if (filter.transferJob) queryParams.push(`transferJob=${filter.transferJob}`)
 
       const query = queryParams.join('&');
 
-      if (activeTab === 'todaysJob') {
-        handleTodayJobs();
-      } else {
-        get(`/client/jobFilter?${query}`, 'client')
-          .then((response) => {
-            if (response?.data?.status) {
-              if (response?.data?.data?.length === 0) {
-                setMessage('No data found')
-              }
-              // setData(response?.data?.data)
-              dispatch({
-                type: 'getJobData',
-                payload: response?.data?.data?.jobs,
-              });
-              setLoading(false)
+      // if (activeTab === 'todaysJob') {
+      // 	handleTodayJobs();
+      // } else {
+      get(`/admin/info/jobFilter?${query}`, 'client')
+        .then((response) => {
+          if (response?.data?.status) {
+            if (response?.data?.data?.length === 0) {
+              setMessage('No data found')
             }
-          })
-          .catch((error) => {
-            console.error(error)
+            // setData(response?.data?.data)
+            // const responseData = setJobsData(response?.data?.data?.jobs);
+            dispatch({
+              type: 'getJobData',
+              payload: response?.data?.data?.jobs,
+            });
             setLoading(false)
-          })
-      }
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          setLoading(false)
+        })
+      // }
     }
   }
 
@@ -384,7 +389,7 @@ const Dashboard = () => {
           <Button
             variant="dark"
             className="input-group-text cursor-pointer custom-icon-btn"
-          // onClick={handleRefresh}
+          onClick={handleRefresh}
           >
             <FaSyncAlt />
           </Button>

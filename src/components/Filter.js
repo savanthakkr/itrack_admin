@@ -274,7 +274,7 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                     </Col>
                 </Row>
 
-                {!invoice &&
+                {!invoice && role !== 'client' &&
                     <Row>
                         <Col md={12} className='mt-3'>
                             <Form.Group as={Col} controlId="formGridPassword">
