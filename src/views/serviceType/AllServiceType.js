@@ -184,8 +184,8 @@ function AllServiceType() {
                       <Spinner animation="border" variant="primary" />
                     </td>
                   </tr>
-                ) : filteredData.length > 0 ? (
-                  filteredData.map((item, index) => (
+                ) : filteredData?.length > 0 ? (
+                  filteredData?.map((item, index) => (
                     <tr key={index}>
                       <td className="text-start px-4">{index + 1}</td>
                       <td className="text-start px-4">{item?.text}</td>

@@ -347,7 +347,7 @@ const Dashboard = () => {
 			// } else {
 			// 	obj.Client = data?.clientId?.companyName;
 			// }
-			
+
 			obj.Client = data?.clientId?.companyName;
 			obj._id = data?._id;
 			obj.Client = data?.clientId?.companyName;
@@ -626,15 +626,15 @@ const Dashboard = () => {
 				{/* Today's Job Tab */}
 				<Tab eventKey="todaysJob" title="Today's Jobs" className="client-rates-table">
 					{/* <div className="table-responsive"> */}
-						<Table responsive hover bordered>
-							<thead>
-								<tr style={{ fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
-									{selectedColumns.map((col) => (
-										<>
-											<th className="text-center" onClick={() => handleSort(item)}>
-												{col}
-											</th>
-											{/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
+					<Table responsive hover bordered>
+						<thead>
+							<tr style={{ fontSize: 14, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+								{selectedColumns.map((col) => (
+									<>
+										<th className="text-center" onClick={() => handleSort(item)}>
+											{col}
+										</th>
+										{/* <th className="text-center" onClick={() => handleSort('clientId.companyName')}>
 												Client
 											</th>
 											<th className="text-center" onClick={() => handleSort('pickUpDetails.readyTime')}>
@@ -661,11 +661,11 @@ const Dashboard = () => {
 											<th className="text-center" onClick={() => handleSort('dropOfDetails.dropOfLocationId.customName')}>
 												Deliver To
 											</th> */}
-											{/* <th className="text-center">
+										{/* <th className="text-center">
 					<LuChevronDown className="cursor-pointer m-1" size={20} onClick={() => handleSort('uid')} />
 					Job ID
 				  </th> */}
-											{/* < th className="text-center" onClick={() => handleSort('note')} >
+										{/* < th className="text-center" onClick={() => handleSort('note')} >
 												Notes
 											</th>
 											<th className="text-center" onClick={() => handleSort('driverId.firstname')}>
@@ -674,76 +674,72 @@ const Dashboard = () => {
 											<th className="text-center" style={{ width: 'auto', minWidth: '170px' }} onClick={() => handleSort('currentStatus')}>
 												Status
 											</th> */}
-										</>
-									))}
-									<th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
+									</>
+								))}
+								<th className="text-center" style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							{loading ? (
+								<tr>
+									<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 								</tr>
-							</thead>
+							) : (
+								data?.length > 0 ?
+									data?.map((item, index) => {
+										const isSelected = item._id === selectedItem._id;
+										const status = item?.Status;
+										const styles = getStatusStyles(status);
+										const transferStatus = item['Transfer Status'];
+										const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
 
-							<tbody>
-								{message ? (
-									<tr>
-										<td colSpan={14} className="text-center text-danger">{message}</td>
-									</tr>
-								) : loading ? (
-									<tr>
-										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
-									</tr>
-								) : (
-									data?.length > 0 ?
-										data?.map((item, index) => {
-											const isSelected = item._id === selectedItem._id;
-											const status = item?.Status;
-											const styles = getStatusStyles(status);
-											const transferStatus = item['Transfer Status'];
-											const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
+										const tdStyle = {
+											backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+											fontSize: 14,
+											textAlign: 'left',
+										};
 
-											const tdStyle = {
-												backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-												fontSize: 14,
-												textAlign: 'left',
-											};
+										return (
+											<tr key={index} className="cursor-pointer">
+												{selectedColumns.map((col) => (
+													<>
 
-											return (
-												<tr key={index} className="cursor-pointer">
-													{selectedColumns.map((col) => (
-														<>
-
-															{col === 'Status' ?
+														{col === 'Status' ?
+															<td onClick={() => handleView(item)} style={{
+																...tdStyle,
+																...(item.blurJob
+																	? { pointerEvents: 'none' }
+																	: {}),
+															}}>
+																<div className="px-1 py-1 rounded-5 text-center" style={styles}>
+																	{status}
+																</div>
+															</td>
+															:
+															col === 'Transfer Status' ?
 																<td onClick={() => handleView(item)} style={{
 																	...tdStyle,
 																	...(item.blurJob
 																		? { pointerEvents: 'none' }
 																		: {}),
 																}}>
-																	<div className="px-1 py-1 rounded-5 text-center" style={styles}>
-																		{status}
+																	<div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+																		{transferStatus || "-"}
 																	</div>
 																</td>
 																:
-																col === 'Transfer Status' ?
-																	<td onClick={() => handleView(item)} style={{
-																		...tdStyle,
-																		...(item.blurJob
-																			? { pointerEvents: 'none' }
-																			: {}),
-																	}}>
-																		<div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
-																			{transferStatus || "-"}
-																		</div>
-																	</td>
-																	:
-																	<td onClick={() => handleView(item)} style={{
-																		...tdStyle,
-																		...(item.blurJob && col === 'Transfer To'
-																			? { pointerEvents: 'none' }
-																			: {}),
-																	}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
-																		{/* {item?.clientId?.companyName} */}
-																		{item[col] ?? "-"}
-																	</td>
-															}
-															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+																<td onClick={() => handleView(item)} style={{
+																	...tdStyle,
+																	...(item.blurJob && col === 'Transfer To'
+																		? { pointerEvents: 'none' }
+																		: {}),
+																}} className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}>
+																	{/* {item?.clientId?.companyName} */}
+																	{item[col] ?? "-"}
+																</td>
+														}
+														{/* <td onClick={() => handleView(item)} style={tdStyle}>
 																{item[col] ? getFormattedDAndT(item[col]) : '-'}
 															</td>
 															<td onClick={() => handleView(item)} style={tdStyle}>
@@ -764,23 +760,23 @@ const Dashboard = () => {
 															<td onClick={() => handleView(item)} style={tdStyle}>
 																{item?.dropOfDetails?.dropOfLocationId?.customName}
 															</td> */}
-															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+														{/* <td onClick={() => handleView(item)} style={tdStyle}>
 						  {item?.uid}
 						</td> */}
-															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+														{/* <td onClick={() => handleView(item)} style={tdStyle}>
 																{item?.note}
 															</td>
 															<td onClick={() => handleView(item)} style={tdStyle}>
 																{item?.driverId ? `${item.driverId.firstname}-${item.driverId.lastname}` : ''}
 															</td> */}
-															{/* <td onClick={() => handleView(item)} style={tdStyle}>
+														{/* <td onClick={() => handleView(item)} style={tdStyle}>
 																<div className="px-1 py-1 rounded-5 text-center" style={styles}>
 																	{status}
 																</div>
 															</td> */}
-														</>
-													))}
-													{/* <td className="text-center" style={tdStyle}>
+													</>
+												))}
+												{/* <td className="text-center" style={tdStyle}>
 						  {!item?.driverId ? (
 							<FaTruckMoving onClick={() => handleShowAssign(item)} />
 						  ) : (
@@ -790,65 +786,65 @@ const Dashboard = () => {
 						<td className="text-center" style={tdStyle}>
 						  <FaMapMarkedAlt className="text-primary" onClick={() => navigate(`/location/${item._id}`)} />
 						</td> */}
-													<td className="text-center action-dropdown-menu" style={{
-														...tdStyle,
-														...(item.blurJob
-															? { pointerEvents: 'none' }
-															: {}),
-													}}>
-														<div className="dropdown">
-															<button
-																className="btn btn-link p-0 border-0"
-																type="button"
-																id={`dropdownMenuButton-${item._id}`}
-																data-bs-toggle="dropdown"
-																aria-expanded="false"
-															>
-																<BsThreeDotsVertical size={18} />
-															</button>
-															<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+												<td className="text-center action-dropdown-menu" style={{
+													...tdStyle,
+													...(item.blurJob
+														? { pointerEvents: 'none' }
+														: {}),
+												}}>
+													<div className="dropdown">
+														<button
+															className="btn btn-link p-0 border-0"
+															type="button"
+															id={`dropdownMenuButton-${item._id}`}
+															data-bs-toggle="dropdown"
+															aria-expanded="false"
+														>
+															<BsThreeDotsVertical size={18} />
+														</button>
+														<ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+															<li>
+																<button
+																	className="dropdown-item"
+																	onClick={() => {
+																		item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
+																	}}
+																>
+																	{item?.driverId ? 'Change Driver' : 'Assign Driver'}
+																</button>
+															</li>
+															{role !== "Allocator" &&
 																<li>
 																	<button
 																		className="dropdown-item"
-																		onClick={() => {
-																			item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
-																		}}
+																		onClick={() => navigate(`/location/${item._id}`)}
 																	>
-																		{item?.driverId ? 'Change Driver' : 'Assign Driver'}
+																		Package Location
 																	</button>
 																</li>
-																{role !== "Allocator" &&
-																	<li>
-																		<button
-																			className="dropdown-item"
-																			onClick={() => navigate(`/location/${item._id}`)}
-																		>
-																			Package Location
-																		</button>
-																	</li>
-																}
-																{role !== 'Allocator' && item?.Status === 'Pending' &&
-																	<li>
-																		<button
-																			className="dropdown-item"
-																			onClick={() => handleTransferJob(item)}
-																		>
-																			Transfer Job
-																		</button>
-																	</li>
-																}
-															</ul>
-														</div>
-													</td>
-												</tr>
-											);
-										}) :
-										<tr>
-											<td colSpan={14} className="text-center text-danger">No data found</td>
-										</tr>
-								)}
-							</tbody>
-						</Table>
+															}
+															{role !== 'Allocator' && item?.Status === 'Pending' &&
+																<li>
+																	<button
+																		className="dropdown-item"
+																		onClick={() => handleTransferJob(item)}
+																	>
+																		Transfer Job
+																	</button>
+																</li>
+															}
+														</ul>
+													</div>
+												</td>
+											</tr>
+										);
+									}) :
+									<tr>
+										<td colSpan={14} className="text-center text-danger">No data found</td>
+									</tr>
+							)}
+						</tbody>
+					</Table>
 					{/* </div> */}
 				</Tab>
 
@@ -931,11 +927,7 @@ const Dashboard = () => {
 							</thead>
 
 							<tbody>
-								{message ? (
-									<tr>
-										<td colSpan={14} className="text-center text-danger">{message}</td>
-									</tr>
-								) : loading ? (
+								{loading ? (
 									<tr>
 										<td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
 									</tr>

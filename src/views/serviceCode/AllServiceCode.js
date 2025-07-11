@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Container, Form, Modal, Row, Table } from 'react-bootstrap'
+import { Button, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
 import { FaRegEdit } from 'react-icons/fa'
 import { RiDeleteBin5Line } from 'react-icons/ri'
 import { IoMdAdd } from 'react-icons/io'
@@ -182,15 +182,13 @@ function AllServiceCode() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="text-center">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
+                    <td colSpan={5} className="text-center">
+                      <Spinner animation="border" className="mx-auto d-block" />
                     </td>
                   </tr>
                 ) : (
-                  filteredData.length > 0 ?
-                    filteredData.map((item, index) => (
+                  filteredData?.length > 0 ?
+                    filteredData?.map((item, index) => (
                       <tr key={index}>
                         <td className="text-start px-4">{index + 1}</td>
                         <td className="text-start px-4">{item.text}</td>

@@ -77,7 +77,7 @@ const AccountantAllJobs = () => {
             // } else {
             //     obj.Client = data?.clientId?.companyName;
             // }
-            
+
             obj.Client = data?.clientId?.companyName;
             obj._id = data?._id;
             obj.Client = data?.clientId?.companyName;
@@ -634,172 +634,171 @@ const AccountantAllJobs = () => {
                                 </tr>
                             </thead>
                             <tbody style={{ fontSize: 13 }}>
-                                {data?.length === 0 ? (
+                                {loading ? (
                                     <tr>
-                                        <td colSpan={14} className="text-center text-danger">
-                                            No jobs found
-                                        </td>
+                                        <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                                     </tr>
                                 ) : (
-                                    data?.map((item, index) => {
-                                        const isSelected = item?._id === selectedJob?._id;
-                                        const status = item?.Status;
-                                        const styles = getStatusStyles(status);
-                                        const tdStyle = {
-                                            backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                                            fontSize: 14,
-                                            textAlign: 'left',
-                                        };
-                                        const transferStatus = item['Transfer Status'];
-                                        const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
-                                        return (
-                                            <tr key={index} className="cursor-pointer">
-                                                <td className={item.blurJob ? 'blurred-row' : ''}
-                                                    style={{
+                                    data?.length > 0 ?
+                                        data?.map((item, index) => {
+                                            const isSelected = item?._id === selectedJob?._id;
+                                            const status = item?.Status;
+                                            const styles = getStatusStyles(status);
+                                            const tdStyle = {
+                                                backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                                                fontSize: 14,
+                                                textAlign: 'left',
+                                            };
+                                            const transferStatus = item['Transfer Status'];
+                                            const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
+                                            return (
+                                                <tr key={index} className="cursor-pointer">
+                                                    <td className={item.blurJob ? 'blurred-row' : ''}
+                                                        style={{
+                                                            ...tdStyle,
+                                                            ...(item.isTransferAccept
+                                                                ? { pointerEvents: 'none' }
+                                                                : {}),
+                                                        }}>
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            name="isDriverPermission"
+                                                            checked={checkedItems.some(i => i._id === item._id)}
+                                                            onChange={(e) => handleCheckBoxChange(e, item)}
+                                                        />
+                                                    </td>
+                                                    {selectedColumns.map((col) => {
+                                                        const isChecked = isItemChecked(item._id);
+                                                        const editableItem = checkedItems.find(i => i._id === item._id);
+
+                                                        let displayValue;
+                                                        if (editableItem && col in editableItem) {
+                                                            displayValue = editableItem[col];
+                                                        } else if (col === 'Service Code') {
+                                                            const codeObj = serviceCodes.find(sc => sc._id === item.serviceCodeId);
+                                                            displayValue = codeObj?.text;
+                                                        } else if (col === 'Service Type') {
+                                                            const typeObj = serviceTypes.find(st => st._id === item.serviceTypeId);
+                                                            displayValue = typeObj?.text;
+                                                        } else {
+                                                            displayValue = item[col] || "-";
+                                                        }
+
+                                                        // If col is Status, render special style (unchanged)
+                                                        if (col === 'Status') {
+                                                            return (
+                                                                <td
+                                                                    key={col}
+                                                                    onClick={() => handleView(item)}
+                                                                    style={{
+                                                                        ...tdStyle,
+                                                                        ...(item.isTransferAccept ? { pointerEvents: 'none' } : {})
+                                                                    }}
+                                                                >
+                                                                    <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                        {status}
+                                                                    </div>
+                                                                </td>
+                                                            );
+                                                        }
+                                                        if (col === 'Transfer Status') {
+                                                            return (
+                                                                <td onClick={() => handleView(item)} style={{
+                                                                    ...tdStyle,
+                                                                    ...(item.blurJob
+                                                                        ? { pointerEvents: 'none' }
+                                                                        : {}),
+                                                                }}>
+                                                                    <div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+                                                                        {transferStatus || "-"}
+                                                                    </div>
+                                                                </td>
+                                                            );
+                                                        }
+
+                                                        // For all other editable columns
+                                                        return (
+                                                            <>
+                                                                {editableFields.includes(col) && isChecked ? (
+                                                                    <td key={col} style={tdStyle}>
+                                                                        {col === 'Service Code' || col === 'Service Type' ? (
+                                                                            <Form.Select
+                                                                                size="sm"
+                                                                                value={
+                                                                                    col === 'Service Code'
+                                                                                        ? (editableItem?.serviceCodeId || item.serviceCodeId || '')
+                                                                                        : (editableItem?.serviceTypeId || item.serviceTypeId || '')
+                                                                                }
+                                                                                onChange={(e) => {
+                                                                                    const selectedId = e.target.value;
+                                                                                    const selectedItem = (col === 'Service Code' ? serviceCodes : serviceTypes).find(item => item._id === selectedId);
+                                                                                    handleFieldChange(item._id, col, selectedItem?.text || '', selectedId);
+                                                                                }}
+                                                                                onKeyDown={(e) => {
+                                                                                    if (e.key === 'Enter') {
+                                                                                        handleSubmitCheckedItems();
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <option value="">Select</option>
+                                                                                {(col === 'Service Code' ? serviceCodes : serviceTypes).map((option) => (
+                                                                                    <option key={option._id} value={option._id}>
+                                                                                        {option.text}
+                                                                                    </option>
+                                                                                ))}
+                                                                            </Form.Select>
+                                                                        ) : ['Ready Time', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time'].includes(col) ? (
+                                                                            <Form.Control
+                                                                                type="datetime-local"
+                                                                                size="sm"
+                                                                                value={formatDateTimeValue(displayValue) || displayValue}
+                                                                                // value={displayValue}
+                                                                                onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                                onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                            />
+                                                                        ) : (
+                                                                            <Form.Control
+                                                                                size="sm"
+                                                                                value={displayValue}
+                                                                                onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
+                                                                                onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
+                                                                            />
+                                                                        )}
+                                                                    </td>
+                                                                ) : (
+                                                                    <td onClick={() => handleView(item)} key={col}
+                                                                        className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
+                                                                        style={{
+                                                                            ...tdStyle,
+                                                                            ...(item.blurJob && col === 'Transfer To'
+                                                                                ? { pointerEvents: 'none' }
+                                                                                : {}),
+                                                                        }}>
+                                                                        {displayValue ?? "-"}
+                                                                    </td>
+                                                                )}
+                                                            </>
+                                                        );
+                                                    })}
+
+                                                    <td className="text-center action-dropdown-menu" style={{
                                                         ...tdStyle,
                                                         ...(item.isTransferAccept
                                                             ? { pointerEvents: 'none' }
                                                             : {}),
                                                     }}>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        name="isDriverPermission"
-                                                        checked={checkedItems.some(i => i._id === item._id)}
-                                                        onChange={(e) => handleCheckBoxChange(e, item)}
-                                                    />
-                                                </td>
-                                                {selectedColumns.map((col) => {
-                                                    const isChecked = isItemChecked(item._id);
-                                                    const editableItem = checkedItems.find(i => i._id === item._id);
-
-                                                    let displayValue;
-                                                    if (editableItem && col in editableItem) {
-                                                        displayValue = editableItem[col];
-                                                    } else if (col === 'Service Code') {
-                                                        const codeObj = serviceCodes.find(sc => sc._id === item.serviceCodeId);
-                                                        displayValue = codeObj?.text;
-                                                    } else if (col === 'Service Type') {
-                                                        const typeObj = serviceTypes.find(st => st._id === item.serviceTypeId);
-                                                        displayValue = typeObj?.text;
-                                                    } else {
-                                                        displayValue = item[col] || "-";
-                                                    }
-
-                                                    // If col is Status, render special style (unchanged)
-                                                    if (col === 'Status') {
-                                                        return (
-                                                            <td
-                                                                key={col}
-                                                                onClick={() => handleView(item)}
-                                                                style={{
-                                                                    ...tdStyle,
-                                                                    ...(item.isTransferAccept ? { pointerEvents: 'none' } : {})
-                                                                }}
+                                                        <div className="dropdown">
+                                                            <button
+                                                                className="btn btn-link p-0 border-0"
+                                                                type="button"
+                                                                id={`dropdownMenuButton-${item._id}`}
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false"
                                                             >
-                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                                                                    {status}
-                                                                </div>
-                                                            </td>
-                                                        );
-                                                    }
-                                                    if (col === 'Transfer Status') {
-                                                        return (
-                                                            <td onClick={() => handleView(item)} style={{
-                                                                ...tdStyle,
-                                                                ...(item.blurJob
-                                                                    ? { pointerEvents: 'none' }
-                                                                    : {}),
-                                                            }}>
-                                                                <div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
-                                                                    {transferStatus || "-"}
-                                                                </div>
-                                                            </td>
-                                                        );
-                                                    }
-
-                                                    // For all other editable columns
-                                                    return (
-                                                        <>
-                                                            {editableFields.includes(col) && isChecked ? (
-                                                                <td key={col} style={tdStyle}>
-                                                                    {col === 'Service Code' || col === 'Service Type' ? (
-                                                                        <Form.Select
-                                                                            size="sm"
-                                                                            value={
-                                                                                col === 'Service Code'
-                                                                                    ? (editableItem?.serviceCodeId || item.serviceCodeId || '')
-                                                                                    : (editableItem?.serviceTypeId || item.serviceTypeId || '')
-                                                                            }
-                                                                            onChange={(e) => {
-                                                                                const selectedId = e.target.value;
-                                                                                const selectedItem = (col === 'Service Code' ? serviceCodes : serviceTypes).find(item => item._id === selectedId);
-                                                                                handleFieldChange(item._id, col, selectedItem?.text || '', selectedId);
-                                                                            }}
-                                                                            onKeyDown={(e) => {
-                                                                                if (e.key === 'Enter') {
-                                                                                    handleSubmitCheckedItems();
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <option value="">Select</option>
-                                                                            {(col === 'Service Code' ? serviceCodes : serviceTypes).map((option) => (
-                                                                                <option key={option._id} value={option._id}>
-                                                                                    {option.text}
-                                                                                </option>
-                                                                            ))}
-                                                                        </Form.Select>
-                                                                    ) : ['Ready Time', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time'].includes(col) ? (
-                                                                        <Form.Control
-                                                                            type="datetime-local"
-                                                                            size="sm"
-                                                                            value={formatDateTimeValue(displayValue) || displayValue}
-                                                                            // value={displayValue}
-                                                                            onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
-                                                                            onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
-                                                                        />
-                                                                    ) : (
-                                                                        <Form.Control
-                                                                            size="sm"
-                                                                            value={displayValue}
-                                                                            onChange={(e) => handleFieldChange(item._id, col, e.target.value)}
-                                                                            onKeyDown={(e) => e.key === 'Enter' && handleSubmitCheckedItems()}
-                                                                        />
-                                                                    )}
-                                                                </td>
-                                                            ) : (
-                                                                <td onClick={() => handleView(item)} key={col}
-                                                                    className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
-                                                                    style={{
-                                                                        ...tdStyle,
-                                                                        ...(item.blurJob && col === 'Transfer To'
-                                                                            ? { pointerEvents: 'none' }
-                                                                            : {}),
-                                                                    }}>
-                                                                    {displayValue ?? "-"}
-                                                                </td>
-                                                            )}
-                                                        </>
-                                                    );
-                                                })}
-
-                                                <td className="text-center action-dropdown-menu" style={{
-                                                    ...tdStyle,
-                                                    ...(item.isTransferAccept
-                                                        ? { pointerEvents: 'none' }
-                                                        : {}),
-                                                }}>
-                                                    <div className="dropdown">
-                                                        <button
-                                                            className="btn btn-link p-0 border-0"
-                                                            type="button"
-                                                            id={`dropdownMenuButton-${item._id}`}
-                                                            data-bs-toggle="dropdown"
-                                                            aria-expanded="false"
-                                                        >
-                                                            <BsThreeDotsVertical size={18} />
-                                                        </button>
-                                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                                            {/* <li>
+                                                                <BsThreeDotsVertical size={18} />
+                                                            </button>
+                                                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                                                {/* <li>
                                                                 <button
                                                                     className="dropdown-item"
                                                                     onClick={() => {
@@ -809,30 +808,35 @@ const AccountantAllJobs = () => {
                                                                     {item?.driverId ? 'Change Driver' : 'Assign Driver'}
                                                                 </button>
                                                             </li> */}
-                                                            <li>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() => navigate(`/location/${item._id}`)}
-                                                                >
-                                                                    Package Location
-                                                                </button>
-                                                            </li>
-                                                            {item?.Status === 'Pending' &&
                                                                 <li>
                                                                     <button
                                                                         className="dropdown-item"
-                                                                        onClick={() => handleTransferJob(item)}
+                                                                        onClick={() => navigate(`/location/${item._id}`)}
                                                                     >
-                                                                        Transfer Job
+                                                                        Package Location
                                                                     </button>
                                                                 </li>
-                                                            }
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )
-                                    })
+                                                                {item?.Status === 'Pending' &&
+                                                                    <li>
+                                                                        <button
+                                                                            className="dropdown-item"
+                                                                            onClick={() => handleTransferJob(item)}
+                                                                        >
+                                                                            Transfer Job
+                                                                        </button>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }) :
+                                        <tr>
+                                            <td colSpan={14} className="text-center text-danger">
+                                                No jobs found
+                                            </td>
+                                        </tr>
                                 )}
                             </tbody>
                         </Table>
@@ -841,7 +845,7 @@ const AccountantAllJobs = () => {
             </Row>
 
             {data.length > 0 &&
-                <Row className="mb-3 justify-content-between">
+                <Row className="mb-3 mt-3 justify-content-between">
                     <Col md={6} className="d-flex align-items-center gap-2 ">
                         Show Entries
                         <Col md={2}>

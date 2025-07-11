@@ -6,7 +6,8 @@ import {
   Row,
   Modal,
   Table,
-  Form
+  Form,
+  Spinner
 } from 'react-bootstrap'
 import { FaRegEdit } from 'react-icons/fa'
 import { RiDeleteBin5Line } from 'react-icons/ri'
@@ -136,7 +137,7 @@ function AllPickupLocation() {
                 <Modal.Title>Add Pickup Location</Modal.Title>
               </Modal.Header>
               <Modal.Body className="pt-0">
-                <AddPickupLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} setIsAddSection={setIsAddSection}/>
+                <AddPickupLocation isReferesh={isReferesh} setIsRefresh={setIsRefresh} setIsAddSection={setIsAddSection} />
               </Modal.Body>
             </Modal>
 
@@ -175,14 +176,12 @@ function AllPickupLocation() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="text-center">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
+                    <td colSpan={8} className="text-center">
+                      <Spinner animation="border" className="mx-auto d-block" />
                     </td>
                   </tr>
-                ) : filteredData.length > 0 ? (
-                  filteredData.map((item, index) => (
+                ) : filteredData?.length > 0 ? (
+                  filteredData?.map((item, index) => (
                     <tr key={index}>
                       <td className="text-start px-4">{index + 1}</td>
                       <td className="text-start px-4">{item.customName}</td>
@@ -243,7 +242,7 @@ function AllPickupLocation() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={9} className="text-center text-muted">
+                    <td colSpan={8} className="text-center text-muted">
                       No records found.
                     </td>
                   </tr>

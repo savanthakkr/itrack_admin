@@ -389,7 +389,7 @@ const Dashboard = () => {
           <Button
             variant="dark"
             className="input-group-text cursor-pointer custom-icon-btn"
-          onClick={handleRefresh}
+            onClick={handleRefresh}
           >
             <FaSyncAlt />
           </Button>
@@ -473,16 +473,12 @@ const Dashboard = () => {
                 </thead>
 
                 <tbody>
-                  {message ? (
-                    <tr>
-                      <td colSpan={14} className="text-center text-danger">{message}</td>
-                    </tr>
-                  ) : loading ? (
+                  {loading ? (
                     <tr>
                       <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                     </tr>
                   ) : (
-                    data.length > 0 ?
+                    data?.length > 0 ?
                       data?.map((item, index) => {
                         const isSelected = item._id === selectedItem._id;
                         const status = item?.isHold ? 'Hold' : item?.currentStatus;
@@ -653,14 +649,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody style={{ fontSize: '13px' }}>
-                  {message ? (
-                    <tr>
-                      {' '}
-                      <tr>
-                        <td colSpan={14} className="text-center text-danger">{message}</td>
-                      </tr>
-                    </tr>
-                  ) : loading ? (
+                  {loading ? (
                     <tr>
                       <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                     </tr>

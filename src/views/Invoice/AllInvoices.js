@@ -47,6 +47,7 @@ function AllInvoices() {
     const [message, setMessage] = useState('')
     const [selectedItem, setSelectedItem] = useState(location.state?.selectedItem || {})
     const searchQuery = useSelector((state) => state.searchQuery)
+    const role = useSelector((state) => state.role)
     const handleShow = () => setShowCanvas(true);
     const [showCanvas, setShowCanvas] = useState(false)
     const dispatch = useDispatch();
@@ -477,18 +478,20 @@ function AllInvoices() {
                                                             <BsThreeDotsVertical size={18} />
                                                         </button>
                                                         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                                            {role !== "Accountant" &&
+                                                                <li>
+                                                                    <button
+                                                                        className="dropdown-item"
+                                                                        onClick={() => navigate(`/client/invoice/${item?._id}`)}
+                                                                    >
+                                                                        View Details
+                                                                    </button>
+                                                                </li>
+                                                            }
                                                             <li>
                                                                 <button
                                                                     className="dropdown-item"
-                                                                    onClick={() => navigate(`/client/invoice/${item._id}`)}
-                                                                >
-                                                                    View Details
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button
-                                                                    className="dropdown-item"
-                                                                    onClick={() => navigate(`/client/job/details/${item._id}`)}
+                                                                    onClick={() => navigate(`/client/job/details/${item?.dispatchId?._id}`)}
                                                                 >
                                                                     Add Manual Pricing
                                                                 </button>

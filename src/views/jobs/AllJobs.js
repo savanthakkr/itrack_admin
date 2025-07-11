@@ -75,7 +75,7 @@ const AllJobs = () => {
             // } else {
             //     obj.Client = data?.clientId?.companyName;
             // }
-            
+
             obj.Client = data?.clientId?.companyName;
             obj._id = data?._id;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
@@ -300,6 +300,7 @@ const AllJobs = () => {
     const debouncedSearch = useCallback(
         debounce((val) => {
             // setIsFiltering(true);
+            setLoading(true);
             let url = `/admin/info/search-string/${val}`;
             get(url, 'admin').then((res) => {
                 if (res.data.status) {
@@ -309,6 +310,7 @@ const AllJobs = () => {
                         type: 'getJobData',
                         payload: responseData,
                     });
+                    setLoading(false);
                 }
             });
         }, 1000), // Wait 1 second after typing stops
@@ -702,72 +704,67 @@ const AllJobs = () => {
                                             </tr>
                                         </thead>
                                         <tbody style={{ fontSize: 13 }}>
-                                            {data?.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan={14} className="text-center text-danger">
-                                                        No jobs found
-                                                    </td>
-                                                </tr>
-                                            ) : loading ? (
+                                            {loading ? (
                                                 <tr>
                                                     <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                                                 </tr>
                                             ) : (
-                                                data?.map((item, index) => {
-                                                    const isSelected = item?._id === selectedJob?._id;
-                                                    const status = item?.Status;
-                                                    const styles = getStatusStyles(status);
-                                                    const transferStatus = item['Transfer Status'];
-                                                    const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
-                                                    const tdStyle = {
-                                                        backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
-                                                        fontSize: 14,
-                                                        textAlign: 'left',
-                                                    };
-                                                    return (
-                                                        <tr key={index} className="cursor-pointer">
-                                                            {selectedColumns.map((col) => (
-                                                                <>
+                                                data?.length > 0 ?
+                                                    data?.map((item, index) => {
+                                                        const isSelected = item?._id === selectedJob?._id;
+                                                        const status = item?.Status;
+                                                        const styles = getStatusStyles(status);
+                                                        const transferStatus = item['Transfer Status'];
+                                                        const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
+                                                        const tdStyle = {
+                                                            backgroundColor: isSelected ? '#E0E0E0' : 'transparent',
+                                                            fontSize: 14,
+                                                            textAlign: 'left',
+                                                        };
+                                                        return (
+                                                            <tr key={index} className="cursor-pointer">
+                                                                {selectedColumns.map((col) => (
+                                                                    <>
 
-                                                                    {col === 'Status' ?
-                                                                        <td onClick={() => handleView(item)} style={{
-                                                                            ...tdStyle,
-                                                                            ...(item.blurJob
-                                                                                ? { pointerEvents: 'none' }
-                                                                                : {}),
-                                                                        }}>
-                                                                            <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                                                                                {status}
-                                                                            </div>
-                                                                        </td>
-                                                                        :
-                                                                        col === 'Transfer Status' ?
+                                                                        {col === 'Status' ?
                                                                             <td onClick={() => handleView(item)} style={{
                                                                                 ...tdStyle,
                                                                                 ...(item.blurJob
                                                                                     ? { pointerEvents: 'none' }
                                                                                     : {}),
                                                                             }}>
-                                                                                <div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
-                                                                                    {transferStatus || "-"}
+                                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                                    {status}
                                                                                 </div>
                                                                             </td>
                                                                             :
-                                                                            <td onClick={() => handleView(item)} style={{
-                                                                                ...tdStyle,
-                                                                                ...(item.blurJob && col === 'Transfer To'
-                                                                                    ? { pointerEvents: 'none' }
-                                                                                    : {}),
-                                                                            }}
-                                                                                className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
-                                                                            >
-                                                                                {/* {item?.clientId?.companyName} */}
-                                                                                {item[col] ?? "-"}
-                                                                            </td>
-                                                                    }
-                                                                </>
-                                                            ))}
-                                                            {/* <td className="text-start"
+                                                                            col === 'Transfer Status' ?
+                                                                                <td onClick={() => handleView(item)} style={{
+                                                                                    ...tdStyle,
+                                                                                    ...(item.blurJob
+                                                                                        ? { pointerEvents: 'none' }
+                                                                                        : {}),
+                                                                                }}>
+                                                                                    <div className="px-1 py-1 rounded-5 text-center" style={transferStyle}>
+                                                                                        {transferStatus || "-"}
+                                                                                    </div>
+                                                                                </td>
+                                                                                :
+                                                                                <td onClick={() => handleView(item)} style={{
+                                                                                    ...tdStyle,
+                                                                                    ...(item.blurJob && col === 'Transfer To'
+                                                                                        ? { pointerEvents: 'none' }
+                                                                                        : {}),
+                                                                                }}
+                                                                                    className={item.blurJob && col !== 'Transfer To' ? 'blurred-row' : ''}
+                                                                                >
+                                                                                    {/* {item?.clientId?.companyName} */}
+                                                                                    {item[col] ?? "-"}
+                                                                                </td>
+                                                                        }
+                                                                    </>
+                                                                ))}
+                                                                {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -821,13 +818,13 @@ const AllJobs = () => {
                                                 >
                                                     {item?.dropOfDetails?.dropOfLocationId?.customName}
                                                 </td> */}
-                                                            {/* <td className="text-start"
+                                                                {/* <td className="text-start"
                           onClick={() => handleView(item)}
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
                           {item?.uid}
                         </td> */}
-                                                            {/* <td className="text-start"
+                                                                {/* <td className="text-start"
                                                     onClick={() => handleView(item)}
                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                 >
@@ -848,55 +845,55 @@ const AllJobs = () => {
                                                         {status}
                                                     </div>
                                                 </td> */}
-                                                            <td className="text-center action-dropdown-menu" style={{
-                                                                ...tdStyle,
-                                                                ...(item.blurJob
-                                                                    ? { pointerEvents: 'none' }
-                                                                    : {}),
-                                                            }}>
-                                                                <div className="dropdown">
-                                                                    <button
-                                                                        className="btn btn-link p-0 border-0"
-                                                                        type="button"
-                                                                        id={`dropdownMenuButton-${item._id}`}
-                                                                        data-bs-toggle="dropdown"
-                                                                        aria-expanded="false"
-                                                                    >
-                                                                        <BsThreeDotsVertical size={18} />
-                                                                    </button>
-                                                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                                                        <li>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => {
-                                                                                    item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
-                                                                                }}
-                                                                            >
-                                                                                {item?.driverId ? 'Change Driver' : 'Assign Driver'}
-                                                                            </button>
-                                                                        </li>
-                                                                        <li>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => navigate(`/location/${item._id}`)}
-                                                                            >
-                                                                                Package Location
-                                                                            </button>
-                                                                        </li>
-                                                                        {role !== 'Allocator' && item?.Status === 'Pending' && item?.isTransfer === false &&
+                                                                <td className="text-center action-dropdown-menu" style={{
+                                                                    ...tdStyle,
+                                                                    ...(item.blurJob
+                                                                        ? { pointerEvents: 'none' }
+                                                                        : {}),
+                                                                }}>
+                                                                    <div className="dropdown">
+                                                                        <button
+                                                                            className="btn btn-link p-0 border-0"
+                                                                            type="button"
+                                                                            id={`dropdownMenuButton-${item._id}`}
+                                                                            data-bs-toggle="dropdown"
+                                                                            aria-expanded="false"
+                                                                        >
+                                                                            <BsThreeDotsVertical size={18} />
+                                                                        </button>
+                                                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
                                                                             <li>
                                                                                 <button
                                                                                     className="dropdown-item"
-                                                                                    onClick={() => handleTransferJob(item)}
+                                                                                    onClick={() => {
+                                                                                        item?.driverId ? handelChangeDriver(item) : handleShowAssign(item)
+                                                                                    }}
                                                                                 >
-                                                                                    Transfer Job
+                                                                                    {item?.driverId ? 'Change Driver' : 'Assign Driver'}
                                                                                 </button>
                                                                             </li>
-                                                                        }
-                                                                    </ul>
-                                                                </div>
-                                                            </td>
-                                                            {/* <td className="text-start cursor-pointer"
+                                                                            <li>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => navigate(`/location/${item._id}`)}
+                                                                                >
+                                                                                    Package Location
+                                                                                </button>
+                                                                            </li>
+                                                                            {role !== 'Allocator' && item?.Status === 'Pending' && item?.isTransfer === false &&
+                                                                                <li>
+                                                                                    <button
+                                                                                        className="dropdown-item"
+                                                                                        onClick={() => handleTransferJob(item)}
+                                                                                    >
+                                                                                        Transfer Job
+                                                                                    </button>
+                                                                                </li>
+                                                                            }
+                                                                        </ul>
+                                                                    </div>
+                                                                </td>
+                                                                {/* <td className="text-start cursor-pointer"
                           style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                         >
                           {!item?.driverId ? (
@@ -915,9 +912,15 @@ const AllJobs = () => {
                             onClick={() => navigate(`/location/${item?._id}`)}
                           />
                         </td> */}
-                                                        </tr>
-                                                    )
-                                                })
+                                                            </tr>
+                                                        )
+                                                    })
+                                                    :
+                                                    <tr>
+                                                        <td colSpan={14} className="text-center text-danger">
+                                                            No jobs found
+                                                        </td>
+                                                    </tr>
                                             )}
                                         </tbody>
                                     </Table>
@@ -1097,117 +1100,118 @@ const AllJobs = () => {
                                             </tr>
                                         </thead>
                                         <tbody style={{ fontSize: 13 }}>
-                                            {data?.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan={14} className="text-center text-danger">
-                                                        No job transfer request found
-                                                    </td>
-                                                </tr>
-                                            ) : loading ? (
+                                            {loading ? (
                                                 <tr>
                                                     <td colSpan={14} className="text-center"><Spinner animation="border" variant="primary" /></td>
                                                 </tr>
                                             ) : (
-                                                data?.map((item, index) => {
-                                                    const isSelected = item._id === selectedJob?._id
-                                                    const status = item?.isHold ? 'Hold' : item?.currentStatus
-                                                    const styles = getStatusStyles(status)
-                                                    return (
-                                                        <tr key={index} className="cursor-pointer">
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
-                                                            </td>
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
-                                                            </td>
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {item?.AWB}
-                                                            </td>
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {item?.pieces}
-                                                            </td>
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {item?.pickUpDetails?.pickupLocationId?.customName}
-                                                            </td>
-                                                            <td
-                                                                onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {item?.dropOfDetails?.dropOfLocationId?.customName}
-                                                            </td>
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                {item?.uid}
-                                                            </td>
+                                                data?.length > 0 ?
+                                                    data?.map((item, index) => {
+                                                        const isSelected = item._id === selectedJob?._id
+                                                        const status = item?.isHold ? 'Hold' : item?.currentStatus
+                                                        const styles = getStatusStyles(status)
+                                                        return (
+                                                            <tr key={index} className="cursor-pointer">
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                                                                </td>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                                                                </td>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {item?.AWB}
+                                                                </td>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {item?.pieces}
+                                                                </td>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {item?.pickUpDetails?.pickupLocationId?.customName}
+                                                                </td>
+                                                                <td
+                                                                    onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {item?.dropOfDetails?.dropOfLocationId?.customName}
+                                                                </td>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    {item?.uid}
+                                                                </td>
 
-                                                            <td
-                                                                // onClick={() => handleView(item)}
-                                                                className="text-center"
-                                                                style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
-                                                            >
-                                                                <div className="px-1 py-1 rounded-5 text-center" style={styles}>
-                                                                    {status}
-                                                                </div>
-                                                            </td>
-                                                            <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
-                                                                <div className="dropdown">
-                                                                    <button
-                                                                        className="btn btn-link p-0 border-0"
-                                                                        type="button"
-                                                                        id={`dropdownMenuButton-${item._id}`}
-                                                                        data-bs-toggle="dropdown"
-                                                                        aria-expanded="false"
-                                                                    >
-                                                                        <BsThreeDotsVertical size={18} />
-                                                                    </button>
-                                                                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
-                                                                        <li>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => handleJobAccept(item)}
-                                                                            >
-                                                                                Accept Job
-                                                                            </button>
-                                                                        </li>
+                                                                <td
+                                                                    // onClick={() => handleView(item)}
+                                                                    className="text-center"
+                                                                    style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
+                                                                >
+                                                                    <div className="px-1 py-1 rounded-5 text-center" style={styles}>
+                                                                        {status}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="text-center action-dropdown-menu" style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}>
+                                                                    <div className="dropdown">
+                                                                        <button
+                                                                            className="btn btn-link p-0 border-0"
+                                                                            type="button"
+                                                                            id={`dropdownMenuButton-${item._id}`}
+                                                                            data-bs-toggle="dropdown"
+                                                                            aria-expanded="false"
+                                                                        >
+                                                                            <BsThreeDotsVertical size={18} />
+                                                                        </button>
+                                                                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`dropdownMenuButton-${item._id}`}>
+                                                                            <li>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => handleJobAccept(item)}
+                                                                                >
+                                                                                    Accept Job
+                                                                                </button>
+                                                                            </li>
 
-                                                                        <li>
-                                                                            <button
-                                                                                className="dropdown-item"
-                                                                                onClick={() => handleJobDecline(item)}
-                                                                            >
-                                                                                Decline Job
-                                                                            </button>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    )
-                                                })
+                                                                            <li>
+                                                                                <button
+                                                                                    className="dropdown-item"
+                                                                                    onClick={() => handleJobDecline(item)}
+                                                                                >
+                                                                                    Decline Job
+                                                                                </button>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                    :
+                                                    <tr>
+                                                        <td colSpan={14} className="text-center text-danger">
+                                                            No job transfer request found
+                                                        </td>
+                                                    </tr>
                                             )}
                                         </tbody>
                                     </Table>

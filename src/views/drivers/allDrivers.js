@@ -158,7 +158,13 @@ const AllDrivers = () => {
                     </td>
                   </tr>
                 )} */}
-                {allDrivers?.length > 0 ?
+                {loading ? (
+                  <tr>
+                    <td colSpan={9} className="text-center">
+                      <Spinner animation="border" className="mx-auto d-block" />
+                    </td>
+                  </tr>
+                ) : (allDrivers?.length > 0 ?
                   allDrivers?.map((item, index) => (
                     <tr key={index}>
                       {/* <td className="text-start px-4">{index + 1}</td> */}
@@ -237,7 +243,7 @@ const AllDrivers = () => {
                   <tr>
                     <td colSpan={14} className="text-center text-danger">No data found</td>
                   </tr>
-                }
+                )}
               </tbody>
             </Table>
 

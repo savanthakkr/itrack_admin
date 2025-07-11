@@ -182,66 +182,67 @@ const AllAdmin = () => {
                 </tr>
               </thead>
               <tbody>
-                {loading && (
+                {loading ? (
                   <tr>
-                    <td colSpan={10} className="text-center">
+                    <td colSpan={5} className="text-center">
                       <Spinner animation="border" />
                     </td>
                   </tr>
-                )}
-                {allAdmins.length > 0 ? allAdmins.map((item, index) => (
-                  <tr key={index}>
-                    {/* <td className="text-start px-4">{index + 1}</td> */}
-                    <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
-                    <td className="text-start px-4">{item.email}</td>
-                    <td className="text-start px-4">{item.phone}</td>
-                    <td className="text-start px-4">
-                      <Moment format="DD/MM/YYYY, hh:mm a">{item.createdDateTime}</Moment>
-                    </td>
-                    <td className="text-center action-dropdown-menu">
-                      <div className="dropdown">
-                        <button
-                          className="btn btn-link p-0 border-0"
-                          type="button"
-
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          <BsThreeDotsVertical size={18} />
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
-                          <li>
+                ) :
+                  (allAdmins?.length > 0 ?
+                    allAdmins?.map((item, index) => (
+                      <tr key={index}>
+                        {/* <td className="text-start px-4">{index + 1}</td> */}
+                        <td className="text-start px-4">{item?.firstname} {item?.lastname}</td>
+                        <td className="text-start px-4">{item.email}</td>
+                        <td className="text-start px-4">{item.phone}</td>
+                        <td className="text-start px-4">
+                          <Moment format="DD/MM/YYYY, hh:mm a">{item.createdDateTime}</Moment>
+                        </td>
+                        <td className="text-center action-dropdown-menu">
+                          <div className="dropdown">
                             <button
-                              className="dropdown-item" onClick={() => navigate(`/admin/edit/${item._id}`)}
+                              className="btn btn-link p-0 border-0"
+                              type="button"
+
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
                             >
-                              View/Edit Details
+                              <BsThreeDotsVertical size={18} />
                             </button>
-                          </li>
-                          {/* <li>
+                            <ul className="dropdown-menu dropdown-menu-end">
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => navigate(`/admin/edit/${item._id}`)}
+                                >
+                                  View/Edit Details
+                                </button>
+                              </li>
+                              {/* <li>
                             <button
                               className="dropdown-item" onClick={() => navigate(`/driver/jobs/${item._id}`)}
                             >
                               Booking Details
                             </button>
                           </li> */}
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => handleDelete(item._id)}
-                            >
-                              Delete Admin
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item" onClick={() => handleLoginAsAdmin(item._id)}
-                            >
-                              Login as Admin
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </td>
-                    {/* <td className="text-start px-4">
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleDelete(item._id)}
+                                >
+                                  Delete Admin
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleLoginAsAdmin(item._id)}
+                                >
+                                  Login as Admin
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        {/* <td className="text-start px-4">
                       <FaRegEdit
                         size={22}
                         className="text-primary cursor-pointer"
@@ -269,10 +270,10 @@ const AllAdmin = () => {
                         onClick={() => handleDelete(item._id)}
                       />
                     </td> */}
-                  </tr>
-                )) :
-                  <td colSpan={5} className="text-center text-danger">No Records Found.</td>
-                }
+                      </tr>
+                    )) :
+                    <td colSpan={5} className="text-center text-danger">No Records Found.</td>
+                  )}
               </tbody>
             </Table>
 

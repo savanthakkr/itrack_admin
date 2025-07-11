@@ -6,6 +6,7 @@ import {
   Form,
   Modal,
   Row,
+  Spinner,
   Table,
 } from 'react-bootstrap'
 import {
@@ -167,71 +168,64 @@ function AllDropLocation() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="text-center">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="text-center text-muted">
-                      No drop locations found.
+                    <td colSpan={8} className="text-center">
+                      <Spinner animation="border" className="mx-auto d-block" />
                     </td>
                   </tr>
                 ) : (
-                  filteredData.map((item, index) => (
-                    <tr key={index}>
-                      <td className="text-start px-4">{index + 1}</td>
-                      <td className="text-start px-4">{item.customName}</td>
-                      <td className="text-start px-4">{item.mapName}</td>
-                      <td className="text-start px-4">{item.latitude}</td>
-                      <td className="text-start px-4">{item.longitude}</td>
-                      <td className="text-start px-4">
-                        {item?.createdDateTime ? getFormattedDAndT(item?.createdDateTime) : ''}
-                      </td>
-                      <td className="text-start px-4">
-                        <div
-                          className="rounded-5"
-                          style={{
-                            color: '#CD6200',
-                            backgroundColor: '#FEF2E5',
-                            width: 'fit-content',
-                            padding: '4px 15px',
-                          }}
-                        >
-                          {item.status}
-                        </div>
-                      </td>
-                      <td className="text-center action-dropdown-menu">
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-link p-0 border-0"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
+                  filteredData?.length > 0 ?
+                    filteredData?.map((item, index) => (
+                      <tr key={index}>
+                        <td className="text-start px-4">{index + 1}</td>
+                        <td className="text-start px-4">{item.customName}</td>
+                        <td className="text-start px-4">{item.mapName}</td>
+                        <td className="text-start px-4">{item.latitude}</td>
+                        <td className="text-start px-4">{item.longitude}</td>
+                        <td className="text-start px-4">
+                          {item?.createdDateTime ? getFormattedDAndT(item?.createdDateTime) : ''}
+                        </td>
+                        <td className="text-start px-4">
+                          <div
+                            className="rounded-5"
+                            style={{
+                              color: '#CD6200',
+                              backgroundColor: '#FEF2E5',
+                              width: 'fit-content',
+                              padding: '4px 15px',
+                            }}
                           >
-                            <BsThreeDotsVertical size={18} />
-                          </button>
-                          <ul className="dropdown-menu dropdown-menu-end">
-                            <li>
-                              <button
-                                className="dropdown-item" onClick={() => handleUpdateDropLocation(item)}
-                              >
-                                Edit Details
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="dropdown-item" onClick={() => handleDelete(item._id)}
-                              >
-                                Delete Drop Location
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
-                      </td>
-                      {/* <td className="text-start px-4">
+                            {item.status}
+                          </div>
+                        </td>
+                        <td className="text-center action-dropdown-menu">
+                          <div className="dropdown">
+                            <button
+                              className="btn btn-link p-0 border-0"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              <BsThreeDotsVertical size={18} />
+                            </button>
+                            <ul className="dropdown-menu dropdown-menu-end">
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleUpdateDropLocation(item)}
+                                >
+                                  Edit Details
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item" onClick={() => handleDelete(item._id)}
+                                >
+                                  Delete Drop Location
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        {/* <td className="text-start px-4">
                         <FaRegEdit
                           size={22}
                           color="#624DE3"
@@ -247,8 +241,13 @@ function AllDropLocation() {
                           style={{ cursor: 'pointer' }}
                         />
                       </td> */}
+                      </tr>
+                    )) :
+                    <tr>
+                      <td colSpan={8} className="text-center text-muted">
+                        No drop locations found.
+                      </td>
                     </tr>
-                  ))
                 )}
               </tbody>
             </Table>
