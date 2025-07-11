@@ -5,7 +5,7 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function AddDropLocation({ isReferesh, setIsRefresh, setIsAddSection }) {
+export default function AddDropLocation({ isReferesh, setIsRefresh, setIsAddSection, setAddDropLocationModal, setFetchDrop }) {
     const [dropLocation, setDropLocation] = useState('');
     const [note, setNote] = useState('');
     const [isPickupAddress, setIsPickupAddress] = useState(false);
@@ -41,8 +41,10 @@ export default function AddDropLocation({ isReferesh, setIsRefresh, setIsAddSect
                     title: 'Success',
                     text: 'Drop Location Added Successfully!',
                 });
-                setIsAddSection(false);
-                setIsRefresh(!isReferesh);
+                setIsAddSection?.(false);
+                setIsRefresh?.(!isReferesh);
+                setAddDropLocationModal?.(false);
+                setFetchDrop?.(true);
                 setLocation({
                     latitude: 0,
                     longitude: 0,

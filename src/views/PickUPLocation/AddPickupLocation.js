@@ -5,7 +5,7 @@ import LocationSuggestion from '../../components/Maps/LocationSuggestion'
 import { postWihoutMediaData } from '../../lib/request';
 import sweetAlert from 'sweetalert2';
 
-export default function AddPickupLocation({ isReferesh, setIsRefresh, setIsAddSection }) {
+export default function AddPickupLocation({ isReferesh, setIsRefresh, setIsAddSection, setAddPickupLocationModal, setFetchPickup }) {
     const [pickUpLocation, setPickUpLocation] = useState('');
     const [note, setNote] = useState('');
     const [isDeliveryAddress, setIsDeliveryAddress] = useState(false);
@@ -41,8 +41,10 @@ export default function AddPickupLocation({ isReferesh, setIsRefresh, setIsAddSe
                     title: 'Success',
                     text: 'PickUp Location Added Successfully!',
                 })
-                setIsAddSection(false);
-                setIsRefresh(!isReferesh)
+                setIsAddSection?.(false);
+                setAddPickupLocationModal?.(false);
+                setFetchPickup?.(true);
+                setIsRefresh?.(!isReferesh);
                 setLocation({
                     latitude: 0,
                     longitude: 0,

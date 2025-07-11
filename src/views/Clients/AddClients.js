@@ -9,6 +9,7 @@ import { Tab, Tabs, Table } from 'react-bootstrap';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import Swal from 'sweetalert2';
 import Select, { components } from 'react-select';
+import { set } from 'lodash';
 
 function AddClients() {
   const navigate = useNavigate()
@@ -50,6 +51,11 @@ function AddClients() {
   const [rate, setRate] = useState('');
   const [rates, setRates] = useState([]);
 
+  const [fuelLevy, setFuelLevy] = useState({});
+  const [addFuelLevyModal, setAddFuelLevyModal] = useState(false);
+  const [editFuelLevyModal, setEditFuelLevyModal] = useState(false);
+  const [fuelLevyData, setFuelLevyData] = useState({});
+
   // const [clientRateOptions, setClientRateOptions] = useState([]);
   // const [selectedClientRate, setSelectedClientRate] = useState([]);
 
@@ -77,6 +83,13 @@ function AddClients() {
     setErrors({});
   }, [showModal]);
 
+  useEffect(() => {
+    setFuelLevyData({
+      fuelLevy: ''
+    });
+    setErrors({});
+  }, [addFuelLevyModal]);
+
   const handleShowModal2 = (item) => {
 
     setSelectedClientId(item._id);
@@ -84,6 +97,15 @@ function AddClients() {
     setClientRateData({ rate: item.rate.replace(/[^0-9.]/g, ''), serviceCodeId: item.serviceCodeId?._id, item: item.item });
 
     setShowModal2(true);
+  };
+
+  const handleFuelLevyEdit = (item) => {
+
+    setSelectedClientId(item._id);
+
+    setFuelLevyData({ fuelLevy: item?.fuelLevy });
+
+    setEditFuelLevyModal(true);
   };
 
   // Deleting the client rate
@@ -113,6 +135,38 @@ function AddClients() {
           })
         } else if (result.dismiss === sweetAlert2.DismissReason.cancel) {
           sweetAlert2.fire('Cancelled', 'Your client rate is safe :)', 'error')
+        }
+      })
+
+  }
+
+  // Deleting the client rate
+  const handleFuelLevyDelete = () => {
+    sweetAlert2
+      .fire({
+        title: 'Are you sure you want to delete this fuel levy?',
+        text: 'Once deleted you can’t revert this action',
+        imageUrl: 'src/assets/images/delete_modal_icon.png',
+        imageWidth: 60,
+        imageHeight: 60,
+        imageAlt: 'Delete Icon',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Delete it!',
+        cancelButtonText: 'No, Keep it',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteReqWithoutMedia(`/admin/client/fuelLevy/delete?id=${localStorage.getItem('clientIdForRate')}`, "admin").then((data) => {
+            if (data?.status) {
+              sweetAlert2.fire({ icon: 'success', title: data?.data?.message })
+            } else {
+              sweetAlert2.fire({ icon: 'error', title: data?.data?.message })
+            }
+            getFuelLevyData();
+          }).catch((e) => {
+            console.log("Error while deleting:", e?.message)
+          })
+        } else if (result.dismiss === sweetAlert2.DismissReason.cancel) {
+          sweetAlert2.fire('Cancelled', 'Your fuel levy is safe :)', 'error')
         }
       })
 
@@ -153,7 +207,6 @@ function AddClients() {
 
       post('/admin/client', clientData, "admin")
         .then((res) => {
-          console.log('res', res);
           if (res.data.status) {
             setLoading(false)
             sweetAlert2.fire({
@@ -228,26 +281,21 @@ function AddClients() {
       })
   }
 
-  // useEffect(() => {
-  //   setLoading(true)
-
-  //   // get service code
-  //   get('/admin/service/code', 'admin')
-  //     .then((response) => {
-  //       setServiceCode(response.data.data)
-  //     })
-  //     .catch((error) => {
-  //       console.error(error)
-  //     })
-
-  //   // get client rate
-  //   // getClientRateData();
-
-  // }, []);
+  const getFuelLevyData = async () => {
+    const clientId = localStorage.getItem('clientIdForRate');
+    get(`/admin/client/fuelLevy/list?id=${clientId}`, 'admin')
+      .then((response) => {
+        setFuelLevy(response?.data?.data);
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
 
   useEffect(() => {
     if (activeTab === 'clientRates') {
       getClientRateData();
+      getFuelLevyData();
 
       get('/admin/service/code', 'admin')
         .then((response) => {
@@ -281,7 +329,18 @@ function AddClients() {
       errors.serviceCodeId = 'Service code is required.'
     }
     if (clientRateData.item === '') {
-      errors.item = 'item is required.'
+      errors.item = 'Item is required.'
+    }
+    if (clientRateData.rate === '') {
+      errors.rate = 'Rate is required.'
+    }
+    return errors;
+  }
+
+  const validateFuelLevyForm = () => {
+    const errors = {}
+    if (fuelLevyData.fuelLevy === '') {
+      errors.fuelLevy = 'Fuel levy is required.'
     }
     return errors;
   }
@@ -339,6 +398,75 @@ function AddClients() {
               // get client rate
               getClientRateData();
               setShowModal(false);
+              Swal.fire({
+                icon: 'success',
+                title: response.data.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response.data.message || 'Failed to add client rate',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response.data.message || 'Failed to add client rate',
+            });
+          })
+      }
+    } else {
+      setErrors(errors);
+      return;
+    }
+  }
+
+  const handleFuelLevySubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateFuelLevyForm();
+    const clientId = localStorage.getItem('clientIdForRate');
+    if (Object.keys(errors).length === 0) {
+      if (editFuelLevyModal) {
+        updateReq(`/admin/client/fuelLevy/update?id=${clientId}`, fuelLevyData, 'admin')
+          .then((response) => {
+            // setLoading5(false)
+            if (response.data.status) {
+              // get client rate
+              getFuelLevyData();
+              setEditFuelLevyModal(false);
+              setFuelLevyData({
+                fuelLevy: ''
+              });
+              Swal.fire({
+                icon: 'success',
+                title: response.data.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response.data.message || 'Failed to add client rate',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response.data.message || 'Failed to add client rate',
+            });
+          })
+      } else if (addFuelLevyModal) {
+        updateReq(`/admin/client/fuelLevy/add?id=${clientId}`, fuelLevyData, 'admin')
+          .then((response) => {
+            if (response.data.status) {
+              getFuelLevyData();
+              setAddFuelLevyModal(false);
               Swal.fire({
                 icon: 'success',
                 title: response.data.message,
@@ -681,34 +809,7 @@ function AddClients() {
             </tbody>
           </Table>
 
-          {/* <Table hover responsive className="custom-table">
-            <thead className="table-light">
-              <tr>
-                <td>Client Fuel Levy</td>
-                <td>20%</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>PMC</td>
-                <td>20%</td>
-              </tr>
-              <tr>
-                <td>AKE</td>
-                <td>20%</td>
-              </tr>
-              <tr>
-                <td>HH14</td>
-                <td>20%</td>
-              </tr>
-              <tr>
-                <td>HH22</td>
-                <td>20%</td>
-              </tr>
-            </tbody>
-          </Table> */}
-
-          <div className='border' style={{ minHeight: '50px', paddingLeft: '10px' }}>
+          {/* <div className='border' style={{ minHeight: '50px', paddingLeft: '10px' }}>
             <Row className="align-items-center" style={{ minHeight: '50px' }}>
               <Col md={6} className="d-flex align-items-center" style={{ height: '50px' }}>
                 <label className="mb-0"><b>Client Fuel Levy</b></label>
@@ -717,6 +818,63 @@ function AddClients() {
                 <label className="mb-0">20%</label>
               </Col>
             </Row>
+          </div> */}
+
+          {!fuelLevy?.fuelLevy &&
+            <Row className="align-items-center">
+              <Col className='text-end'>
+                <CButton className="custom-btn" onClick={() => setAddFuelLevyModal(true)}>
+                  Add Fuel Levy
+                </CButton>
+              </Col>
+            </Row>
+          }
+
+          <div className='table-responsive mt-3'>
+            <Table hover responsive className="custom-table">
+              <thead className="table-light">
+                <tr>
+                  <th className="text-start">Fuel Levy</th>
+                  <th className="text-start">{fuelLevy?.fuelLevy ? fuelLevy?.fuelLevy : '-'}</th>
+                  {fuelLevy?.fuelLevy &&
+                    <th style={{ minWidth: '70px' }}>
+                      <div className="dropdown">
+                        <button
+                          className="btn btn-link p-0 border-0"
+                          type="button"
+                          // id={`dropdownMenuButton-${item._id}`}
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          <BsThreeDotsVertical size={18} />
+                        </button>
+                        <ul
+                          className="dropdown-menu dropdown-menu-end"
+                        // aria-labelledby={`dropdownMenuButton-${item._id}`}
+                        >
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleFuelLevyEdit(fuelLevy)}
+                            >
+                              Edit Fuel Levy
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleFuelLevyDelete()}
+                            >
+                              Delete Fuel Levy
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    </th>
+                  }
+                </tr>
+              </thead>
+            </Table>
           </div>
         </Tab>
       </Tabs>
@@ -736,6 +894,9 @@ function AddClients() {
                 // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
                 onChange={handleClientRateChange}
               />
+              {errors.rate ? (
+                <Form.Text className="text-danger">{errors.rate}</Form.Text>
+              ) : null}
             </Form.Group>
             <Form.Group className="mt-3">
               <Form.Label>Service Code</Form.Label>
@@ -803,6 +964,9 @@ function AddClients() {
                 // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
                 onChange={handleClientRateChange}
               />
+              {errors.rate ? (
+                <Form.Text className="text-danger">{errors.rate}</Form.Text>
+              ) : null}
             </Form.Group>
             <Form.Group className="mt-3">
               <Form.Label>Service Code</Form.Label>
@@ -836,6 +1000,71 @@ function AddClients() {
               />
               {errors.item ? (
                 <Form.Text className="text-danger">{errors.item}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">
+              Confirm Change
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal >
+
+      {/* Fuel Levy Add Modal */}
+      <Modal show={addFuelLevyModal} onHide={() => setAddFuelLevyModal(false)} style={{ marginTop: '10vh' }} className="custom-modal">
+        <Modal.Header closeButton><Modal.Title>Add Fuel Levy</Modal.Title></Modal.Header>
+        <Form noValidate validated={validated} onSubmit={handleFuelLevySubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Fuel Levy</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter fuel levy here"
+                value={fuelLevyData?.fuelLevy}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={(e) => setFuelLevyData({ fuelLevy: e.target.value })}
+              />
+              {errors?.fuelLevy ? (
+                <Form.Text className="text-danger">{errors?.fuelLevy}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">Submit</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Fuel Levy Edit Modal */}
+      < Modal
+        show={editFuelLevyModal}
+        onHide={() => setEditFuelLevyModal(false)}
+        style={{ marginTop: '10vh' }
+        }
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Client Rates</Modal.Title>
+        </Modal.Header>
+        <Form noValidate validated={validated} onSubmit={handleFuelLevySubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Fuel Levy</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter fuel levy here"
+                value={fuelLevyData?.fuelLevy}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={(e) => setFuelLevyData({ fuelLevy: e.target.value })}
+                required
+              />
+              {errors?.fuelLevy ? (
+                <Form.Text className="text-danger">{errors?.fuelLevy}</Form.Text>
               ) : null}
             </Form.Group>
           </Modal.Body>

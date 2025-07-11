@@ -143,7 +143,6 @@ const AppHeader = () => {
     })
   }
 
-  console.log('logoUrl', logoUrl);
   return (
     <CHeader position="sticky" className="mb-4 p-0" ref={headerRef} style={{ height: '60px', zIndex: 1030 }}>
       <CContainer className="px-4 d-flex justify-content-between align-items-center"

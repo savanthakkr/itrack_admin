@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Container, Dropdown, Form, Row, Spinner } from 'react-bootstrap'
+import { Button, Col, Container, Dropdown, Form, Modal, Row, Spinner } from 'react-bootstrap'
 import { get, post } from '../../lib/request'
 import { useNavigate } from 'react-router-dom'
 import AddLocation from './chooseLocManual'
@@ -10,6 +10,9 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CButton } from '@coreui/react'
 import { useSelector } from 'react-redux'
+import AddPickupLocation from '../PickUPLocation/AddPickupLocation'
+import { set } from 'lodash'
+import AddDropLocation from '../DropLocation/AddDropLocation'
 
 function AddJobs() {
     const navigate = useNavigate();
@@ -72,7 +75,13 @@ function AddJobs() {
             value: '',
             label: ''
         }
-    })
+    });
+
+    const [addPickupLocationModal, setAddPickupLocationModal] = useState(false);
+    const [addDropLocationModal, setAddDropLocationModal] = useState(false);
+
+    const [fetchPickup, setFetchPickup] = useState(false);
+    const [fetchDrop, setFetchDrop] = useState(false);
 
     const clientOptions = clients
         ?.sort((a, b) => a?.companyName.localeCompare(b?.companyName))
@@ -175,8 +184,8 @@ function AddJobs() {
     ]
 
     const pickupOptions = pickupLocations
-        .sort((a, b) => a.customName.localeCompare(b.customName))
-        .map((location) => ({
+        ?.sort((a, b) => a.customName.localeCompare(b.customName))
+        ?.map((location) => ({
             value: location._id,
             label: location.customName,
         }));
@@ -192,8 +201,8 @@ function AddJobs() {
     };
 
     const dropOptions = dropLocations
-        .sort((a, b) => a.customName.localeCompare(b.customName))
-        .map((location) => ({
+        ?.sort((a, b) => a.customName.localeCompare(b.customName))
+        ?.map((location) => ({
             value: location._id,
             label: location.customName,
         }));
@@ -209,8 +218,8 @@ function AddJobs() {
     };
 
     const serviceTypeOptions = serviceTypes
-        .sort((a, b) => a.text.localeCompare(b.text))
-        .map((type) => ({
+        ?.sort((a, b) => a.text.localeCompare(b.text))
+        ?.map((type) => ({
             value: type._id,
             label: type.text,
         }));
@@ -226,8 +235,8 @@ function AddJobs() {
     };
 
     const serviceCodeOptions = serviceCode
-        .sort((a, b) => a.text.localeCompare(b.text))
-        .map((code) => ({
+        ?.sort((a, b) => a.text.localeCompare(b.text))
+        ?.map((code) => ({
             value: code._id,
             label: code.text,
         }));
@@ -570,6 +579,20 @@ function AddJobs() {
         getAllClients()
     }, []);
 
+    useEffect(() => {
+        if (fetchPickup) {
+            fetchPickupLocations();
+            setFetchPickup(false);
+        }
+    }, [fetchPickup]);
+
+    useEffect(() => {
+        if (fetchDrop) {
+            fetchDropLocations();
+            setFetchDrop(false);
+        }
+    }, [fetchDrop]);
+
     return (
         <>
             <Row className="align-items-center">
@@ -876,6 +899,21 @@ function AddJobs() {
                                 <Form.Text className="text-danger">{errors.pickupLocationId}</Form.Text>
                             ) : null}
                         </Form.Group>
+                        <CButton
+                            className="mt-2"
+                            style={{
+                                backgroundColor: '#007bff',
+                                color: 'white',
+                                padding: '5px 10px',
+                                fontSize: '12px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'inline-block'
+                            }}
+                            onClick={() => setAddPickupLocationModal(true)}>
+                            Add Pickup Location
+                        </CButton>
                     </Col>
                     <Col md={6} className="mt-3">
                         <Form.Group>
@@ -896,6 +934,21 @@ function AddJobs() {
                                 placeholder="Select Drop Location"
                                 isSearchable
                             />
+                            <CButton
+                                className="mt-2"
+                                style={{
+                                    backgroundColor: '#007bff',
+                                    color: 'white',
+                                    padding: '5px 10px',
+                                    fontSize: '12px',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    display: 'inline-block'
+                                }}
+                                onClick={() => setAddDropLocationModal(true)}>
+                                Add Drop Off Location
+                            </CButton>
                             {/* <Dropdown data-bs-theme="dark">
                 <Dropdown.Toggle
                   id="dropdown-button-dark-example1"
@@ -1047,6 +1100,30 @@ function AddJobs() {
                         </Col>
                     }
                 </Row>
+
+                <Modal show={addPickupLocationModal} onHide={() => setAddPickupLocationModal(false)} centered dialogClassName="custom-modal-sm custom-modal">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Pickup Location</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="pt-0">
+                        <AddPickupLocation
+                            setAddPickupLocationModal={setAddPickupLocationModal}
+                            setFetchPickup={setFetchPickup}
+                        />
+                    </Modal.Body>
+                </Modal>
+
+                <Modal show={addDropLocationModal} onHide={() => setAddDropLocationModal(false)} dialogClassName="custom-modal-sm custom-modal" centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add Drop Location</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="pt-0">
+                        <AddDropLocation
+                            setAddDropLocationModal={setAddDropLocationModal}
+                            setFetchDrop={setFetchDrop}
+                        />
+                    </Modal.Body>
+                </Modal>
 
                 {/* <Row>
           <Col md={3} className="mt-3">
