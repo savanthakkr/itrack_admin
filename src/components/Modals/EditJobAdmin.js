@@ -83,9 +83,9 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
       setDropDownData({
         ...dropDownData,
         weight: {
-          label: selectedWeight.label,
-          value: selectedWeight.value,
-          rate: selectedWeight.rate
+          label: selectedWeight?.label,
+          value: selectedWeight?.value,
+          rate: selectedWeight?.rate
         },
       });
     }

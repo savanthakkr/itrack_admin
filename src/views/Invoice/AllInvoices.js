@@ -488,14 +488,14 @@ function AllInvoices() {
                                                                     </button>
                                                                 </li>
                                                             }
-                                                            <li>
+                                                            {/* <li>
                                                                 <button
                                                                     className="dropdown-item"
                                                                     onClick={() => navigate(`/client/job/details/${item?.dispatchId?._id}`)}
                                                                 >
                                                                     Add Manual Pricing
                                                                 </button>
-                                                            </li>
+                                                            </li> */}
                                                         </ul>
                                                     </div>
                                                 </td>

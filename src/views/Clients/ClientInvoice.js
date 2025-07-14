@@ -479,7 +479,7 @@ function ClientInvoice() {
                   name="fuelSurcharge"
                   placeholder="Write fuel surcharge number here"
                   maxLength={20}
-                  value={clientData?.fuel_charge || ""}
+                  value={clientData?.fuelChargeCalculation || 0}
                 />
               </Form.Group>
             </Col>
@@ -576,7 +576,7 @@ function ClientInvoice() {
               </Form.Group>
             </Col>
           </Row>
-          <Row>
+          {/* <Row>
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Total</Form.Label>
@@ -588,7 +588,7 @@ function ClientInvoice() {
                 />
               </Form.Group>
             </Col>
-          </Row>
+          </Row> */}
         </Form>
       </div>
       <Modal show={showAttachment} onHide={handleAttachmentClose} dialogClassName="custom-modal">

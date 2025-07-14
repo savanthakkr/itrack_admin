@@ -348,14 +348,14 @@ export default function ClientJobDetails() {
                     <Col md={6} className="mb-3">
                       <Form.Group controlId="fuelSurcharge">
                         <Form.Label>Fuel Surcharge</Form.Label>
-                        <Form.Control type="text" readOnly value={job?.fuel_charge || ""} />
+                        <Form.Control type="text" readOnly value={job?.invoiceDetails?.fuelChargeCalculation || 0} />
                       </Form.Group>
                     </Col>
 
                     <Col md={6} className="mb-3">
                       <Form.Group controlId="rates">
                         <Form.Label>Rates</Form.Label>
-                        <Form.Control type="text" readOnly value={job?.rates || ""} />
+                        <Form.Control type="text" readOnly value={job?.invoiceDetails?.rates || 0} />
                       </Form.Group>
                     </Col>
 
@@ -386,8 +386,15 @@ export default function ClientJobDetails() {
 
                     <Col md={6} className="mb-3">
                       <Form.Group controlId="waitTimeCharge">
-                        <Form.Label>Wait Time Charge</Form.Label>
-                        <Form.Control type="text" readOnly value={job?.wait_time_charge || ""} />
+                        <Form.Label>Pickup Wait Time Charge</Form.Label>
+                        <Form.Control type="text" readOnly value={job?.invoiceDetails?.pickUpDetails?.pickUpWaitingRate || 0} />
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="waitTimeCharge">
+                        <Form.Label>Drop off Wait Time Charge</Form.Label>
+                        <Form.Control type="text" readOnly value={job?.invoiceDetails?.dropOfDetails?.deliveryWaitingRate || 0} />
                       </Form.Group>
                     </Col>
 
@@ -458,7 +465,8 @@ export default function ClientJobDetails() {
                           label="Admin Review for manual pricing"
                           checked={isAdminReview}
                           className="custom-checkbox"
-                          onChange={(e) => setIsAdminReview(e.target.checked)}
+                          // onChange={(e) => setIsAdminReview(e.target.checked)}
+                          readOnly
                         />
                       </Form.Group>
                     </Col>

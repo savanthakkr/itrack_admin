@@ -24,6 +24,7 @@ function EditDriver() {
         username: '',
         password: '',
         imageKey: '',
+        isCreateJobPermission: false
     })
 
     const formRef = useRef();
@@ -35,6 +36,8 @@ function EditDriver() {
         const { name, value } = e.target
         setDriverData({ ...driverData, [name]: value })
     }
+
+    console.log('driveData', driverData);
     // handle password reset
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
@@ -84,6 +87,7 @@ function EditDriver() {
         if (form.checkValidity()) {
             setLoading(true)
             updateReq(`/admin/driver?ID=${id}`, driverData, "admin").then((data) => {
+                console.log("data", data);
                 if (data.data.status) {
                     setIsRefresh(!isReferesh);
                     Swal.fire({
@@ -207,7 +211,7 @@ function EditDriver() {
                                 <Form.Control type="text" placeholder="Enter Company Name"
                                     name='companyName' onChange={(e) => handleChange(e)}
                                     value={driverData?.companyName}
-                                    // required
+                                // required
                                 />
                                 {/* <Form.Control.Feedback type="invalid">
                                     Please provide a company name.
@@ -264,6 +268,19 @@ function EditDriver() {
                             </Form.Group>
                         </Col>
                     </Row>
+                    <Col md={3} className="mt-3">
+                        <Form.Group controlId="clientAssignDriverCheckbox">
+                            <Form.Check
+                                type="checkbox"
+                                label="Driver able to create the job"
+                                name="isCreateJobPermission"
+                                checked={driverData?.isCreateJobPermission}
+                                onChange={(e) =>
+                                    setDriverData({ ...driverData, isCreateJobPermission: e.target.checked })
+                                }
+                            />
+                        </Form.Group>
+                    </Col>
                 </Form>
                 {/* <Row>
           <Col md={3} className="mt-3">
