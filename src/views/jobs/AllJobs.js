@@ -95,6 +95,7 @@ const AllJobs = () => {
             obj.blurJob = data?.blurJob;
             obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
             obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : '';
+            obj['manualPrice'] = data?.manualPrice;
 
             // if (activeTab === 'allJobs' && !data.transferTab) {
             //     finalArr.push(obj);
@@ -205,6 +206,7 @@ const AllJobs = () => {
             if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
             if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
             if (filter.transferJob) queryParams.push(`transferJob=${filter.transferJob}`)
+            if (filter.is_invoices) queryParams.push(`is_invoices=${filter.is_invoices}`)
 
             const query = queryParams.join('&');
 
@@ -269,7 +271,8 @@ const AllJobs = () => {
                 clientName: "",
                 driverName: "",
                 transferJob: false,
-                companyName: ""
+                companyName: "",
+                is_invoices: ""
             });
         } else if (activeTab === 'jobRequest') {
             getJobTransferRequests();
@@ -354,7 +357,8 @@ const AllJobs = () => {
             clientName: "",
             driverName: "",
             transferJob: false,
-            companyName: ""
+            companyName: "",
+            is_invoices: ""
         }
         setSearchQuery({
             AWB: "",
@@ -371,7 +375,8 @@ const AllJobs = () => {
             clientName: "",
             driverName: "",
             transferJob: false,
-            companyName: ""
+            companyName: "",
+            is_invoices: ""
         });
         fetchData(filter);
     }
@@ -445,6 +450,14 @@ const AllJobs = () => {
             filterObj['transferJob'] = false;
         }
 
+        if (key === 'is_invoices') {
+            dispatch({
+                type: 'updateSearchQuery',
+                payload: { is_invoices: "" },
+            });
+            filterObj['is_invoices'] = "";
+        }
+
         let filter = filterObj;
 
         fetchData(filter);
@@ -508,7 +521,9 @@ const AllJobs = () => {
             serviceCode: '',
             serviceTypeId: '',
             serviceCodeId: '',
-            transferJob: false
+            transferJob: false,
+            companyName: '',
+            is_invoices: ""
         });
     };
 
@@ -722,7 +737,7 @@ const AllJobs = () => {
                                                             textAlign: 'left',
                                                         };
                                                         return (
-                                                            <tr key={index} className="cursor-pointer">
+                                                            <tr key={index} className={`${item?.manualPrice && 'highlighted-row'} cursor-pointer`}>
                                                                 {selectedColumns.map((col) => (
                                                                     <>
 

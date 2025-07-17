@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, use } from 'react'
 import { Button, Col, Container, Form, Row, Spinner, Modal } from 'react-bootstrap'
 import { CButton, CCard, CCardBody, CCol, CRow } from '@coreui/react'
 import makeAnimated from 'react-select/animated';
@@ -39,8 +39,12 @@ function AddClients() {
 
   const [showModal, setShowModal] = useState(false)
   const [showModal2, setShowModal2] = useState(false)
+  const [errors, setErrors] = useState({});
 
-  const handleShowModal = () => setShowModal(true)
+  const handleShowModal = () => {
+    setShowModal(true);
+    setErrors({});
+  }
 
   const handleCloseModal = () => setShowModal(false)
   const handleCloseModal2 = () => setShowModal2(false)
@@ -51,15 +55,32 @@ function AddClients() {
   const [rate, setRate] = useState('');
   const [rates, setRates] = useState([]);
 
-  const [fuelLevy, setFuelLevy] = useState({});
+  const [fuelLevy, setFuelLevy] = useState(20);
   const [addFuelLevyModal, setAddFuelLevyModal] = useState(false);
   const [editFuelLevyModal, setEditFuelLevyModal] = useState(false);
   const [fuelLevyData, setFuelLevyData] = useState({});
+
+  const [pickupCharge, setPickupCharge] = useState(1.5);
+  const [addPickupChargeModal, setAddPickupChargeModal] = useState(false);
+  const [editPickupChargeModal, setEditPickupChargeModal] = useState(false);
+  const [pickupChargeData, setPickupChargeData] = useState({});
+
+  const [deliveryCharge, setDeliveryCharge] = useState(1.5);
+  const [addDeliveryChargeModal, setAddDeliveryChargeModal] = useState(false);
+  const [editDeliveryChargeModal, setEditDeliveryChargeModal] = useState(false);
+  const [deliveryChargeData, setDeliveryChargeData] = useState({});
+
+  const [specialCodeRates, setSpecialCodeRates] = useState([]);
+  const [editSpecialCodeRateModal, setEditSpecialCodeRateModal] = useState(false);
+  const [specialCodeRateData, setSpecialCodeRateData] = useState({});
+
 
   // const [clientRateOptions, setClientRateOptions] = useState([]);
   // const [selectedClientRate, setSelectedClientRate] = useState([]);
 
   const [isClientCreated, setIsClientCreated] = useState(false);
+
+  const [specialCode, setSpecialCode] = useState(false);
 
   const unitOptions = [
     { value: 'per_hour', label: 'Per Hour' },
@@ -69,16 +90,20 @@ function AddClients() {
   const [clientRateData, setClientRateData] = useState({
     rate: '',
     item: '',
-    serviceCodeId: ''
+    serviceCodeId: '',
+    minimumHours: ''
   });
 
-  const [errors, setErrors] = useState({});
+  console.log('clientRateData', clientRateData);
+
+  const [clientName, setClientName] = useState('');
 
   useEffect(() => {
     setClientRateData({
       rate: '',
       item: '',
-      serviceCodeId: ''
+      serviceCodeId: '',
+      minimumHours: ''
     });
     setErrors({});
   }, [showModal]);
@@ -94,7 +119,15 @@ function AddClients() {
 
     setSelectedClientId(item._id);
 
-    setClientRateData({ rate: item.rate.replace(/[^0-9.]/g, ''), serviceCodeId: item.serviceCodeId?._id, item: item.item });
+    setErrors({});
+
+    if (item?.serviceCodeId?.text?.toLowerCase()?.trim() === 'loose') {
+      setSpecialCode(true);
+    } else {
+      setSpecialCode(false);
+    }
+
+    setClientRateData({ rate: item?.rate?.replace(/[^0-9.]/g, ''), serviceCodeId: item?.serviceCodeId?._id || "", item: item?.item || "", minimumHours: item?.minimumHours || "" });
 
     setShowModal2(true);
   };
@@ -103,9 +136,37 @@ function AddClients() {
 
     setSelectedClientId(item._id);
 
-    setFuelLevyData({ fuelLevy: item?.fuelLevy });
+    setFuelLevyData({ fuelLevy: item });
 
     setEditFuelLevyModal(true);
+  };
+
+  const handlePickupChargeEdit = (item) => {
+
+    setSelectedClientId(item._id);
+
+    setPickupChargeData({ pickupCharge: item });
+
+    setEditPickupChargeModal(true);
+  };
+
+  const handleSpecialCodeRateEdit = (item) => {
+
+    setSelectedClientId(item._id);
+
+    setSpecialCodeRateData({ rate: item?.rate, weight: item?.weight, specialCodeRateId: item?._id });
+
+    setEditSpecialCodeRateModal(true);
+  };
+
+
+  const handleDeliveryChargeEdit = (item) => {
+
+    setSelectedClientId(item._id);
+
+    setDeliveryChargeData({ deliveryCharge: item });
+
+    setEditDeliveryChargeModal(true);
   };
 
   // Deleting the client rate
@@ -140,37 +201,38 @@ function AddClients() {
 
   }
 
-  // Deleting the client rate
-  const handleFuelLevyDelete = () => {
-    sweetAlert2
-      .fire({
-        title: 'Are you sure you want to delete this fuel levy?',
-        text: 'Once deleted you can’t revert this action',
-        imageUrl: 'src/assets/images/delete_modal_icon.png',
-        imageWidth: 60,
-        imageHeight: 60,
-        imageAlt: 'Delete Icon',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Delete it!',
-        cancelButtonText: 'No, Keep it',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          deleteReqWithoutMedia(`/admin/client/fuelLevy/delete?id=${localStorage.getItem('clientIdForRate')}`, "admin").then((data) => {
-            if (data?.status) {
-              sweetAlert2.fire({ icon: 'success', title: data?.data?.message })
-            } else {
-              sweetAlert2.fire({ icon: 'error', title: data?.data?.message })
-            }
-            getFuelLevyData();
-          }).catch((e) => {
-            console.log("Error while deleting:", e?.message)
-          })
-        } else if (result.dismiss === sweetAlert2.DismissReason.cancel) {
-          sweetAlert2.fire('Cancelled', 'Your fuel levy is safe :)', 'error')
-        }
-      })
+  // Deleting the fuel levy
+  // const handleFuelLevyDelete = () => {
+  //   sweetAlert2
+  //     .fire({
+  //       title: 'Are you sure you want to delete this fuel levy?',
+  //       text: 'Once deleted you can’t revert this action',
+  //       imageUrl: 'src/assets/images/delete_modal_icon.png',
+  //       imageWidth: 60,
+  //       imageHeight: 60,
+  //       imageAlt: 'Delete Icon',
+  //       showCancelButton: true,
+  //       confirmButtonText: 'Yes, Delete it!',
+  //       cancelButtonText: 'No, Keep it',
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         deleteReqWithoutMedia(`/admin/client/fuelLevy/delete?id=${localStorage.getItem('clientIdForRate')}`, "admin").then((data) => {
+  //           if (data?.status) {
+  //             sweetAlert2.fire({ icon: 'success', title: data?.data?.message })
+  //           } else {
+  //             sweetAlert2.fire({ icon: 'error', title: data?.data?.message })
+  //           }
+  //           // getFuelLevyData();
+  //           getClientRateData();
+  //         }).catch((e) => {
+  //           console.log("Error while deleting:", e?.message)
+  //         })
+  //       } else if (result.dismiss === sweetAlert2.DismissReason.cancel) {
+  //         sweetAlert2.fire('Cancelled', 'Your fuel levy is safe :)', 'error')
+  //       }
+  //     })
 
-  }
+  // }
 
   const handleTabSelect = (key) => {
     if (key === "clientRates" && !isClientCreated) return; // block if not allowed
@@ -267,35 +329,33 @@ function AddClients() {
     const clientId = localStorage.getItem('clientIdForRate');
     get(`/admin/clientRate/list?id=${clientId}`, 'admin')
       .then((response) => {
+        setClientName(response?.data?.data?.firstname + ' ' + response?.data?.data?.lastname);
         setRates(response?.data?.data?.rateDetails);
-
-        // const newOptions = response?.data?.data?.map((item) => ({
-        //   label: item?.serviceCodeId?.text + " - " + item?.rate + " - " + item?.item,
-        //   value: item._id,
-        // }));
-
-        // setClientRateOptions(newOptions);
+        setFuelLevy(response?.data?.data?.fuelLevy);
+        setPickupCharge(response?.data?.data?.pickupCharge);
+        setDeliveryCharge(response?.data?.data?.deliveryCharge);
+        setSpecialCodeRates(response?.data?.data?.specialCodeRateDetails);
       })
       .catch((error) => {
         console.error(error)
       })
   }
 
-  const getFuelLevyData = async () => {
-    const clientId = localStorage.getItem('clientIdForRate');
-    get(`/admin/client/fuelLevy/list?id=${clientId}`, 'admin')
-      .then((response) => {
-        setFuelLevy(response?.data?.data);
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
+  // const getFuelLevyData = async () => {
+  //   const clientId = localStorage.getItem('clientIdForRate');
+  //   get(`/admin/client/fuelLevy/list?id=${clientId}`, 'admin')
+  //     .then((response) => {
+  //       setFuelLevy(response?.data?.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error(error)
+  //     })
+  // }
 
   useEffect(() => {
     if (activeTab === 'clientRates') {
       getClientRateData();
-      getFuelLevyData();
+      // getFuelLevyData();
 
       get('/admin/service/code', 'admin')
         .then((response) => {
@@ -328,11 +388,14 @@ function AddClients() {
     if (clientRateData.serviceCodeId === '') {
       errors.serviceCodeId = 'Service code is required.'
     }
-    if (clientRateData.item === '') {
+    if (!specialCode && clientRateData.item === '') {
       errors.item = 'Item is required.'
     }
-    if (clientRateData.rate === '') {
+    if (!specialCode && clientRateData.rate === '') {
       errors.rate = 'Rate is required.'
+    }
+    if (clientRateData?.item === 'Per Hour' && clientRateData?.minimumHours === '') {
+      errors.minimumHours = 'Minimum hour is required.'
     }
     return errors;
   }
@@ -341,6 +404,30 @@ function AddClients() {
     const errors = {}
     if (fuelLevyData.fuelLevy === '') {
       errors.fuelLevy = 'Fuel levy is required.'
+    }
+    return errors;
+  }
+
+  const validatePickupChargeForm = () => {
+    const errors = {}
+    if (pickupChargeData.pickupCharge === '') {
+      errors.pickupCharge = 'Pickup charge is required.'
+    }
+    return errors;
+  }
+
+  const validateDeliveryChargeForm = () => {
+    const errors = {}
+    if (deliveryChargeData.deliveryCharge === '') {
+      errors.deliveryCharge = 'Delivery charge is required.'
+    }
+    return errors;
+  }
+
+  const validateSpecialCodeRateForm = () => {
+    const errors = {}
+    if (specialCodeRateData.rate === '') {
+      errors.rate = 'Rate is required.'
     }
     return errors;
   }
@@ -367,8 +454,10 @@ function AddClients() {
               setClientRateData({
                 rate: '',
                 item: '',
-                serviceCodeId: ''
+                serviceCodeId: '',
+                minimumHours: ''
               });
+              setErrors({});
               Swal.fire({
                 icon: 'success',
                 title: response.data.message,
@@ -436,11 +525,13 @@ function AddClients() {
             // setLoading5(false)
             if (response.data.status) {
               // get client rate
-              getFuelLevyData();
+              // getFuelLevyData();
+              getClientRateData();
               setEditFuelLevyModal(false);
               setFuelLevyData({
                 fuelLevy: ''
               });
+              setErrors({});
               Swal.fire({
                 icon: 'success',
                 title: response.data.message,
@@ -465,7 +556,8 @@ function AddClients() {
         updateReq(`/admin/client/fuelLevy/add?id=${clientId}`, fuelLevyData, 'admin')
           .then((response) => {
             if (response.data.status) {
-              getFuelLevyData();
+              // getFuelLevyData();
+              getClientRateData();
               setAddFuelLevyModal(false);
               Swal.fire({
                 icon: 'success',
@@ -494,16 +586,153 @@ function AddClients() {
     }
   }
 
+  const handlePickupChargeSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validatePickupChargeForm();
+    const clientId = localStorage.getItem('clientIdForRate');
+    if (Object.keys(errors).length === 0) {
+      if (editPickupChargeModal) {
+        updateReq(`/admin/client/pickup-charge/update?id=${clientId}`, pickupChargeData, 'admin')
+          .then((response) => {
+            if (response?.data?.status) {
+              getClientRateData();
+              setEditPickupChargeModal(false);
+              setPickupChargeData({
+                pickupCharge: ''
+              });
+              setErrors({});
+              Swal.fire({
+                icon: 'success',
+                title: response?.data?.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response?.data?.message || 'Failed to edit pickup charge',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response?.data?.message || 'Failed to edit pickup charge',
+            });
+          })
+      }
+    } else {
+      setErrors(errors);
+      return;
+    }
+  }
+
+  const handleDeliveryChargeSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateDeliveryChargeForm();
+    const clientId = localStorage.getItem('clientIdForRate');
+    if (Object.keys(errors).length === 0) {
+      if (editDeliveryChargeModal) {
+        updateReq(`/admin/client/delivery-charge/update?id=${clientId}`, deliveryChargeData, 'admin')
+          .then((response) => {
+            if (response?.data?.status) {
+              getClientRateData();
+              setEditDeliveryChargeModal(false);
+              setDeliveryChargeData({
+                deliveryCharge: ''
+              });
+              setErrors({});
+              Swal.fire({
+                icon: 'success',
+                title: response?.data?.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response?.data?.message || 'Failed to edit delivery charge',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response?.data?.message || 'Failed to edit delivery charge',
+            });
+          })
+      }
+    } else {
+      setErrors(errors);
+      return;
+    }
+  }
+
+  const handleSpecialCodeRateSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateSpecialCodeRateForm();
+    const clientId = localStorage.getItem('clientIdForRate');
+    if (Object.keys(errors).length === 0) {
+      if (editSpecialCodeRateModal) {
+        updateReq(`/admin/client/special-code-rate/update?id=${clientId}`, specialCodeRateData, 'admin')
+          .then((response) => {
+            if (response?.data?.status) {
+              getClientRateData();
+              setEditSpecialCodeRateModal(false);
+              setSpecialCodeRateData({});
+              setErrors({});
+              Swal.fire({
+                icon: 'success',
+                title: response?.data?.message,
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response?.data?.message || 'Failed to edit delivery charge',
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: response?.data?.message || 'Failed to edit delivery charge',
+            });
+          })
+      }
+    } else {
+      setErrors(errors);
+      return;
+    }
+  }
+
   const handleClientRateChange = (e) => {
     const { name, value } = e.target
     setClientRateData({ ...clientRateData, [name]: value })
   }
 
   const handleServiceCodeRateChange = (selectedOption) => {
-    setClientRateData({
-      ...clientRateData,
-      serviceCodeId: selectedOption.value,
-    });
+
+    if (selectedOption?.label?.toLowerCase()?.trim() === 'loose') {
+      setSpecialCode(true);
+      setClientRateData({
+        ...clientRateData,
+        serviceCodeId: selectedOption.value,
+        rate: '',
+        item: ''
+      });
+    } else {
+      setSpecialCode(false);
+      setClientRateData({
+        ...clientRateData,
+        serviceCodeId: selectedOption.value
+      });
+    }
+
     if (errors.serviceCodeId) {
       setErrors(prev => ({ ...prev, serviceCodeId: "" }));
     }
@@ -513,6 +742,7 @@ function AddClients() {
     setClientRateData({
       ...clientRateData,
       item: selectedOption.label,
+      minimumHours: ''
     });
     if (errors.item) {
       setErrors(prev => ({ ...prev, item: "" }));
@@ -560,11 +790,13 @@ function AddClients() {
     }
   }, []);
 
+  console.log('errors?.minimumHours', errors?.minimumHours);
+
   return (
     <>
       <Row className="align-items-center">
         <Col>
-          <h4 className="mb-0">{activeTab === 'addClient' ? 'Add Client' : 'Client Rates'}</h4>
+          <h4 className="mb-0">{activeTab === 'addClient' ? 'Add Client' : `Client Rates for ${clientName} `}</h4>
         </Col>
         <Col className={activeTab === 'addClient' ? 'text-end' : 'text-end'}>
           {activeTab === 'addClient' ? (
@@ -757,6 +989,7 @@ function AddClients() {
                 <th className="text-start">Service Code</th>
                 <th className="text-start">Rate</th>
                 <th className="text-start">Item</th>
+                <th className="text-start">Minimum Hour</th>
                 <th style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
               </tr>
             </thead>
@@ -764,14 +997,15 @@ function AddClients() {
               {rates?.length > 0 ? rates?.map((item) => (
                 <tr key={item._id}>
                   <td className="text-start">{item?.serviceCodeId?.text}</td>
-                  <td className="text-start">{item.rate}</td>
-                  <td className="text-start">{item.item}</td>
+                  <td className="text-start">{item?.rate || "-"}</td>
+                  <td className="text-start">{item?.item || "-"}</td>
+                  <td className="text-start">{item?.minimumHours || "-"}</td>
                   <td className="text-center action-dropdown-menu">
                     <div className="dropdown">
                       <button
                         className="btn btn-link p-0 border-0"
                         type="button"
-                        id={`dropdownMenuButton-${item._id}`}
+                        id={`dropdownMenuButton-${item?._id}`}
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
@@ -779,7 +1013,7 @@ function AddClients() {
                       </button>
                       <ul
                         className="dropdown-menu dropdown-menu-end"
-                        aria-labelledby={`dropdownMenuButton-${item._id}`}
+                        aria-labelledby={`dropdownMenuButton-${item?._id}`}
                       >
                         <li>
                           <button
@@ -820,7 +1054,7 @@ function AddClients() {
             </Row>
           </div> */}
 
-          {!fuelLevy?.fuelLevy &&
+          {/* {!fuelLevy &&
             <Row className="align-items-center">
               <Col className='text-end'>
                 <CButton className="custom-btn" onClick={() => setAddFuelLevyModal(true)}>
@@ -828,21 +1062,165 @@ function AddClients() {
                 </CButton>
               </Col>
             </Row>
-          }
+          } */}
 
+          {/* Fuel levy table */}
           <div className='table-responsive mt-3'>
             <Table hover responsive className="custom-table">
               <thead className="table-light">
                 <tr>
                   <th className="text-start">Fuel Levy</th>
-                  <th className="text-start">{fuelLevy?.fuelLevy ? fuelLevy?.fuelLevy : '-'}</th>
-                  {fuelLevy?.fuelLevy &&
-                    <th style={{ minWidth: '70px' }}>
+                  <th className="text-start">{fuelLevy ? fuelLevy : '-'}</th>
+                  {/* {fuelLevy && */}
+                  <th style={{ minWidth: '70px' }}>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-link p-0 border-0"
+                        type="button"
+                        // id={`dropdownMenuButton-${item._id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <BsThreeDotsVertical size={18} />
+                      </button>
+                      <ul
+                        className="dropdown-menu dropdown-menu-end"
+                      // aria-labelledby={`dropdownMenuButton-${item._id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleFuelLevyEdit(fuelLevy)}
+                          >
+                            Edit Fuel Levy
+                          </button>
+                        </li>
+                        {/* <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleFuelLevyDelete()}
+                            >
+                              Delete Fuel Levy
+                            </button>
+                          </li> */}
+                      </ul>
+                    </div>
+                  </th>
+                  {/* } */}
+                </tr>
+              </thead>
+            </Table>
+          </div>
+
+          {/* Pickup and delivery charge table */}
+          <div className='table-responsive mt-3'>
+            <Table hover responsive className="custom-table">
+              <thead className="table-light">
+                <tr>
+                  <th className="text-start">Pickup Charge</th>
+                  <th className="text-start">{pickupCharge || '-'}</th>
+                  {/* {fuelLevy && */}
+                  <th style={{ minWidth: '70px' }}>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-link p-0 border-0"
+                        type="button"
+                        // id={`dropdownMenuButton-${item._id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <BsThreeDotsVertical size={18} />
+                      </button>
+                      <ul
+                        className="dropdown-menu dropdown-menu-end"
+                      // aria-labelledby={`dropdownMenuButton-${item._id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handlePickupChargeEdit(pickupCharge)}
+                          >
+                            Edit Pickup Charge
+                          </button>
+                        </li>
+                        {/* <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleFuelLevyDelete()}
+                            >
+                              Delete Fuel Levy
+                            </button>
+                          </li> */}
+                      </ul>
+                    </div>
+                  </th>
+                  {/* } */}
+                </tr>
+                <tr>
+                  <th className="text-start">Delivery Charge</th>
+                  <th className="text-start">{deliveryCharge || '-'}</th>
+                  {/* {fuelLevy && */}
+                  <th style={{ minWidth: '70px' }}>
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-link p-0 border-0"
+                        type="button"
+                        // id={`dropdownMenuButton-${item._id}`}
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <BsThreeDotsVertical size={18} />
+                      </button>
+                      <ul
+                        className="dropdown-menu dropdown-menu-end"
+                      // aria-labelledby={`dropdownMenuButton-${item._id}`}
+                      >
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleDeliveryChargeEdit(deliveryCharge)}
+                          >
+                            Edit Delivery Charge
+                          </button>
+                        </li>
+                        {/* <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={() => handleFuelLevyDelete()}
+                            >
+                              Delete Fuel Levy
+                            </button>
+                          </li> */}
+                      </ul>
+                    </div>
+                  </th>
+                  {/* } */}
+                </tr>
+              </thead>
+            </Table>
+          </div>
+
+          {/* Loose Service Code Rates */}
+          {rates?.find((rate) => rate?.serviceCodeId?.text?.toLowerCase()?.trim() === 'loose') &&
+            <Table hover responsive className="custom-table mt-3">
+              <thead className="table-light">
+                <tr>
+                  <th className="text-start">Weight</th>
+                  <th className="text-start">Rate</th>
+                  <th style={{ width: 'auto', minWidth: '70px' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {specialCodeRates?.length > 0 ? specialCodeRates?.map((item) => (
+                  <tr key={item._id}>
+                    <td className="text-start">{item?.weight}</td>
+                    <td className="text-start">{item?.rate}</td>
+                    <td className="text-center action-dropdown-menu">
                       <div className="dropdown">
                         <button
                           className="btn btn-link p-0 border-0"
                           type="button"
-                          // id={`dropdownMenuButton-${item._id}`}
+                          id={`dropdownMenuButton-${item?._id}`}
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
                         >
@@ -850,32 +1228,28 @@ function AddClients() {
                         </button>
                         <ul
                           className="dropdown-menu dropdown-menu-end"
-                        // aria-labelledby={`dropdownMenuButton-${item._id}`}
+                          aria-labelledby={`dropdownMenuButton-${item?._id}`}
                         >
                           <li>
                             <button
                               className="dropdown-item"
-                              onClick={() => handleFuelLevyEdit(fuelLevy)}
+                              onClick={() => handleSpecialCodeRateEdit(item)}
                             >
-                              Edit Fuel Levy
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => handleFuelLevyDelete()}
-                            >
-                              Delete Fuel Levy
+                              Edit Rate
                             </button>
                           </li>
                         </ul>
                       </div>
-                    </th>
-                  }
-                </tr>
-              </thead>
+                    </td>
+                  </tr>
+                )) :
+                  <tr>
+                    <td colSpan={4} className="text-center text-danger">No Records Found.</td>
+                  </tr>
+                }
+              </tbody>
             </Table>
-          </div>
+          }
         </Tab>
       </Tabs>
       {/* Add Modal */}
@@ -883,21 +1257,6 @@ function AddClients() {
         <Modal.Header closeButton><Modal.Title>Add Client Rates</Modal.Title></Modal.Header>
         <Form noValidate validated={validated} onSubmit={handleClientRateSubmit}>
           <Modal.Body className="pt-0">
-            <Form.Group>
-              <Form.Label>Rate</Form.Label>
-              <Form.Control
-                type="text"
-                className="custom-form-control"
-                placeholder="Enter rate here"
-                value={clientRateData?.rate}
-                name="rate"
-                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
-                onChange={handleClientRateChange}
-              />
-              {errors.rate ? (
-                <Form.Text className="text-danger">{errors.rate}</Form.Text>
-              ) : null}
-            </Form.Group>
             <Form.Group className="mt-3">
               <Form.Label>Service Code</Form.Label>
               <Select
@@ -911,27 +1270,63 @@ function AddClients() {
                 isSearchable
                 required
               />
-              {errors.serviceCodeId ? (
-                <Form.Text className="text-danger">{errors.serviceCodeId}</Form.Text>
+              {errors?.serviceCodeId ? (
+                <Form.Text className="text-danger">{errors?.serviceCodeId}</Form.Text>
               ) : null}
             </Form.Group>
-            <Form.Group className="mt-3">
-              <Form.Label>Item</Form.Label>
-              <Select
-                className="w-100 custom-select"
-                classNamePrefix="custom-select"
-                options={unitOptions}
-                value={clientData?.item}
-                name="item"
-                // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
-                onChange={handleItemRateChange}
-                placeholder="Select from the list"
-                isSearchable
-              />
-              {errors.item ? (
-                <Form.Text className="text-danger">{errors.item}</Form.Text>
-              ) : null}
-            </Form.Group>
+            {!specialCode && (
+              <>
+                < Form.Group className="mt-3">
+                  <Form.Label>Rate</Form.Label>
+                  <Form.Control
+                    type="text"
+                    className="custom-form-control"
+                    placeholder="Enter rate here"
+                    value={clientRateData?.rate}
+                    name="rate"
+                    // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                    onChange={handleClientRateChange}
+                  />
+                  {errors.rate ? (
+                    <Form.Text className="text-danger">{errors.rate}</Form.Text>
+                  ) : null}
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Label>Item</Form.Label>
+                  <Select
+                    className="w-100 custom-select"
+                    classNamePrefix="custom-select"
+                    options={unitOptions}
+                    value={clientData?.item}
+                    name="item"
+                    // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
+                    onChange={handleItemRateChange}
+                    placeholder="Select from the list"
+                    isSearchable
+                  />
+                  {errors?.item ? (
+                    <Form.Text className="text-danger">{errors?.item}</Form.Text>
+                  ) : null}
+                </Form.Group>
+              </>
+            )}
+            {clientRateData?.item == 'Per Hour' &&
+              <Form.Group className="mt-3">
+                <Form.Label>Minimum Hours</Form.Label>
+                <Form.Control
+                  type="text"
+                  className="custom-form-control"
+                  placeholder="Enter rate here"
+                  value={clientRateData?.minimumHours}
+                  name="minimumHours"
+                  // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                  onChange={handleClientRateChange}
+                />
+                {clientRateData?.item === 'Per Hour' && errors?.minimumHours ? (
+                  <Form.Text className="text-danger">{errors?.minimumHours}</Form.Text>
+                ) : null}
+              </Form.Group>
+            }
           </Modal.Body>
           <Modal.Footer>
             <Button type='submit' className="custom-btn">Submit</Button>
@@ -953,21 +1348,6 @@ function AddClients() {
         </Modal.Header>
         <Form noValidate validated={validated} onSubmit={handleClientRateSubmit}>
           <Modal.Body className="pt-0">
-            <Form.Group>
-              <Form.Label>Rate</Form.Label>
-              <Form.Control
-                type="text"
-                className="custom-form-control"
-                placeholder="Enter rate here"
-                value={clientRateData?.rate}
-                name="rate"
-                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
-                onChange={handleClientRateChange}
-              />
-              {errors.rate ? (
-                <Form.Text className="text-danger">{errors.rate}</Form.Text>
-              ) : null}
-            </Form.Group>
             <Form.Group className="mt-3">
               <Form.Label>Service Code</Form.Label>
               <Select
@@ -975,33 +1355,68 @@ function AddClients() {
                 classNamePrefix="custom-select"
                 name="serviceCodeId"
                 options={serviceOptionForRate}
-                value={serviceOptionForRate?.find(opt => opt.value === clientRateData?.serviceCodeId)}
+                value={serviceOptionForRate?.find(opt => opt?.value === clientRateData?.serviceCodeId)}
                 onChange={handleServiceCodeRateChange}
                 placeholder="Enter service code"
                 isSearchable
                 required
               />
-              {errors.serviceCodeId ? (
-                <Form.Text className="text-danger">{errors.serviceCodeId}</Form.Text>
+              {errors?.serviceCodeId ? (
+                <Form.Text className="text-danger">{errors?.serviceCodeId}</Form.Text>
               ) : null}
             </Form.Group>
-            <Form.Group className="mt-3">
-              <Form.Label>Item</Form.Label>
-              <Select
-                className="w-100 custom-select"
-                classNamePrefix="custom-select"
-                options={unitOptions}
-                value={unitOptions?.find(opt => opt.label === clientRateData?.item)}
-                name="item"
-                // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
-                onChange={handleItemRateChange}
-                placeholder="Select from the list"
-                isSearchable
-              />
-              {errors.item ? (
-                <Form.Text className="text-danger">{errors.item}</Form.Text>
-              ) : null}
-            </Form.Group>
+            {!specialCode && (
+              <>
+                <Form.Group className="mt-3">
+                  <Form.Label>Rate</Form.Label>
+                  <Form.Control
+                    type="text"
+                    className="custom-form-control"
+                    placeholder="Enter rate here"
+                    value={clientRateData?.rate}
+                    name="rate"
+                    // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                    onChange={handleClientRateChange}
+                  />
+                  {errors?.rate ? (
+                    <Form.Text className="text-danger">{errors?.rate}</Form.Text>
+                  ) : null}
+                </Form.Group>
+                <Form.Group className="mt-3">
+                  <Form.Label>Item</Form.Label>
+                  <Select
+                    className="w-100 custom-select"
+                    classNamePrefix="custom-select"
+                    options={unitOptions}
+                    value={unitOptions?.find(opt => opt?.label === clientRateData?.item)}
+                    name="item"
+                    // onChange={(selectedOption) => setSelectedUnit(selectedOption)}
+                    onChange={handleItemRateChange}
+                    placeholder="Select from the list"
+                    isSearchable
+                  />
+                  {errors?.item ? (
+                    <Form.Text className="text-danger">{errors?.item}</Form.Text>
+                  ) : null}
+                </Form.Group>
+              </>)}
+            {clientRateData?.item === 'Per Hour' &&
+              <Form.Group className='mt-3'>
+                <Form.Label>Minimum Hours</Form.Label>
+                <Form.Control
+                  type="text"
+                  className="custom-form-control"
+                  placeholder="Enter rate here"
+                  value={clientRateData?.minimumHours}
+                  name="minimumHours"
+                  // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                  onChange={handleClientRateChange}
+                />
+                {clientRateData?.item === 'Per Hour' && errors?.minimumHours ? (
+                  <Form.Text className="text-danger">{errors?.minimumHours}</Form.Text>
+                ) : null}
+              </Form.Group>
+            }
           </Modal.Body>
           <Modal.Footer>
             <Button type='submit' className="custom-btn">
@@ -1012,7 +1427,7 @@ function AddClients() {
       </Modal >
 
       {/* Fuel Levy Add Modal */}
-      <Modal show={addFuelLevyModal} onHide={() => setAddFuelLevyModal(false)} style={{ marginTop: '10vh' }} className="custom-modal">
+      < Modal show={addFuelLevyModal} onHide={() => setAddFuelLevyModal(false)} style={{ marginTop: '10vh' }} className="custom-modal" >
         <Modal.Header closeButton><Modal.Title>Add Fuel Levy</Modal.Title></Modal.Header>
         <Form noValidate validated={validated} onSubmit={handleFuelLevySubmit}>
           <Modal.Body className="pt-0">
@@ -1036,7 +1451,7 @@ function AddClients() {
             <Button type='submit' className="custom-btn">Submit</Button>
           </Modal.Footer>
         </Form>
-      </Modal>
+      </Modal >
 
       {/* Fuel Levy Edit Modal */}
       < Modal
@@ -1047,7 +1462,7 @@ function AddClients() {
         dialogClassName="custom-modal"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Edit Client Rates</Modal.Title>
+          <Modal.Title>Edit Fuel Levy</Modal.Title>
         </Modal.Header>
         <Form noValidate validated={validated} onSubmit={handleFuelLevySubmit}>
           <Modal.Body className="pt-0">
@@ -1065,6 +1480,119 @@ function AddClients() {
               />
               {errors?.fuelLevy ? (
                 <Form.Text className="text-danger">{errors?.fuelLevy}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">
+              Confirm Change
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal >
+
+      {/* Pickup Charge Edit Modal */}
+      < Modal
+        show={editPickupChargeModal}
+        onHide={() => setEditPickupChargeModal(false)}
+        style={{ marginTop: '10vh' }
+        }
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Pickup Charge</Modal.Title>
+        </Modal.Header>
+        <Form noValidate validated={validated} onSubmit={handlePickupChargeSubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Pickup Charge</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter fuel levy here"
+                value={pickupChargeData?.pickupCharge}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={(e) => setPickupChargeData({ pickupCharge: e.target.value })}
+                required
+              />
+              {errors?.pickupCharge ? (
+                <Form.Text className="text-danger">{errors?.pickupCharge}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">
+              Confirm Change
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal >
+
+      {/* Delivery Charge Edit Modal */}
+      < Modal
+        show={editDeliveryChargeModal}
+        onHide={() => setEditDeliveryChargeModal(false)}
+        style={{ marginTop: '10vh' }
+        }
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Delivery Charge</Modal.Title>
+        </Modal.Header>
+        <Form noValidate validated={validated} onSubmit={handleDeliveryChargeSubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Delivery Charge</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter fuel levy here"
+                value={deliveryChargeData?.deliveryCharge}
+                name="rate"
+                // onChange={(e) => setRate(e.target.value.replace(/[^\d.]/g, ''))}
+                onChange={(e) => setDeliveryChargeData({ deliveryCharge: e.target.value })}
+                required
+              />
+              {errors?.deliveryCharge ? (
+                <Form.Text className="text-danger">{errors?.deliveryCharge}</Form.Text>
+              ) : null}
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button type='submit' className="custom-btn">
+              Confirm Change
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal >
+
+      {/* Special code rate edit modal */}
+      < Modal
+        show={editSpecialCodeRateModal}
+        onHide={() => setEditSpecialCodeRateModal(false)}
+        style={{ marginTop: '10vh' }
+        }
+        dialogClassName="custom-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit rate for {specialCodeRateData?.weight} </Modal.Title>
+        </Modal.Header>
+        <Form noValidate validated={validated} onSubmit={handleSpecialCodeRateSubmit}>
+          <Modal.Body className="pt-0">
+            <Form.Group>
+              <Form.Label>Rate</Form.Label>
+              <Form.Control
+                type="text"
+                className="custom-form-control"
+                placeholder="Enter fuel levy here"
+                value={specialCodeRateData?.rate}
+                name="rate"
+                onChange={(e) => setSpecialCodeRateData({ ...specialCodeRateData, rate: e.target.value })}
+                required
+              />
+              {errors?.rate ? (
+                <Form.Text className="text-danger">{errors?.rate}</Form.Text>
               ) : null}
             </Form.Group>
           </Modal.Body>

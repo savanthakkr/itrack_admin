@@ -53,7 +53,7 @@ const AccountantAllJobs = () => {
     const [filterShow, setFilterShow] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [isFiltering, setIsFiltering] = useState(false);
-    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
+    const [selectedColumns, setSelectedColumns] = useState(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Job Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
     const [checkedItems, setCheckedItems] = useState([]);
     const [serviceCodes, setServiceCodes] = useState([]);
     const [serviceTypes, setServiceTypes] = useState([]);
@@ -103,7 +103,7 @@ const AccountantAllJobs = () => {
             obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
             obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
             obj['Admin Notes'] = data?.adminNote || "-";
-            obj['Base Rate'] = data?.rates || "";
+            obj['Job Rate'] = data?.rates || "";
             obj['Fuel Surcharge'] = data?.fuel_charge || "";
             obj['Invoice Number'] = data?.invoiceNumber || "-";
             obj['Customer Job Number'] = data?.custRefNumber || "";
@@ -113,6 +113,7 @@ const AccountantAllJobs = () => {
             obj['Pickup Waiting Time Charges'] = data?.invoiceDetail?.pickUpDetails?.pickUpWaitingRate || 0;
             obj['Delivery Wait Time Charges'] = data?.invoiceDetail?.dropOfDetails?.deliveryWaitingRate || 0;
             obj.blurJob = data?.blurJob;
+            obj.manualPrice = data?.manualPrice;
             finalArr.push(obj);
         }
 
@@ -213,6 +214,7 @@ const AccountantAllJobs = () => {
             if (filter.driverName) queryParams.push(`driverName=${filter.driverName}`)
             if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
             if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
+            if (filter.is_invoices) queryParams.push(`is_invoices=${filter.is_invoices}`)
 
             const query = queryParams.join('&');
 
@@ -301,7 +303,7 @@ const AccountantAllJobs = () => {
         setPage(1);
         setLimit(10);
         setMessage('');
-        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
+        setSelectedColumns(['Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Job Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes', 'Status', 'Transfer Status']);
 
         const filter = {
             AWB: "",
@@ -316,7 +318,8 @@ const AccountantAllJobs = () => {
             serviceTypeId: '',
             jobId: "",
             clientName: "",
-            driverName: ""
+            driverName: "",
+            is_invoices: ""
         }
         setSearchQuery({
             AWB: "",
@@ -331,7 +334,8 @@ const AccountantAllJobs = () => {
             serviceTypeId: '',
             jobId: "",
             clientName: "",
-            driverName: ""
+            driverName: "",
+            is_invoices: ""
         });
         fetchData(filter);
     }
@@ -389,6 +393,14 @@ const AccountantAllJobs = () => {
             filterObj['serviceCodeId'] = '';
         }
 
+        if (key === 'is_invoices') {
+            dispatch({
+                type: 'updateSearchQuery',
+                payload: { is_invoices: "" },
+            });
+            filterObj['is_invoices'] = "";
+        }
+
         let filter = filterObj;
 
         fetchData(filter);
@@ -400,11 +412,11 @@ const AccountantAllJobs = () => {
     }
 
     const columnOptions = [
-        'All', 'Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes'
+        'All', 'Client', 'Ready Time', 'AWB', 'Customer Job Number', 'Pieces', 'Service Type', 'Service Code', 'Weight', 'Pickup From', 'Deliver To', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Pickup Waiting Time Charges', 'Delivery Wait Time Charges', 'Admin Notes', 'Job Rate', 'Fuel Surcharge', 'Invoice Number', 'Notes'
     ];
 
     const editableFields = [
-        'Ready Time', 'AWB', 'Customer Job Number', 'Service Type', 'Service Code', 'Pieces', 'Weight', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Notes', 'Base Rate', 'Fuel Surcharge', 'Invoice Number'
+        'Ready Time', 'AWB', 'Customer Job Number', 'Service Type', 'Service Code', 'Pieces', 'Weight', 'Arrived At Pickup', 'Picked Up Time', 'Arrival At Delivery', 'Delivered Time', 'Notes', 'Job Rate', 'Fuel Surcharge', 'Invoice Number'
     ]
 
     const handleCheckBoxChange = (e, item) => {
@@ -463,7 +475,7 @@ const AccountantAllJobs = () => {
                     deliveredTime: formatDateTimeValue(item['Delivered Time']) || item['Delivered Time']
                 },
                 note: item['Notes'],
-                rates: item['Base Rate'],
+                rates: item['Job Rate'],
                 fuel_charge: item['Fuel Surcharge']
             }));
 
@@ -601,7 +613,7 @@ const AccountantAllJobs = () => {
                     <FaFileExcel />
                 </Button>
             </div>
-            {checkedItems.length > 0 &&
+            {checkedItems?.length > 0 &&
                 <Button onClick={handleSubmitCheckedItems} style={{ fontSize: '12px', backgroundColor: '#10a610' }} className="custom-btn mb-3">
                     Save
                 </Button>
@@ -652,7 +664,7 @@ const AccountantAllJobs = () => {
                                             const transferStatus = item['Transfer Status'];
                                             const transferStyle = transferStatus ? getStatusStyles(transferStatus) : {};
                                             return (
-                                                <tr key={index} className="cursor-pointer">
+                                                <tr key={index} className={`${item?.manualPrice && 'highlighted-row'} cursor-pointer`}>
                                                     <td className={item.blurJob ? 'blurred-row' : ''}
                                                         style={{
                                                             ...tdStyle,

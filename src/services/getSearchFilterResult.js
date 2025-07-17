@@ -8,11 +8,11 @@ export const getSeachFilterResult = async (data, role, page, limit) => {
     let url = '';
     if (role === "admin") {
         token = localStorage.getItem("admintoken");
-        url = `/admin/info/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&transferJob=${data.transferJob}&page=${page || ''}&limit=${limit || ""}`
+        url = `/admin/info/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&transferJob=${data.transferJob}&is_invoices=${data.is_invoices}&page=${page || ''}&limit=${limit || ""}`
 
     } else if (role === "client") {
         token = localStorage.getItem("jdAirTrans-client-token");
-        url = `/client/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&transferJob=${data.transferJob}&page=${page || ''}&limit=${limit || ""}`
+        url = `/client/jobFilter?AWB=${data.AWB}&clientId=${data.clientId}&driverId=${data.driverId}&fromDate=${data.fromDate}&toDate=${data.toDate}&currentStatus=${data.currentStatus}&uid=${data.jobId}&serviceTypeId=${data.serviceTypeId}&serviceCodeId=${data.serviceCodeId}&transferJob=${data.transferJob}&is_invoices=${data.is_invoices}&page=${page || ''}&limit=${limit || ""}`
     }
 
     let headers = {

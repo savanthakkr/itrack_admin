@@ -115,7 +115,8 @@ const getNavItems = (role) => {
           component: CNavItem,
           name: 'All Invoices',
           to: '/invoices',
-          display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+          // display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false'
+          display: 'false'
         },
       ],
     },

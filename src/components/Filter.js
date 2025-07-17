@@ -274,6 +274,51 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
                     </Col>
                 </Row>
 
+                {role !== 'client' &&
+                    <Row>
+                        <Col md={12} className='mt-3'>
+                            <label className="form-label fw-semibold">
+                                Is Invoice
+                            </label>
+                            <Dropdown className="custom-dropdown">
+                                <Dropdown.Toggle variant="outline-secondary" className='w-100 mx-auto d-flex justify-content-between align-items-center' id="dropdown-autoclose-false" style={{ textAlign: 'left', color: searchQuery?.is_invoices === true || searchQuery?.is_invoices === false ? '#000' : '#BDBDBD' }}>
+                                    {searchQuery?.is_invoices === true ? 'Yes' : searchQuery?.is_invoices === false ? 'No' : "Select an option"}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu
+                                    className="w-100 custom-scroll"
+                                    style={{ maxHeight: '250px', overflowY: 'auto' }}
+                                >
+
+                                    <Dropdown.Item
+                                        key={0}
+                                        onClick={() =>
+                                            setSearchQuery({
+                                                ...searchQuery,
+                                                is_invoices: true,
+                                            })
+                                        }
+                                    >
+                                        Yes
+                                    </Dropdown.Item>
+                                    <Dropdown.Item
+                                        key={1}
+                                        onClick={() =>
+                                            setSearchQuery({
+                                                ...searchQuery,
+                                                is_invoices: false,
+                                            })
+                                        }
+                                    >
+                                        No
+                                    </Dropdown.Item>
+
+                                </Dropdown.Menu>
+
+                            </Dropdown>
+                        </Col>
+                    </Row>
+                }
+
                 {!invoice && role !== 'client' &&
                     <Row>
                         <Col md={12} className='mt-3'>

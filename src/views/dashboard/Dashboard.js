@@ -131,6 +131,14 @@ const Dashboard = () => {
 			filterObj['transferJob'] = false;
 		}
 
+		if (key === 'is_invoices') {
+			dispatch({
+				type: 'updateSearchQuery',
+				payload: { is_invoices: "" },
+			});
+			filterObj['is_invoices'] = "";
+		}
+
 		handleRefresh(filterObj, true);
 	}
 
@@ -224,7 +232,9 @@ const Dashboard = () => {
 				jobId: "",
 				clientName: "",
 				driverName: "",
-				transferJob: false
+				transferJob: false,
+				companyName: "",
+				is_invoices: ""
 			},
 		});
 
@@ -258,7 +268,8 @@ const Dashboard = () => {
 			serviceTypeId: '',
 			serviceCodeId: '',
 			transferJob: false,
-			companyName: ''
+			companyName: '',
+			is_invoices: ''
 		});
 
 		// if (key === 'allJobs') {
@@ -368,6 +379,7 @@ const Dashboard = () => {
 			obj.blurJob = data?.blurJob;
 			obj['Transfer To'] = data?.transferAdminId ? data?.transferAdminId?.firstname + " " + data?.transferAdminId?.lastname : '-';
 			obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : "";
+			obj.manualPrice = data?.manualPrice;
 
 			finalArr.push(obj);
 		}
@@ -446,7 +458,8 @@ const Dashboard = () => {
 			serviceTypeId: '',
 			serviceCodeId: '',
 			transferJob: false,
-			companyName: ''
+			companyName: '',
+			is_invoices: ''
 		});
 
 		// setActiveTab(activeTab);
@@ -501,6 +514,8 @@ const Dashboard = () => {
 			if (filter.serviceTypeId) queryParams.push(`serviceTypeId=${filter.serviceTypeId}`)
 			if (filter.serviceCodeId) queryParams.push(`serviceCodeId=${filter.serviceCodeId}`)
 			if (filter.transferJob) queryParams.push(`transferJob=${filter.transferJob}`)
+			if (filter.companyName) queryParams.push(`companyName=${filter.companyName}`)
+			if (filter.is_invoices) queryParams.push(`is_invoices=${filter.is_invoices}`)
 
 			const query = queryParams.join('&');
 
@@ -701,7 +716,7 @@ const Dashboard = () => {
 										};
 
 										return (
-											<tr key={index} className="cursor-pointer">
+											<tr key={index} className={`${item?.manualPrice && 'highlighted-row'} cursor-pointer`}>
 												{selectedColumns.map((col) => (
 													<>
 
@@ -947,7 +962,7 @@ const Dashboard = () => {
 											};
 
 											return (
-												<tr key={index} className="cursor-pointer">
+												<tr key={index} className={`${item?.manualPrice && 'highlighted-row'} cursor-pointer`}>
 													{selectedColumns.map((col) => (
 														<>
 

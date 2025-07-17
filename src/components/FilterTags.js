@@ -22,8 +22,12 @@ const FilterTags = ({ searchQuery, onRemoveFilter }) => {
     if (searchQuery.transferJob) {
         tags.push({ key: 'transferJob', label: `Transfer Jobs` });
     }
+    if (searchQuery.is_invoices) {
+        tags.push({ key: 'is_invoices', label: `Invoice: ${searchQuery.is_invoices ? 'Yes' : 'No'}` });
+    }
 
     return (
+        tags?.length > 0 &&
         <div className="d-flex flex-wrap gap-2 filter-container">
             {tags.map((tag) => (
                 <Badge

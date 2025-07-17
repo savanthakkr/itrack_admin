@@ -542,6 +542,28 @@ function AddJobs() {
             })
     }
 
+    useEffect(() => {
+        if (dropDownData?.selectedClient?._id) {
+            let selectedClient = clients.find((client) => client?._id === dropDownData?.selectedClient?._id);
+
+            let serviceCodeData = [];
+
+            selectedClient?.rateDetails?.forEach((rateDetail) => {
+                serviceCodeData.push(rateDetail?.serviceCodeId);
+            });
+
+            setServiceCode(serviceCodeData);
+
+            setDropDownData({
+                ...dropDownData,
+                serviceCode: {
+                    text: "",
+                    _id: "",
+                },
+            });
+        }
+    }, [dropDownData?.selectedClient]);
+
     // fetch service types and service code on component mount
     useEffect(() => {
         setLoading(true)
@@ -560,14 +582,14 @@ function AddJobs() {
             })
 
         // get service code
-        get('/admin/service/code', 'admin')
-            .then((response) => {
-                setServiceCode(response.data.data)
-                setLoading2(false)
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+        // get('/admin/service/code', 'admin')
+        //     .then((response) => {
+        //         setServiceCode(response.data.data)
+        //         setLoading2(false)
+        //     })
+        //     .catch((error) => {
+        //         console.error(error)
+        //     })
 
         // get pickup locations
         fetchPickupLocations()
