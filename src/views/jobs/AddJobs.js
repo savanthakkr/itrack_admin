@@ -11,7 +11,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { CButton } from '@coreui/react'
 import { useSelector } from 'react-redux'
 import AddPickupLocation from '../PickUPLocation/AddPickupLocation'
-import { set } from 'lodash'
+import { drop, set } from 'lodash'
 import AddDropLocation from '../DropLocation/AddDropLocation'
 
 function AddJobs() {
@@ -77,6 +77,8 @@ function AddJobs() {
         }
     });
 
+    const [weightOptions, setWeightOptions] = useState([]);
+
     const [addPickupLocationModal, setAddPickupLocationModal] = useState(false);
     const [addDropLocationModal, setAddDropLocationModal] = useState(false);
 
@@ -99,89 +101,6 @@ function AddJobs() {
             },
         });
     };
-
-    const weightOptions = [
-        {
-            value: '0-50',
-            label: '0-50',
-            rate: 32.80
-        },
-        {
-            value: '51-499',
-            label: '51-499',
-            rate: 37.42
-        },
-        {
-            value: '500-999',
-            label: '500-999',
-            rate: 46.53
-        },
-        {
-            value: '1000-1999',
-            label: '1000-1999',
-            rate: 56.01
-        },
-        {
-            value: '2000-2999',
-            label: '2000-2999',
-            rate: 65.11
-        },
-        {
-            value: '3000-3999',
-            label: '3000-3999',
-            rate: 76.72
-        },
-        {
-            value: '4000-4999',
-            label: '4000-4999',
-            rate: 88.44
-        },
-        {
-            value: '5000-5999',
-            label: '5000-5999',
-            rate: 99.66
-        },
-        {
-            value: '6000-6999',
-            label: '6000-6999',
-            rate: 111.63
-        },
-        {
-            value: '7000-7999',
-            label: '7000-7999',
-            rate: 123.23
-        },
-        {
-            value: '8000-8999',
-            label: '8000-8999',
-            rate: 139.44
-        },
-        {
-            value: '9000-9999',
-            label: '9000-9999',
-            rate: 187.09
-        },
-        {
-            value: '10,000-10,999',
-            label: '10,000-10,999',
-            rate: 212.05
-        },
-        {
-            value: '11,000-11,999',
-            label: '11,000-11,999',
-            rate: 237.00
-        },
-        {
-            value: '12,000-12,999',
-            label: '12,000-12,999',
-            rate: 261.94
-        },
-        {
-            value: '13,000-13,999',
-            label: '13,000-13,999',
-            rate: 286.88
-        }
-    ]
 
     const pickupOptions = pickupLocations
         ?.sort((a, b) => a.customName.localeCompare(b.customName))
@@ -242,14 +161,33 @@ function AddJobs() {
         }));
 
     const handleServiceCodeChange = (selectedOption) => {
-        setDropDownData({
-            ...dropDownData,
+        const isLoose =
+            dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === "loose" ||
+            selectedOption?.label?.toLowerCase()?.trim() === "loose";
+
+        // Reset fields if "loose" is selected
+        if (isLoose) {
+            formData.weight = "";
+            formData.rateRange = "";
+        }
+
+        setDropDownData((prev) => ({
+            ...prev,
             serviceCode: {
                 text: selectedOption.label,
                 _id: selectedOption.value,
             },
-        });
+            ...(isLoose && {
+                weight: {
+                    label: "",
+                    value: "",
+                    rate: "",
+                },
+            }),
+        }));
     };
+
+    console.log('dropDownData?.weight', dropDownData?.weight)
 
     const handleWeightChange = (selectedOption) => {
         setDropDownData({
@@ -263,6 +201,11 @@ function AddJobs() {
         formData.weight = selectedOption.value;
         formData.rateRange = selectedOption.rate;
     };
+
+    // useEffect(() => {
+    //     formData.weight = dropDownData?.weight?.value;
+    //     formData.rateRange = dropDownData?.weight?.rate;
+    // }, [dropDownData?.weight])
     // handle change
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -405,11 +348,11 @@ function AddJobs() {
         payload.append('adminNote', formData.adminNote)
         payload.append('manualPrice', formData.manualPrice)
 
-        if (formData.manualPrice && role === 'Accountant') {
+        if (formData?.manualPrice && role === 'Accountant') {
             payload.append('rate', formData.rate)
         }
 
-        if (formData.rateRange) {
+        if (dropDownData?.serviceCode?.text?.toLowerCase()?.trim() === 'loose' && formData?.rateRange) {
             payload.append('rateRange', formData.rateRange)
         }
 
@@ -548,11 +491,23 @@ function AddJobs() {
 
             let serviceCodeData = [];
 
+            let specialCodeRateDetails = [];
+
             selectedClient?.rateDetails?.forEach((rateDetail) => {
                 serviceCodeData.push(rateDetail?.serviceCodeId);
             });
 
+            selectedClient?.specialCodeRateDetails?.forEach((item) => {
+                specialCodeRateDetails.push({
+                    value: item?.weight,
+                    label: item?.weight,
+                    rate: item?.rate
+                });
+            });
+
             setServiceCode(serviceCodeData);
+
+            setWeightOptions(specialCodeRateDetails);
 
             setDropDownData({
                 ...dropDownData,

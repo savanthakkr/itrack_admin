@@ -24,6 +24,9 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
 
   const [editFormData, setEditFormData] = useState({});
 
+  const [weightOptions, setWeightOptions] = useState([]);
+  const [serviceCode, setServiceCode] = useState([])
+
   useEffect(() => {
     if (Object.keys(job).length !== 0) {
       setEditFormData(
@@ -49,14 +52,33 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
           manualPrice: job?.manualPrice,
           // driverNote: job?.driverNote,
         }
-      )
+      );
+
+      let specialCodeRateDetails = [];
+
+      job?.clientId?.specialCodeRateDetails?.forEach((item) => {
+        specialCodeRateDetails.push({
+          value: item?.weight,
+          label: item?.weight,
+          rate: item?.rate
+        });
+      });
+
+      setWeightOptions(specialCodeRateDetails);
+
+      let serviceCodeData = [];
+
+      job?.clientId?.rateDetails?.forEach((rateDetail) => {
+        serviceCodeData.push(rateDetail?.serviceCodeId);
+      });
+
+      setServiceCode(serviceCodeData);
+
     }
   }, [job]);
 
-
-
   const [serviceTypes, setServiceTypes] = useState([])
-  const [serviceCode, setServiceCode] = useState([])
+
   const [dropDownData, setDropDownData] = useState({
     serviceType: {
       text: job.serviceTypeId?.text,
@@ -129,88 +151,88 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
     setEditFormData({ ...editFormData, [name]: value })
   }
 
-  const weightOptions = [
-    {
-      value: '0-50',
-      label: '0-50',
-      rate: 32.80
-    },
-    {
-      value: '51-499',
-      label: '51-499',
-      rate: 37.42
-    },
-    {
-      value: '500-999',
-      label: '500-999',
-      rate: 46.53
-    },
-    {
-      value: '1000-1999',
-      label: '1000-1999',
-      rate: 56.01
-    },
-    {
-      value: '2000-2999',
-      label: '2000-2999',
-      rate: 65.11
-    },
-    {
-      value: '3000-3999',
-      label: '3000-3999',
-      rate: 76.72
-    },
-    {
-      value: '4000-4999',
-      label: '4000-4999',
-      rate: 88.44
-    },
-    {
-      value: '5000-5999',
-      label: '5000-5999',
-      rate: 99.66
-    },
-    {
-      value: '6000-6999',
-      label: '6000-6999',
-      rate: 111.63
-    },
-    {
-      value: '7000-7999',
-      label: '7000-7999',
-      rate: 123.23
-    },
-    {
-      value: '8000-8999',
-      label: '8000-8999',
-      rate: 139.44
-    },
-    {
-      value: '9000-9999',
-      label: '9000-9999',
-      rate: 187.09
-    },
-    {
-      value: '10,000-10,999',
-      label: '10,000-10,999',
-      rate: 212.05
-    },
-    {
-      value: '11,000-11,999',
-      label: '11,000-11,999',
-      rate: 237.00
-    },
-    {
-      value: '12,000-12,999',
-      label: '12,000-12,999',
-      rate: 261.94
-    },
-    {
-      value: '13,000-13,999',
-      label: '13,000-13,999',
-      rate: 286.88
-    }
-  ];
+  // const weightOptions = [
+  //   {
+  //     value: '0-50',
+  //     label: '0-50',
+  //     rate: 32.80
+  //   },
+  //   {
+  //     value: '51-499',
+  //     label: '51-499',
+  //     rate: 37.42
+  //   },
+  //   {
+  //     value: '500-999',
+  //     label: '500-999',
+  //     rate: 46.53
+  //   },
+  //   {
+  //     value: '1000-1999',
+  //     label: '1000-1999',
+  //     rate: 56.01
+  //   },
+  //   {
+  //     value: '2000-2999',
+  //     label: '2000-2999',
+  //     rate: 65.11
+  //   },
+  //   {
+  //     value: '3000-3999',
+  //     label: '3000-3999',
+  //     rate: 76.72
+  //   },
+  //   {
+  //     value: '4000-4999',
+  //     label: '4000-4999',
+  //     rate: 88.44
+  //   },
+  //   {
+  //     value: '5000-5999',
+  //     label: '5000-5999',
+  //     rate: 99.66
+  //   },
+  //   {
+  //     value: '6000-6999',
+  //     label: '6000-6999',
+  //     rate: 111.63
+  //   },
+  //   {
+  //     value: '7000-7999',
+  //     label: '7000-7999',
+  //     rate: 123.23
+  //   },
+  //   {
+  //     value: '8000-8999',
+  //     label: '8000-8999',
+  //     rate: 139.44
+  //   },
+  //   {
+  //     value: '9000-9999',
+  //     label: '9000-9999',
+  //     rate: 187.09
+  //   },
+  //   {
+  //     value: '10,000-10,999',
+  //     label: '10,000-10,999',
+  //     rate: 212.05
+  //   },
+  //   {
+  //     value: '11,000-11,999',
+  //     label: '11,000-11,999',
+  //     rate: 237.00
+  //   },
+  //   {
+  //     value: '12,000-12,999',
+  //     label: '12,000-12,999',
+  //     rate: 261.94
+  //   },
+  //   {
+  //     value: '13,000-13,999',
+  //     label: '13,000-13,999',
+  //     rate: 286.88
+  //   }
+  // ];
 
   const handleWeightChange = (selectedOption) => {
     setDropDownData({
@@ -330,22 +352,11 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
 
   useEffect(() => {
     setLoading(true)
-    setLoading2(true)
-    // get service type
 
     get(`/admin/service/type`, 'admin')
       .then((response) => {
         setServiceTypes(response.data.data)
         setLoading(false)
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-
-    get(`/admin/service/code`, 'admin')
-      .then((response) => {
-        setServiceCode(response.data.data)
-        setLoading2(false)
       })
       .catch((error) => {
         console.error(error)
