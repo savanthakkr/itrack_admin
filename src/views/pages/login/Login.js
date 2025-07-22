@@ -20,6 +20,7 @@ import { Spinner } from "react-bootstrap"
 import Navbar from '../../../components/landing/Navbar.js'
 import Footer from '../../../components/landing/Footer.js'
 import { useDispatch } from 'react-redux'
+import { generateToken } from '../../../notification/firebase.js'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ const Login = () => {
   const [error, setError] = useState('')
   const dispatch = useDispatch()
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError('')
     setLoading(true)
     if (username === '' || password === '') {
@@ -37,8 +38,8 @@ const Login = () => {
       setLoading(false)
       return
     }
-    post('/admin/login', { username, password }).then((res) => {
-      console.log('res.data.data', res.data.data);
+    const fcmToken = await generateToken();
+    post('/admin/login', { username, password, webFcmToken: fcmToken }).then((res) => {
       if (res.status === 200) {
         localStorage.setItem('admintoken', res.data.token)
         localStorage.setItem('email', res.data.data.email)

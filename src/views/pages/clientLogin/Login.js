@@ -20,6 +20,7 @@ import Navbar from '../../../components/landing/Navbar.js'
 import Footer from '../../../components/landing/Footer.js'
 import axios from '../../../lib/axiosInstance.js'
 import { useDispatch } from 'react-redux'
+import { generateToken } from '../../../notification/firebase.js'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -33,7 +34,8 @@ const Login = () => {
   async function handleLogin({ username, password }) {
     setLoading(true)
     try {
-      const res = await axios.put('/client/login', { username, password })
+      const fcmToken = await generateToken();
+      const res = await axios.put('/client/login', { username, password, webFcmToken: fcmToken })
       const { status, message, data } = res?.data
       if (status) {
         localStorage.setItem('jdAirTrans-client-token', data.token)

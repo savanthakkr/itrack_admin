@@ -27,6 +27,8 @@ import AssignClientModal from '../../components/Modals/AssignClient'
 import { FaFileExcel } from 'react-icons/fa';
 import { saveAs } from 'file-saver';
 import XLSX from 'xlsx';
+import { generateToken, messaging } from '../../notification/firebase'
+import { onMessage } from 'firebase/messaging'
 
 const Dashboard = () => {
 	const currentDate = getCurrentDate()
@@ -215,6 +217,10 @@ const Dashboard = () => {
 	};
 
 	useEffect(() => {
+
+		onMessage(messaging, (payload) => {
+			console.log('payload', payload);
+		})
 
 		dispatch({
 			type: 'updateSearchQuery',
