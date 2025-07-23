@@ -11,12 +11,11 @@ input[type="number"] {
 }
 
 .blurred-row {
-  filter: blur(2px);
+  filter: blur(1px);
+  opacity: 0.85;
   pointer-events: none;
-  cursor: none;
-  opacity: 0.6;
+  cursor: default;
 }
-
 
 .permission-chips .selected-badge {
   background-color: #0074A8 !important;
