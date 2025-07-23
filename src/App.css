@@ -62,3 +62,28 @@ input[type="number"] {
 .highlighted-row {
   background-color: #d3e4ffe0;
 }
+
+.table-scroll-wrapper {
+  max-height: 600px;
+  /* Adjust height as needed */
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  border: 1px solid #dee2e6;
+}
+
+/* Make table headers sticky */
+.sticky-header-table thead th {
+  position: sticky;
+  top: 0;
+  /* background-color: #ffffff; */
+  z-index: 10;
+  box-shadow: inset 0 -1px 0 #dee2e6;
+}
+
+.sticky-header-table th,
+.sticky-header-table td {
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}

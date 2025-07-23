@@ -218,6 +218,13 @@ const getNavItems = (role) => {
       icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
       display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false',
     },
+    // {
+    //   component: CNavItem,
+    //   name: 'Notifications ',
+    //   to: '/notifications',
+    //   icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
+    //   display: role === 'Admin' || role === 'Accountant' ? 'true' : 'false',
+    // },
 
     // {
     //   component: CNavGroup,

@@ -23,6 +23,7 @@ const Progress = React.lazy(() => import('./views/base/progress/Progress'))
 const Spinners = React.lazy(() => import('./views/base/spinners/Spinners'))
 const Tables = React.lazy(() => import('./views/base/tables/Tables'))
 const Tooltips = React.lazy(() => import('./views/base/tooltips/Tooltips'))
+// const adminNotification = React.lazy(() => import('./views/Notification/adminNotification.js'))
 
 // Buttons
 const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
@@ -118,6 +119,7 @@ const routes = [
   { path: '/location/drop', name: 'Drop Location', element: AllDropLocation },
   { path: '/reports/stats', name: 'Report', element: Report },
   { path: '/client/vpap/add/:id', name: 'Add VPAP', element: AddVpap },
+  // { path: '/notifications', name: 'Notification', element: adminNotification },
   // { path: '/impersonate-login', name: 'Impersonate Login', element: ImpersonateLogin },
 
   //  theme routes old

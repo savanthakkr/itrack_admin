@@ -74,6 +74,13 @@ const navigation = [
     icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
     display: 'true'
   },
+  // {
+  //   component: CNavItem,
+  //   name: 'Notifications ',
+  //   to: '/notifications',
+  //   icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
+  //   display: 'true'
+  // },
 
 ]
 

@@ -620,14 +620,15 @@ const AccountantAllJobs = () => {
             }
             <Row>
                 <Col md={12}>
-                    <div className="client-rates-table">
+                    {/* <div className="client-rates-table"> */}
 
-                        {Object.values(searchQuery).some((v) => v) && (
-                            <div className="filter-container">
-                                <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
-                            </div>
-                        )}
-                        <Table className="custom-table" bordered responsive hover>
+                    {Object.values(searchQuery).some((v) => v) && (
+                        <div className="filter-container">
+                            <FilterTags searchQuery={searchQuery} onRemoveFilter={handleRemoveFilter} />
+                        </div>
+                    )}
+                    <div className="client-rates-table" style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative' }}>
+                        <Table className="custom-table sticky-header-table" bordered hover>
                             <thead style={{ fontSize: 13, fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                 <tr>
                                     <th className="text-center">
@@ -853,6 +854,7 @@ const AccountantAllJobs = () => {
                             </tbody>
                         </Table>
                     </div>
+                    {/* </div> */}
                 </Col>
             </Row>
 
