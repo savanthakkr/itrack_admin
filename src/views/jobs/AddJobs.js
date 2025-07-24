@@ -187,8 +187,6 @@ function AddJobs() {
         }));
     };
 
-    console.log('dropDownData?.weight', dropDownData?.weight)
-
     const handleWeightChange = (selectedOption) => {
         setDropDownData({
             ...dropDownData,
@@ -213,35 +211,35 @@ function AddJobs() {
 
 
         // if (name === 'readyTime') {
-        //   // Ensure value is not already in Melbourne time format before converting
-        //   const melbourneTime = moment.tz("Australia/Melbourne").format("YYYY-MM-DD HH:mm:ss");
+        //     // Ensure value is not already in Melbourne time format before converting
+        //     const melbourneTime = moment.tz("Australia/Melbourne").format("YYYY-MM-DD HH:mm:ss");
 
-        //   console.log("Melbourne Time:", melbourneTime);
-        //   console.log("normal Time:", value);
+        //     console.log("Melbourne Time:", melbourneTime);
+        //     console.log("normal Time:", value);
 
-        //   // Check if the new value is different from the current value to prevent unnecessary re-renders
-        //   if (formData[name] !== melbourneTime) {
+        //     // Check if the new value is different from the current value to prevent unnecessary re-renders
+        //     if (formData[name] !== melbourneTime) {
 
-        //     setFormData({ ...formData, [name]: melbourneTime });
-        //   }
+        //         setFormData({ ...formData, [name]: melbourneTime });
+        //     }
 
-        //   return;
+        //     return;
         // }
 
         // if (name === 'cutoffTime') {
-        //   // Ensure value is not already in Melbourne time format before converting
-        //   const melbourneTime = moment.tz("Australia/Melbourne").format("YYYY-MM-DD HH:mm:ss");
+        //     // Ensure value is not already in Melbourne time format before converting
+        //     const melbourneTime = moment.tz("Australia/Melbourne").format("YYYY-MM-DD HH:mm:ss");
 
-        //   console.log("Melbourne Time:", melbourneTime);
-        //   console.log("normal Time:", value);
+        //     console.log("Melbourne Time:", melbourneTime);
+        //     console.log("normal Time:", value);
 
-        //   // Check if the new value is different from the current value to prevent unnecessary re-renders
-        //   if (formData[name] !== melbourneTime) {
+        //     // Check if the new value is different from the current value to prevent unnecessary re-renders
+        //     if (formData[name] !== melbourneTime) {
 
-        //     setFormData({ ...formData, [name]: melbourneTime });
-        //   }
+        //         setFormData({ ...formData, [name]: melbourneTime });
+        //     }
 
-        //   return;
+        //     return;
         // }
 
         if (name === 'isVpap') {
