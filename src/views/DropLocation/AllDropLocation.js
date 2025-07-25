@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 import { RiDeleteBin5Line } from 'react-icons/ri'
 import { IoMdAdd } from 'react-icons/io'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { useColorModes } from '@coreui/react'
 import { deleteReq, get } from '../../lib/request'
 import sweetAlert from 'sweetalert2'
@@ -182,7 +182,7 @@ function AllDropLocation() {
                         <td className="text-start px-4">{item.latitude}</td>
                         <td className="text-start px-4">{item.longitude}</td>
                         <td className="text-start px-4">
-                          {item?.createdDateTime ? getFormattedDAndT(item?.createdDateTime) : ''}
+                          {item?.createdDateTime ? utcToMelbourne(item?.createdDateTime) : ''}
                         </td>
                         <td className="text-start px-4">
                           <div

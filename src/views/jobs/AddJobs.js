@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import AddPickupLocation from '../PickUPLocation/AddPickupLocation'
 import { drop, set } from 'lodash'
 import AddDropLocation from '../DropLocation/AddDropLocation'
+import dayjs from 'dayjs'
 
 function AddJobs() {
     const navigate = useNavigate();
@@ -296,6 +297,8 @@ function AddJobs() {
         // }
         return errors
     }
+
+    console.log('dayjs(formData.readyTime).format()', dayjs(formData?.readyTime).format());
     // handle form submission
     const handleSubmit = () => {
         setLoading5(true)
@@ -336,8 +339,8 @@ function AddJobs() {
         payload.append('serviceTypeId', dropDownData.serviceType._id)
         payload.append('custRefNumber', formData.custRefNumber)
         payload.append('serviceCodeId', dropDownData.serviceCode._id)
-        payload.append('readyTime', formData.readyTime)
-        payload.append('cutoffTime', formData.cutoffTime)
+        payload.append('readyTime', dayjs(formData.readyTime).format());
+        payload.append('cutoffTime', dayjs(formData.cutoffTime).format())
         payload.append('pickupLocationId', dropDownData.pickupLocation._id)
         payload.append('dropOfLocationId', dropDownData.dropLocation._id)
         payload.append('note', formData.note)

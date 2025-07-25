@@ -18,7 +18,7 @@ import DateRangeFilter from '../../components/DateRangeFilter'
 import getStatusStyles from '../../services/getStatusColor'
 import { LuChevronDown } from 'react-icons/lu'
 import sortData from '../../services/sortData'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { FaSyncAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import Swal from 'sweetalert2'
@@ -683,14 +683,14 @@ const AllJobs = () => {
                         className="text-center"
                         style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                       >
-                        {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                        {utcToMelbourne(item?.pickUpDetails?.readyTime)}
                       </td>
                       <td
                         onClick={() => handleView(item)}
                         className="text-center"
                         style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                       >
-                        {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                        {utcToMelbourne(item?.dropOfDetails?.cutOffTime)}
                       </td>
                       <td
                         onClick={() => handleView(item)}

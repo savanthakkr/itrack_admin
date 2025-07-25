@@ -13,7 +13,7 @@ import ViewJobs from '../../components/Modals/ViewJobs'
 import { get } from '../../lib/request'
 import { Spinner } from 'react-bootstrap'
 import { FaTruckMoving, FaMapMarkedAlt } from 'react-icons/fa'
-import { getCurrentDate, getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getCurrentDate, getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import AssignDriverModal from '../../components/Modals/AssignDriver'
 import DateRangeFilter from '../../components/DateRangeFilter'
 import getStatusStyles from '../../services/getStatusColor'
@@ -496,10 +496,10 @@ const Dashboard = () => {
                               {item?.clientId?.companyName}
                             </td>
                             <td onClick={() => handleView(item)} style={tdStyle}>
-                              {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                              {utcToMelbourne(item?.pickUpDetails?.readyTime)}
                             </td>
                             <td onClick={() => handleView(item)} style={tdStyle}>
-                              {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                              {utcToMelbourne(item?.dropOfDetails?.cutOffTime)}
                             </td>
                             <td onClick={() => handleView(item)} style={tdStyle}>
                               {item?.AWB}
@@ -679,14 +679,14 @@ const Dashboard = () => {
                               className="text-center"
                               style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                             >
-                              {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                              {utcToMelbourne(item?.pickUpDetails?.readyTime)}
                             </td>
                             <td
                               onClick={() => handleView(item)}
                               className="text-center"
                               style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                             >
-                              {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                              {utcToMelbourne(item?.dropOfDetails?.cutOffTime)}
                             </td>
                             <td
                               onClick={() => handleView(item)}

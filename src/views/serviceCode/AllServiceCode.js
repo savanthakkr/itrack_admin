@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useColorModes } from '@coreui/react'
 import { deleteReq, get, postWihoutMediaData, updateReq } from '../../lib/request'
 import sweetAlert from 'sweetalert2'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import { CButton } from '@coreui/react'
 
@@ -193,7 +193,7 @@ function AllServiceCode() {
                         <td className="text-start px-4">{index + 1}</td>
                         <td className="text-start px-4">{item.text}</td>
                         <td className="text-start px-4">
-                          {item?.createdDateTime ? getFormattedDAndT(item.createdDateTime) : ''}
+                          {item?.createdDateTime ? utcToMelbourne(item.createdDateTime) : ''}
                         </td>
                         <td className="text-start px-4">
                           <div

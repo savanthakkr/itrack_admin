@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import SearchBar from '../../components/SearchBar'
 import EditJobAdmin from '../../components/Modals/EditJobAdmin'
 import { get } from '../../lib/request'
-import { getCurrentDate, getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getCurrentDate, getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import DateRangeFilter from '../../components/DateRangeFilter'
 import AssignDriverModal from '../../components/Modals/AssignDriver'
 import ChangeDriverModal from '../../components/Modals/ChangeDriver'
@@ -369,9 +369,11 @@ const Dashboard = () => {
 			obj._id = data?._id;
 			obj.Client = data?.clientId?.companyName;
 			// obj['Ready Time'] = data?.pickUpDetails?.readyTime;
-			obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+			// obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+			obj['Ready Time'] = data?.pickUpDetails?.readyTime ? utcToMelbourne(data?.pickUpDetails?.readyTime) : "-";
 			// obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
-			obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+			// obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+			obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? utcToMelbourne(data?.dropOfDetails?.cutOffTime) : "-";
 			obj.AWB = data?.AWB;
 			obj.Pieces = data?.pieces;
 			obj['Service Type'] = data?.serviceTypeId?.text;

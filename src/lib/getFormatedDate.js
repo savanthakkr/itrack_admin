@@ -1,4 +1,10 @@
 import moment from 'moment-timezone';
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const getDate = (originalDateString) => {
     if (!originalDateString) {
@@ -39,6 +45,12 @@ export const getFormattedDAndT = (date) => {
     const formattedDate = `${day}/${month}/${year}, ${hours12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 
     return formattedDate;
+}
+
+export const utcToMelbourne = (utcDateTime) => {
+    return dayjs.utc(utcDateTime)
+        .tz('Australia/Melbourne')
+        .format('DD/MM/YYYY, hh:mm a');
 }
 
 export const getLocalDateAndTime = (date) => {

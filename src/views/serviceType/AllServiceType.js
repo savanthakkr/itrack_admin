@@ -6,7 +6,7 @@ import { IoMdAdd } from 'react-icons/io'
 import { useColorModes } from '@coreui/react'
 import { get, postWihoutMediaData, updateReq, deleteReq } from '../../lib/request'
 import sweetAlert from 'sweetalert2';
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { CButton } from '@coreui/react'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 
@@ -190,7 +190,7 @@ function AllServiceType() {
                       <td className="text-start px-4">{index + 1}</td>
                       <td className="text-start px-4">{item?.text}</td>
                       <td className="text-start px-4">
-                        {item?.createdDateTime ? getFormattedDAndT(item.createdDateTime) : ''}
+                        {item?.createdDateTime ? utcToMelbourne(item.createdDateTime) : ''}
                       </td>
                       <td className="text-center px-4">
                         <div

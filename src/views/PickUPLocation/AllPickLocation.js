@@ -16,7 +16,7 @@ import { useColorModes } from '@coreui/react'
 import { deleteReq, get } from '../../lib/request'
 import sweetAlert from 'sweetalert2'
 import AddPickupLocation from './AddPickupLocation'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import UpdatePickupLocation from './UpdatePickupLocation'
 import { CButton } from '@coreui/react'
 import { BsThreeDotsVertical } from 'react-icons/bs'
@@ -189,7 +189,7 @@ function AllPickupLocation() {
                       <td className="text-start px-4">{item.latitude}</td>
                       <td className="text-start px-4">{item.longitude}</td>
                       <td className="text-start px-4">
-                        {item?.createdDateTime ? getFormattedDAndT(item?.createdDateTime) : ''}
+                        {item?.createdDateTime ? utcToMelbourne(item?.createdDateTime) : ''}
                       </td>
                       <td className="text-start px-4">
                         <div

@@ -6,7 +6,7 @@ import FilterOffCanvas from './Filter';
 import { get } from '../lib/request';
 import { debounce } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { getFormattedDAndT } from '../lib/getFormatedDate';
+import { getFormattedDAndT, utcToMelbourne } from '../lib/getFormatedDate';
 
 const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,9 +99,9 @@ const SearchBar = ({ onSearch, role, searchQuery, setSearchQuery }) => {
       obj._id = data?._id;
       obj.Client = data?.clientId?.companyName;
       // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
-      obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+      obj['Ready Time'] = data?.pickUpDetails?.readyTime ? utcToMelbourne(data?.pickUpDetails?.readyTime) : "-";
       // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
-      obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+      obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? utcToMelbourne(data?.dropOfDetails?.cutOffTime) : "-";
       obj.AWB = data?.AWB;
       obj.Pieces = data?.pieces;
       obj['Service Type'] = data?.serviceTypeId?.text;

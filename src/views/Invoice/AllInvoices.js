@@ -28,7 +28,7 @@ import Moment from 'react-moment'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import sortData from '../../services/sortData'
 import getStatusStyles from '../../services/getStatusColor'
-import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat, utcToMelbourne } from '../../lib/getFormatedDate'
 import FilterOffCanvas from '../../components/Filter'
 import { getSeachFilterResultInvoice } from '../../services/getSearchFilterResult'
 import FilterTags from '../../components/FilterTags'
@@ -434,10 +434,10 @@ function AllInvoices() {
                                                     {item?.clientId?.companyName || "-"}
                                                 </td>
                                                 <td onClick={() => handleView(item)} style={tdStyle}>
-                                                    {getFormattedDAndT(item?.pickUpDetails?.readyTime) || "-"}
+                                                    {utcToMelbourne(item?.pickUpDetails?.readyTime) || "-"}
                                                 </td>
                                                 <td onClick={() => handleView(item)} style={tdStyle}>
-                                                    {getFormattedDAndT(item?.dropOfDetails?.cutOffTime) || "-"}
+                                                    {utcToMelbourne(item?.dropOfDetails?.cutOffTime) || "-"}
                                                 </td>
                                                 <td onClick={() => handleView(item)} style={tdStyle}>
                                                     {item?.AWB || "-"}

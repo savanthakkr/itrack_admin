@@ -5,11 +5,21 @@ import sweetAlert from 'sweetalert2'
 import { FaRegEdit } from 'react-icons/fa'
 import Select from 'react-select';
 import { drop } from 'lodash'
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 function formatDateForInput(date) {
   if (!date) return ''
+
+  let melbourneDate = dayjs.utc(date).tz('Australia/Melbourne').format('YYYY-MM-DDTHH:mm:ss');;
+
+  console.log('melbourneDate', melbourneDate);
   // Split the date and time part
-  const [datePart, timePart] = date.split('T')
+  const [datePart, timePart] = melbourneDate.split('T')
   // Remove milliseconds and the 'Z' from the time part
   const formattedTime = timePart.slice(0, 5)
   return `${datePart}T${formattedTime}`
@@ -261,8 +271,8 @@ export default function EditJobAdmin({ job, setIsRefresh, isReferesh, fetchJobDe
       serviceTypeId: dropDownData.serviceType._id,
       custRefNumber: editFormData.custRefNumber,
       serviceCodeId: dropDownData.serviceCode._id,
-      readyTime: editFormData.readyTime + ':00.000Z',
-      cutOffTime: editFormData.cutOffTime + ':00.000Z',
+      readyTime: dayjs(editFormData.readyTime).format(),
+      cutOffTime: dayjs(editFormData.cutOffTime).format(),
       note: editFormData.note,
       adminNote: editFormData.adminNote,
       pickupLocationId: editFormData.pickupLocationId,

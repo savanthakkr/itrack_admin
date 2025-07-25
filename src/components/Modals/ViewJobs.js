@@ -1,5 +1,5 @@
 import { Modal, Row, Col, } from 'react-bootstrap';
-import { getFormattedDAndT } from '../../lib/getFormatedDate';
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate';
 export default function ViewJobs({ show, handleClose, job }) {
     return (
         <>
@@ -57,7 +57,7 @@ export default function ViewJobs({ show, handleClose, job }) {
                         <Col md={4}>
                             <p>
                                 {
-                                    getFormattedDAndT(job?.pickUpDetails?.readyTime)
+                                    utcToMelbourne(job?.pickUpDetails?.readyTime)
                                 }
                             </p>
                         </Col>
@@ -66,7 +66,7 @@ export default function ViewJobs({ show, handleClose, job }) {
                         </Col>
                         <Col md={4}>
                             <p>
-                                {getFormattedDAndT(job?.dropOfDetails?.cutOffTime)}
+                                {utcToMelbourne(job?.dropOfDetails?.cutOffTime)}
 
                             </p>
                         </Col>

@@ -20,7 +20,7 @@ import { LuChevronDown } from 'react-icons/lu'
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
@@ -79,9 +79,10 @@ const AllJobs = () => {
             obj.Client = data?.clientId?.companyName;
             obj._id = data?._id;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
-            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+            // obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "-";
+            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? utcToMelbourne(data?.pickUpDetails?.readyTime) : "-";
             // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
-            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "-";
+            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? utcToMelbourne(data?.dropOfDetails?.cutOffTime) : "-";
             obj.AWB = data?.AWB;
             obj.Pieces = data?.pieces;
             obj['Service Type'] = data?.serviceTypeId?.text;
@@ -1132,14 +1133,14 @@ const AllJobs = () => {
                                                                     className="text-center"
                                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                                 >
-                                                                    {getFormattedDAndT(item?.pickUpDetails?.readyTime)}
+                                                                    {utcToMelbourne(item?.pickUpDetails?.readyTime)}
                                                                 </td>
                                                                 <td
                                                                     // onClick={() => handleView(item)}
                                                                     className="text-center"
                                                                     style={{ backgroundColor: isSelected ? '#E0E0E0' : 'transparent' }}
                                                                 >
-                                                                    {getFormattedDAndT(item?.dropOfDetails?.cutOffTime)}
+                                                                    {utcToMelbourne(item?.dropOfDetails?.cutOffTime)}
                                                                 </td>
                                                                 <td
                                                                     // onClick={() => handleView(item)}
@@ -1273,6 +1274,7 @@ const AllJobs = () => {
                     jobId={selectedJob._id}
                     setIsRefresh={setIsRefresh}
                     isReferesh={isReferesh}
+                    fetchData={fetchData}
                 />
             ) : (
                 ''
@@ -1284,7 +1286,6 @@ const AllJobs = () => {
                     jobId={selectedJob._id}
                     setIsRefresh={setIsRefresh}
                     isReferesh={isReferesh}
-                    fetchData={fetchData}
                 />
             ) : (
                 ''

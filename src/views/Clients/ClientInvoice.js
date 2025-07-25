@@ -5,7 +5,7 @@ import makeAnimated from 'react-select/animated';
 import { get } from '../../lib/request.js'
 import { useNavigate, useParams } from 'react-router-dom'
 import moment from 'moment-timezone';
-import { getFormattedDAndT } from '../../lib/getFormatedDate.js';
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate.js';
 import { saveAs } from 'file-saver';
 import XLSX from 'xlsx';
 
@@ -134,11 +134,11 @@ function ClientInvoice() {
       'Client': clientData?.clientId?.companyName || '-',
       'AWB': clientData?.AWB || '-',
       'Customer Job Number': clientData?.custRefNumber || '-',
-      'Ready Time and Date': getFormattedDAndT(clientData?.pickUpDetails?.readyTime) || '-',
+      'Ready Time and Date': utcToMelbourne(clientData?.pickUpDetails?.readyTime) || '-',
       'Pickup Location': clientData?.pickUpDetails?.pickupLocationId?.customName || '-',
       'Drop Off Location': clientData?.dropOfDetails?.dropOfLocationId?.customName || '-',
-      'Arrival Time': getFormattedDAndT(clientData?.dropOfDetails?.arrivalTime) || '-',
-      'Delivered Time': getFormattedDAndT(clientData?.dropOfDetails?.deliveredTime) || '-',
+      'Arrival Time': utcToMelbourne(clientData?.dropOfDetails?.arrivalTime) || '-',
+      'Delivered Time': utcToMelbourne(clientData?.dropOfDetails?.deliveredTime) || '-',
       'Service Code': clientData?.serviceCodeId?.text || '-',
       'Service Type': clientData?.serviceTypeId?.text || '-',
       'Pieces': clientData?.pieces || '-',
@@ -282,7 +282,7 @@ function ClientInvoice() {
                   // placeholder="30/04/2025 12:00 AM"
                   name="readyTime"
                   maxLength={30}
-                  value={getFormattedDAndT(clientData?.pickUpDetails?.readyTime) || ""}
+                  value={utcToMelbourne(clientData?.pickUpDetails?.readyTime) || ""}
                 />
               </Form.Group>
             </Col>
@@ -335,7 +335,7 @@ function ClientInvoice() {
                   // placeholder="30/04/2025 12:00 AM"
                   name="arrivalTime"
                   maxLength={30}
-                  value={getFormattedDAndT(clientData?.dropOfDetails?.arrivalTime) || ""}
+                  value={utcToMelbourne(clientData?.dropOfDetails?.arrivalTime) || ""}
                 />
               </Form.Group>
             </Col>
@@ -347,7 +347,7 @@ function ClientInvoice() {
                   // placeholder="30/04/2025 12:00 AM"
                   name="deliveredTime"
                   maxLength={30}
-                  value={getFormattedDAndT(clientData?.dropOfDetails?.deliveredTime) || ""}
+                  value={utcToMelbourne(clientData?.dropOfDetails?.deliveredTime) || ""}
                 />
               </Form.Group>
             </Col>
@@ -632,7 +632,7 @@ function ClientInvoice() {
                     driverName: clientData?.driverId?.firstname + ' ' + clientData?.driverId?.lastname,
                     companyName: clientData?.clientId?.companyName,
                     // date: getFormattedDAndT(job?.pickUpDetails?.readyTime),
-                    date: getFormattedDAndT(clientData?.pickUpDetails?.pickedUpTime),
+                    date: utcToMelbourne(clientData?.pickUpDetails?.pickedUpTime),
                   }}
                   VPAPData={clientData?.VpapId}
                 />

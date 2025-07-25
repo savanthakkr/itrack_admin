@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import sweetAlert from 'sweetalert2'
 import { get, updateReq } from '../../lib/request'
 import Moment from 'react-moment'
-import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat, utcToMelbourne } from '../../lib/getFormatedDate'
 import ViewDriverUploads from '../Clients/viewDriverUploads'
 import VPAPdfGenerate from '../../components/operations/VPAPdfGenerate'
 import ChangeAttchment from '../Clients/changeAttchment'
@@ -217,18 +217,19 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           readOnly
-                          value={
-                            data?.createdDateTime
-                              ? new Date(data.createdDateTime).toLocaleString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                              })
-                              : ''
-                          }
+                          // value={
+                          //   data?.createdDateTime
+                          //     ? new Date(data.createdDateTime).toLocaleString('en-GB', {
+                          //       day: '2-digit',
+                          //       month: '2-digit',
+                          //       year: 'numeric',
+                          //       hour: '2-digit',
+                          //       minute: '2-digit',
+                          //       hour12: true
+                          //     })
+                          //     : ''
+                          // }
+                          value={utcToMelbourne(data?.createdDateTime)}
                         />
                       </Form.Group>
                     </Col>
@@ -268,7 +269,7 @@ const JobDetails = () => {
                           type="text"
                           value={
                             data?.pickUpDetails?.readyTime
-                              ? getFormattedDAndT(data?.pickUpDetails?.readyTime)
+                              ? utcToMelbourne(data?.pickUpDetails?.readyTime)
                               : ''
                           }
                           disabled
@@ -291,7 +292,7 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           value={data?.pickUpDetails?.arrivalTime
-                            ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime)
+                            ? utcToMelbourne(data?.pickUpDetails?.arrivalTime)
                             : ''}
                           disabled
                         />
@@ -304,7 +305,7 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           value={data?.pickUpDetails?.pickedUpTime
-                            ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime)
+                            ? utcToMelbourne(data?.pickUpDetails?.pickedUpTime)
                             : ''}
                           disabled
                         />
@@ -331,7 +332,7 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           value={data?.dropOfDetails?.cutOffTime
-                            ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime)
+                            ? utcToMelbourne(data?.dropOfDetails?.cutOffTime)
                             : ''}
                           disabled
                         />
@@ -353,7 +354,7 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           value={data?.dropOfDetails?.arrivalTime
-                            ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime)
+                            ? utcToMelbourne(data?.dropOfDetails?.arrivalTime)
                             : ''}
                           disabled
                         />
@@ -365,7 +366,7 @@ const JobDetails = () => {
                         <Form.Control
                           type="text"
                           value={data?.dropOfDetails?.deliveredTime
-                            ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime)
+                            ? utcToMelbourne(data?.dropOfDetails?.deliveredTime)
                             : ''}
                           disabled
                         />
@@ -721,7 +722,7 @@ const JobDetails = () => {
                           AWB: data?.AWB,
                           driverName: data?.driverId?.firstname + ' ' + data?.driverId?.lastname,
                           companyName: data?.clientId?.companyName,
-                          date: getFormattedDAndT(data?.pickUpDetails?.readyTime),
+                          date: utcToMelbourne(data?.pickUpDetails?.readyTime),
                         }}
                         VPAPData={data?.VpapId}
                       />

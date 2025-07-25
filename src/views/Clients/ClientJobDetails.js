@@ -5,7 +5,7 @@ import { FaCheckCircle } from 'react-icons/fa'
 import { get, postWihoutMediaData, updateReq } from '../../lib/request'
 import { useNavigate, useParams } from 'react-router-dom'
 import sweetAlert from 'sweetalert2'
-import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, getLocalDateAndTime, convertToMelbourneFormat, utcToMelbourne } from '../../lib/getFormatedDate'
 import VPAPdfGenerate from '../../components/operations/VPAPdfGenerate'
 import ChangeAttchment from './changeAttchment'
 import getLocationByCordinates from '../../services/getLocationByCordinates'
@@ -379,7 +379,7 @@ export default function ClientJobDetails() {
                         <Form.Control
                           type="text"
                           readOnly
-                          value={getFormattedDAndT(job?.createdDateTime) || ""}
+                          value={utcToMelbourne(job?.createdDateTime) || ""}
                         />
                       </Form.Group>
                     </Col>
@@ -590,7 +590,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.pickUpDetails?.readyTime
-                              ? getFormattedDAndT(job?.pickUpDetails?.readyTime)
+                              ? utcToMelbourne(job?.pickUpDetails?.readyTime)
                               : ""
                           }
                           disabled
@@ -616,7 +616,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.pickUpDetails?.arrivalTime
-                              ? getFormattedDAndT(job?.pickUpDetails?.arrivalTime)
+                              ? utcToMelbourne(job?.pickUpDetails?.arrivalTime)
                               : ""
                           }
                           disabled
@@ -631,7 +631,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.pickUpDetails?.pickedUpTime
-                              ? getFormattedDAndT(job?.pickUpDetails?.pickedUpTime)
+                              ? utcToMelbourne(job?.pickUpDetails?.pickedUpTime)
                               : ""
                           }
                           disabled
@@ -666,7 +666,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.dropOfDetails?.cutOffTime
-                              ? getFormattedDAndT(job?.dropOfDetails?.cutOffTime)
+                              ? utcToMelbourne(job?.dropOfDetails?.cutOffTime)
                               : ""
                           }
                           disabled
@@ -692,7 +692,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.dropOfDetails?.arrivalTime
-                              ? getFormattedDAndT(job?.dropOfDetails?.arrivalTime)
+                              ? utcToMelbourne(job?.dropOfDetails?.arrivalTime)
                               : ""
                           }
                           disabled
@@ -707,7 +707,7 @@ export default function ClientJobDetails() {
                           type="text"
                           value={
                             job?.dropOfDetails?.deliveredTime
-                              ? getFormattedDAndT(job?.dropOfDetails?.deliveredTime)
+                              ? utcToMelbourne(job?.dropOfDetails?.deliveredTime)
                               : ""
                           }
                           disabled
@@ -806,7 +806,7 @@ export default function ClientJobDetails() {
                         driverName: job?.driverId?.firstname + ' ' + job?.driverId?.lastname,
                         companyName: job?.clientId?.companyName,
                         // date: getFormattedDAndT(job?.pickUpDetails?.readyTime),
-                        date: getFormattedDAndT(job?.pickUpDetails?.pickedUpTime),
+                        date: utcToMelbourne(job?.pickUpDetails?.pickedUpTime),
                       }}
                       VPAPData={job?.VpapId}
                     />

@@ -1,23 +1,23 @@
 import { Button } from 'react-bootstrap'
 import * as XLSX from 'xlsx'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 
 export default function JsonToExcelBtn({ jsonData, fileName }) {
   const extractFields = (item) => {
     if (item.pickUpDetails.readyTime) {
-      item.pickUpDetails.readyTime = getFormattedDAndT(item.pickUpDetails.readyTime)
+      item.pickUpDetails.readyTime = utcToMelbourne(item.pickUpDetails.readyTime)
     }
     if (item.pickUpDetails.pickedUpTime) {
-      item.pickUpDetails.pickedUpTime = getFormattedDAndT(item.pickUpDetails.pickedUpTime)
+      item.pickUpDetails.pickedUpTime = utcToMelbourne(item.pickUpDetails.pickedUpTime)
     }
     if (item.pickUpDetails.arrivalTime) {
-      item.pickUpDetails.arrivalTime = getFormattedDAndT(item.pickUpDetails.arrivalTime)
+      item.pickUpDetails.arrivalTime = utcToMelbourne(item.pickUpDetails.arrivalTime)
     }
     if (item.dropOfDetails.arrivalTime) {
-      item.dropOfDetails.arrivalTime = getFormattedDAndT(item.dropOfDetails.arrivalTime)
+      item.dropOfDetails.arrivalTime = utcToMelbourne(item.dropOfDetails.arrivalTime)
     }
     if (item.dropOfDetails.deliveredTime) {
-      item.dropOfDetails.deliveredTime = getFormattedDAndT(item.dropOfDetails.deliveredTime)
+      item.dropOfDetails.deliveredTime = utcToMelbourne(item.dropOfDetails.deliveredTime)
     }
 
     return {

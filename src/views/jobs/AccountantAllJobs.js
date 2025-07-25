@@ -20,7 +20,7 @@ import { LuChevronDown } from 'react-icons/lu'
 import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
-import { getFormattedDAndT } from '../../lib/getFormatedDate'
+import { getFormattedDAndT, utcToMelbourne } from '../../lib/getFormatedDate'
 import { FaSyncAlt, FaRegCommentAlt } from 'react-icons/fa'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import FilterTags from '../../components/FilterTags'
@@ -82,9 +82,11 @@ const AccountantAllJobs = () => {
             obj._id = data?._id;
             obj.Client = data?.clientId?.companyName;
             // obj['Ready Time'] = data?.pickUpDetails?.readyTime;
-            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "";
+            // obj['Ready Time'] = data?.pickUpDetails?.readyTime ? getFormattedDAndT(data?.pickUpDetails?.readyTime) : "";
+            obj['Ready Time'] = data?.pickUpDetails?.readyTime ? utcToMelbourne(data?.pickUpDetails?.readyTime) : "-";
             // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime;
-            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "";
+            // obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? getFormattedDAndT(data?.dropOfDetails?.cutOffTime) : "";
+            obj['Cutoff Time'] = data?.dropOfDetails?.cutOffTime ? utcToMelbourne(data?.dropOfDetails?.cutOffTime) : "-";
             obj.AWB = data?.AWB;
             obj.Pieces = data?.pieces;
             obj['Service Type'] = data?.serviceTypeId?.text;
@@ -98,10 +100,14 @@ const AccountantAllJobs = () => {
             obj.isTransferAccept = data?.isTransferAccept;
             obj['Transfer To'] = data?.transferClientId ? data?.transferClientId?.companyName : '';
             obj['Transfer Status'] = data?.isTransferAccept ? 'Accepted' : data?.isTransfer ? 'Pending' : '';
-            obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime) : "";
-            obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "";
-            obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
-            obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
+            // obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? getFormattedDAndT(data?.pickUpDetails?.arrivalTime) : "";
+            obj['Arrived At Pickup'] = data?.pickUpDetails?.arrivalTime ? utcToMelbourne(data?.pickUpDetails?.arrivalTime) : "";
+            // obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? getFormattedDAndT(data?.pickUpDetails?.pickedUpTime) : "";
+            obj['Picked Up Time'] = data?.pickUpDetails?.pickedUpTime ? utcToMelbourne(data?.pickUpDetails?.pickedUpTime) : "";
+            // obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? getFormattedDAndT(data?.dropOfDetails?.arrivalTime) : "";
+            obj['Arrival At Delivery'] = data?.dropOfDetails?.arrivalTime ? utcToMelbourne(data?.dropOfDetails?.arrivalTime) : "";
+            // obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? getFormattedDAndT(data?.dropOfDetails?.deliveredTime) : "";
+            obj['Delivered Time'] = data?.dropOfDetails?.deliveredTime ? utcToMelbourne(data?.dropOfDetails?.deliveredTime) : "";
             obj['Admin Notes'] = data?.adminNote || "-";
             obj['Job Rate'] = data?.rates || "";
             obj['Fuel Surcharge'] = data?.fuel_charge || "";

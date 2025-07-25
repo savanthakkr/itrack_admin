@@ -55,18 +55,18 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
     useEffect(() => {
         if (role === "admin") {
             get(`/admin/service/code`, "admin").then((res) => {
-                if (res.data.status) {
-                    setServiceCodes(res.data.data);
+                if (res?.data?.status) {
+                    setServiceCodes(res?.data?.data);
                 }
             });
             get(`/admin/service/type`, "admin").then((res) => {
-                if (res.data.status) {
-                    setServiceTypes(res.data.data);
+                if (res?.data?.status) {
+                    setServiceTypes(res?.data?.data);
                 }
             });
             get(`/admin/info/allClients`, "admin").then((res) => {
-                if (res.data.status) {
-                    setAllClients(res.data.data);
+                if (res?.data?.status) {
+                    setAllClients(res?.data?.data);
                 }
             });
         }
@@ -76,8 +76,8 @@ const FilterOffCanvas = ({ show, handleClose, onApplyFilter, role, searchQuery, 
             url = `/client/driverList`;
         }
         get(url, role).then((res) => {
-            if (res.data.status) {
-                setAllDrivers(res.data.data);
+            if (res?.data?.status) {
+                setAllDrivers(res?.data?.data);
             }
         });
     }, []);
